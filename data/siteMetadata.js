@@ -5,7 +5,7 @@ const siteMetadata = {
   description: 'My ramblings on programming',
   language: 'en-us',
   theme: 'system', // system, dark or light
-  // siteUrl: 'https://tailwind-nextjs-starter-blog.vercel.app',
+  siteUrl: 'https://johns.codes',
   siteRepo: 'https://github.com/JRMurr/JRMurr.github.io',
   siteLogo: '/static/images/logo.png',
   image: '/static/images/avatar.png',
