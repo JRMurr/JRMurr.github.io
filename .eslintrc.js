@@ -9,6 +9,7 @@ module.exports = {
   },
   plugins: ['@typescript-eslint'],
   extends: [
+    'plugin:mdx/recommended',
     'eslint:recommended',
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
@@ -17,6 +18,12 @@ module.exports = {
     'next',
     'next/core-web-vitals',
   ],
+  settings: {
+    'mdx/code-blocks': true,
+    // optional, if you want to disable language mapper, set it to `false`
+    // if you want to override the default language mapper inside, you can provide your own
+    'mdx/language-mapper': {},
+  },
   rules: {
     'prettier/prettier': 'error',
     'react/react-in-jsx-scope': 'off',
