@@ -9,8 +9,8 @@ layout: PostLayout
 ---
 
 At my job we have spent a lot of time converting a node backend and angular frontend to Typescript.
-Before Typescript when working our codebase I found myself having to read a lot of code, api schemas, and tests just to see what fields actually existed.
-So during the transition I tried my hardest to make the types I made as good as they could be.
+Before Typescript when working in our codebase I found myself having to read a lot of code, api schemas, and tests just to see what fields actually existed.
+So during the transition I tried my hardest to make the types I made as descriptive as they could be.
 Converting to Typescript and making big interfaces/types with many optional fields does not buy you much other than typo prevention and basic autocomplete.
 
 This post assumes you have a basic understanding of javascript/typescript.
@@ -43,7 +43,8 @@ These types on there own are not that useful but when combined with unions and c
 
 # Unions
 
-[Union Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types) allow you to say a type is either foo or bar or number or string...
+[Union Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types) allow you to say a type is either
+`foo` or `bar` or `number` or `string`...
 
 ```typescript
 function printId(id: number | string) {
@@ -51,9 +52,9 @@ function printId(id: number | string) {
 }
 ```
 
-this function will allow you to pass in a string or number, this is fine since both can be added to a string for display.
+This function will allow you to pass in a string or number, this is fine since both can be added to a string for display.
 
-When combined with literals you can make very strongly defined like so
+When combined with literals you can make types very strongly defined.
 
 ```typescript
 type MethodType = "GET" | "PUT" | "POST" | "DELETE"
@@ -66,11 +67,11 @@ makeHttpCall(url, "POG") // not allowed
 ```
 
 This helps greatly for new users of this function to see what the valid method fields are without having to look at external documentaion,
-your editor will provide autocomplete on the method field, and you get a compile error if you try to use an arbiarty string as the method param.
+your editor will provide autocomplete on the method field, and you get a compile error if you try to use an arbitrary string as the method param.
 
 ## Restricting Unions
 
-The last part is an important topic to handle, how do you properly use a general typed string as a string literal? Typescript allows this in a few ways
+Literals allow for strongly typed apis but how do you properly narrow a general type to a more specific type? Typescript allows this in a few ways
 
 ```typescript
 function handleAny(url: string, method: unknown) {
@@ -86,7 +87,7 @@ function handleAny(url: string, method: unknown) {
 }
 ```
 
-This manual checking is fine but if you have a more complex type or a union with many possible values this gets unweilding somewhat fast.
+This manual checking is fine but if you have a more complex type or a union with many possible values this gets unwieldy quite fast.
 The next best approach is a [type predicate](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates)
 
 ```typescript
@@ -108,12 +109,12 @@ function handleAny(url: string, method: unknown) {
 ```
 
 The type predicate `isValidMethod` is just a function that returns a bool,
-when true it nows the input param `method` is a `MethodType` and can be used as such.
+when true Typescript knows the input param `method` is a `MethodType` and can be used as such.
 Type predicates are a good simple way to to encode any runtime checks into the type system.
 
 ## Discrimnated unions
 
-Now unions of basic literals are quite powerful but they get more when you make unions of objects.
+Now unions of basic literals are quite powerful but unions can be even more powerful when you make unions of objects.
 Say in your app you track different events. The events could look like the following
 
 ```typescript
@@ -128,7 +129,7 @@ interface PostCreatedEvent {
   body: string
   createdAt: date
 }
-// any many others
+// and many others
 ```
 
 Once you have typed out all the different events and you want them group them together to a single event type
@@ -211,11 +212,11 @@ function logEvent(event: ApiEvent) {
 }
 ```
 
-Now in the future if we added an event with a type of `NewEvent` it would fall through to the default case,
+Now in the future if we added an event with a type field of `NewEvent` it would fall through to the default case,
 since its type is not `never` (it would be `NewEvent`) we would get a compile error on the call to `assertUnreachable`.
 
 # Wrap up
 
 While these features I covered can help you alot (these are almost all I used during the inital typescript migration),
-there are many other really cool typescript features, like generic, mapped types and conditonal types.
+there are many other really cool typescript features, like generics, mapped types and conditonal types.
 I hope to cover them all in a Part 2 so check back soon!
