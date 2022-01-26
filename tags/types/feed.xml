@@ -1,0 +1,24 @@
+
+  <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+      <title>John&#39;s Codes</title>
+      <link>https://johns.codes/blog</link>
+      <description>My ramblings on programming</description>
+      <language>en-us</language>
+      <managingEditor>undefined (John Murray)</managingEditor>
+      <webMaster>undefined (John Murray)</webMaster>
+      <lastBuildDate>Tue, 25 Jan 2022 00:00:00 GMT</lastBuildDate>
+      <atom:link href="https://johns.codes/tags/types/feed.xml" rel="self" type="application/rss+xml"/>
+      
+  <item>
+    <guid>https://johns.codes/blog/intermediate-typescript</guid>
+    <title>Intermediate Typescript Part 1</title>
+    <link>https://johns.codes/blog/intermediate-typescript</link>
+    <description>Typescript patterns I have found to make your life easier in a big codebase</description>
+    <pubDate>Tue, 25 Jan 2022 00:00:00 GMT</pubDate>
+    <author>undefined (John Murray)</author>
+    <category>Typescript</category><category>code</category><category>types</category>
+  </item>
+
+    </channel>
+  </rss>

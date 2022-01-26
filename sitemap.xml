@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://johns.codes/blog/intermediate-typescript</loc>
+  </url>
+
+  <url>
+    <loc>https://johns.codes/tags/code</loc>
+  </url>
+
+  <url>
+    <loc>https://johns.codes/tags/types</loc>
+  </url>
+
+  <url>
+    <loc>https://johns.codes/tags/typescript</loc>
+  </url>
+</urlset>
