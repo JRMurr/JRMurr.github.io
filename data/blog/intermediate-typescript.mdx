@@ -29,7 +29,7 @@ let obj: { key: string } = { key: 'value' }; // the key field can be any string
 
 These types are fine for many cases and I still default most types to be these until I understand the code more.
 
-[Literal Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types) on the other hand are a much stronger restricion on what the allowed values are
+[Literal Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types) on the other hand are a much stronger restriction on what the allowed values are
 
 ```typescript
 const numLiteral = 1 as const; // this can only be the number 1, no other number
@@ -66,7 +66,7 @@ makeHttpCall(url, "GeT") // not allowed
 makeHttpCall(url, "POG") // not allowed
 ```
 
-This helps greatly for new users of this function to see what the valid method fields are without having to look at external documentaion,
+This helps greatly for new users of this function to see what the valid method fields are without having to look at external documentation,
 your editor will provide autocomplete on the method field, and you get a compile error if you try to use an arbitrary string as the method param.
 
 ## Restricting Unions
@@ -137,7 +137,7 @@ you might think a simple union like `type ApiEvent = LoginEvent | PostCreatedEve
 when you want to narrow this type down you would have to end up with a lot of `if ('user' in event) {..}` checks or many custom type predicate functions.
 
 To avoid that issue you can define the event types as a [Discriminated union](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions).
-All this is, is a union type where all types in the union have a field whos value is unique in all the union's types. We can redefine the above types as follows
+All this is, is a union type where all types in the union have a field whose value is unique in all the union's types. We can redefine the above types as follows
 
 ```typescript
 interface LoginEvent {
