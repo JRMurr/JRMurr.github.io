@@ -9,11 +9,11 @@ layout: PostLayout
 ---
 
 At my job we have spent a lot of time converting a node backend and angular frontend to Typescript.
-Before Typescript when working in our codebase I found myself having to read a lot of code, api schemas, and tests just to see what fields actually existed.
+Before Typescript when working in our codebase I found myself having to read a lot of code, API schemas, and tests just to see what fields actually existed.
 So during the transition I tried my hardest to make the types I made as descriptive as they could be.
 Converting to Typescript and making big interfaces/types with many optional fields does not buy you much other than typo prevention and basic autocomplete.
 
-This post assumes you have a basic understanding of javascript/typescript.
+This post assumes you have a basic understanding of Javascript/Typescript.
 
 # Literal types
 
@@ -67,11 +67,11 @@ makeHttpCall(url, "POG") // not allowed
 ```
 
 This helps greatly for new users of this function to see what the valid method fields are without having to look at external documentation,
-your editor will provide autocomplete on the method field, and you get a compile error if you try to use an arbitrary string as the method param.
+your editor will provide autocomplete on the method field, and you get a compile error if you try to use an arbitrary string as the method parameter.
 
 ## Restricting Unions
 
-Literals allow for strongly typed apis but how do you properly narrow a general type to a more specific type? Typescript allows this in a few ways
+Literals allow for strongly typed APIs, but how do you properly narrow a general type to a more specific type? Typescript allows this in a few ways
 
 ```typescript
 function handleAny(url: string, method: unknown) {
@@ -108,13 +108,13 @@ function handleAny(url: string, method: unknown) {
 }
 ```
 
-The type predicate `isValidMethod` is just a function that returns a bool,
-when true Typescript knows the input param `method` is a `MethodType` and can be used as such.
-Type predicates are a good simple way to to encode any runtime checks into the type system.
+The type predicate `isValidMethod` is just a function that returns a boolean,
+when true Typescript knows the input parameter `method` is a `MethodType` and can be used as such.
+Type predicates are a good simple way to encode any runtime checks into the type system.
 
-## Discrimnated unions
+## Discriminated unions
 
-Now unions of basic literals are quite powerful but unions can be even more powerful when you make unions of objects.
+Now unions of basic literals are quite powerful, but unions can be even more powerful when you make unions of objects.
 Say in your app you track different events. The events could look like the following
 
 ```typescript
@@ -132,7 +132,7 @@ interface PostCreatedEvent {
 // and many others
 ```
 
-Once you have typed out all the different events and you want to group them together to a single event type
+Once you have typed out all the different events, and you want to group them together to a single event type
 you might think a simple union like `type ApiEvent = LoginEvent | PostCreatedEvent | ...` would be good but
 when you want to narrow this type down you would have to end up with a lot of `if ('user' in event) {..}` checks or many custom type predicate functions.
 
@@ -188,8 +188,8 @@ function logEvent(event: ApiEvent) {
 }
 ```
 
-There is one issue with this approach however. In the future when we add a new event type it would fall through to default case and we wouldn't know about it until runtime.
-However using Typescript's `never` type we can force a compile error when we don't handle all cases
+There is one issue with this approach, in the future when we add a new event type it would fall through to default case, and we wouldn't know about it until runtime.
+However, using Typescript's `never` type we can force a compile error when we don't handle all cases
 
 ```typescript
 function assertUnreachable(type: never): never {

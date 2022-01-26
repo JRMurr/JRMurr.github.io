@@ -1,5 +1,6 @@
 {
   "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
   "prettier.semi": true,
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "cSpell.words": ["typeof"]
 }
