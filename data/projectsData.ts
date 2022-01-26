@@ -6,6 +6,6 @@ const projectsData = [
     imgSrc: '/static/images/thiccBot.jpg',
     href: 'https://github.com/JRMurr/ThiccBot',
   },
-]
+];
 
-export default projectsData
+export default projectsData;

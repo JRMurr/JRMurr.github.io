@@ -1,16 +1,16 @@
-import SocialIcon from '@/components/social-icons'
-import Image from '@/components/Image'
-import { PageSEO } from '@/components/SEO'
-import { ReactNode } from 'react'
-import { AuthorFrontMatter } from 'types/AuthorFrontMatter'
+import SocialIcon from '@/components/social-icons';
+import Image from '@/components/Image';
+import { PageSEO } from '@/components/SEO';
+import { ReactNode } from 'react';
+import { AuthorFrontMatter } from 'types/AuthorFrontMatter';
 
 interface Props {
-  children: ReactNode
-  frontMatter: AuthorFrontMatter
+  children: ReactNode;
+  frontMatter: AuthorFrontMatter;
 }
 
 export default function AuthorLayout({ children, frontMatter }: Props) {
-  const { name, avatar, occupation, company, email, twitter, linkedin, github } = frontMatter
+  const { name, avatar, occupation, company, email, twitter, linkedin, github } = frontMatter;
 
   return (
     <>
@@ -44,5 +44,5 @@ export default function AuthorLayout({ children, frontMatter }: Props) {
         </div>
       </div>
     </>
-  )
+  );
 }

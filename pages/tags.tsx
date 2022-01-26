@@ -1,19 +1,19 @@
-import Link from '@/components/Link'
-import { PageSEO } from '@/components/SEO'
-import Tag from '@/components/Tag'
-import siteMetadata from '@/data/siteMetadata'
-import { getAllTags } from '@/lib/tags'
-import kebabCase from '@/lib/utils/kebabCase'
-import { GetStaticProps, InferGetStaticPropsType } from 'next'
+import Link from '@/components/Link';
+import { PageSEO } from '@/components/SEO';
+import Tag from '@/components/Tag';
+import siteMetadata from '@/data/siteMetadata';
+import { getAllTags } from '@/lib/tags';
+import kebabCase from '@/lib/utils/kebabCase';
+import { GetStaticProps, InferGetStaticPropsType } from 'next';
 
 export const getStaticProps: GetStaticProps<{ tags: Record<string, number> }> = async () => {
-  const tags = await getAllTags('blog')
+  const tags = await getAllTags('blog');
 
-  return { props: { tags } }
-}
+  return { props: { tags } };
+};
 
 export default function Tags({ tags }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const sortedTags = Object.keys(tags).sort((a, b) => tags[b] - tags[a])
+  const sortedTags = Object.keys(tags).sort((a, b) => tags[b] - tags[a]);
   return (
     <>
       <PageSEO title={`Tags - ${siteMetadata.author}`} description="Things I blog about" />
@@ -36,10 +36,10 @@ export default function Tags({ tags }: InferGetStaticPropsType<typeof getStaticP
                   {` (${tags[t]})`}
                 </Link>
               </div>
-            )
+            );
           })}
         </div>
       </div>
     </>
-  )
+  );
 }

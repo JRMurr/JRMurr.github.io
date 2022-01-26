@@ -1,28 +1,28 @@
-import { useState, useRef, ReactNode } from 'react'
+import { useState, useRef, ReactNode } from 'react';
 
 interface Props {
-  children: ReactNode
+  children: ReactNode;
 }
 
 const Pre = ({ children }: Props) => {
-  const textInput = useRef(null)
-  const [hovered, setHovered] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const textInput = useRef(null);
+  const [hovered, setHovered] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const onEnter = () => {
-    setHovered(true)
-  }
+    setHovered(true);
+  };
   const onExit = () => {
-    setHovered(false)
-    setCopied(false)
-  }
+    setHovered(false);
+    setCopied(false);
+  };
   const onCopy = () => {
-    setCopied(true)
-    navigator.clipboard.writeText(textInput.current.textContent)
+    setCopied(true);
+    navigator.clipboard.writeText(textInput.current.textContent);
     setTimeout(() => {
-      setCopied(false)
-    }, 2000)
-  }
+      setCopied(false);
+    }, 2000);
+  };
 
   return (
     <div ref={textInput} onMouseEnter={onEnter} onMouseLeave={onExit} className="relative">
@@ -69,7 +69,7 @@ const Pre = ({ children }: Props) => {
 
       <pre>{children}</pre>
     </div>
-  )
-}
+  );
+};
 
-export default Pre
+export default Pre;

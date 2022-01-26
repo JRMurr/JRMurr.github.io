@@ -1,19 +1,19 @@
-import Link from '@/components/Link'
-import { PageSEO } from '@/components/SEO'
-import Tag from '@/components/Tag'
-import siteMetadata from '@/data/siteMetadata'
-import { getAllFilesFrontMatter } from '@/lib/mdx'
-import formatDate from '@/lib/utils/formatDate'
-import { GetStaticProps, InferGetStaticPropsType } from 'next'
-import { PostFrontMatter } from 'types/PostFrontMatter'
+import Link from '@/components/Link';
+import { PageSEO } from '@/components/SEO';
+import Tag from '@/components/Tag';
+import siteMetadata from '@/data/siteMetadata';
+import { getAllFilesFrontMatter } from '@/lib/mdx';
+import formatDate from '@/lib/utils/formatDate';
+import { GetStaticProps, InferGetStaticPropsType } from 'next';
+import { PostFrontMatter } from 'types/PostFrontMatter';
 
-const MAX_DISPLAY = 5
+const MAX_DISPLAY = 5;
 
 export const getStaticProps: GetStaticProps<{ posts: PostFrontMatter[] }> = async () => {
-  const posts = await getAllFilesFrontMatter('blog')
+  const posts = await getAllFilesFrontMatter('blog');
 
-  return { props: { posts } }
-}
+  return { props: { posts } };
+};
 
 export default function Home({ posts }: InferGetStaticPropsType<typeof getStaticProps>) {
   return (
@@ -31,7 +31,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
           {!posts.length && 'No posts found.'}
           {posts.slice(0, MAX_DISPLAY).map((frontMatter) => {
-            const { slug, date, title, summary, tags } = frontMatter
+            const { slug, date, title, summary, tags } = frontMatter;
             return (
               <li key={slug} className="py-12">
                 <article>
@@ -76,7 +76,7 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
                   </div>
                 </article>
               </li>
-            )
+            );
           })}
         </ul>
       </div>
@@ -92,5 +92,5 @@ export default function Home({ posts }: InferGetStaticPropsType<typeof getStatic
         </div>
       )}
     </>
-  )
+  );
 }

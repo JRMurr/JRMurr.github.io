@@ -1,15 +1,15 @@
 // import Link from '@/components/Link'
-import PageTitle from '@/components/PageTitle'
-import SectionContainer from '@/components/SectionContainer'
-import { BlogSEO } from '@/components/SEO'
+import PageTitle from '@/components/PageTitle';
+import SectionContainer from '@/components/SectionContainer';
+import { BlogSEO } from '@/components/SEO';
 // import Image from '@/components/Image'
 // import Tag from '@/components/Tag'
-import siteMetadata from '@/data/siteMetadata'
+import siteMetadata from '@/data/siteMetadata';
 // import Comments from '@/components/comments'
-import ScrollTopAndComment from '@/components/ScrollTopAndComment'
-import { ReactNode } from 'react'
-import { PostFrontMatter } from 'types/PostFrontMatter'
-import { AuthorFrontMatter } from 'types/AuthorFrontMatter'
+import ScrollTopAndComment from '@/components/ScrollTopAndComment';
+import { ReactNode } from 'react';
+import { PostFrontMatter } from 'types/PostFrontMatter';
+import { AuthorFrontMatter } from 'types/AuthorFrontMatter';
 
 // const editUrl = (fileName) => `${siteMetadata.siteRepo}/blob/master/data/blog/${fileName}`
 // const discussUrl = (slug) =>
@@ -22,19 +22,19 @@ const postDateTemplate: Intl.DateTimeFormatOptions = {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
-}
+};
 
 interface Props {
-  frontMatter: PostFrontMatter
-  authorDetails: AuthorFrontMatter[]
-  next?: { slug: string; title: string }
-  prev?: { slug: string; title: string }
-  children: ReactNode
+  frontMatter: PostFrontMatter;
+  authorDetails: AuthorFrontMatter[];
+  next?: { slug: string; title: string };
+  prev?: { slug: string; title: string };
+  children: ReactNode;
 }
 
 // next, prev
 export default function PostLayout({ frontMatter, authorDetails, children }: Props) {
-  const { slug, date, title, readingTime } = frontMatter //tags
+  const { slug, date, title, readingTime } = frontMatter; //tags
 
   return (
     <SectionContainer>
@@ -162,5 +162,5 @@ export default function PostLayout({ frontMatter, authorDetails, children }: Pro
         </div>
       </article>
     </SectionContainer>
-  )
+  );
 }
