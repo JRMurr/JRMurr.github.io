@@ -39,7 +39,7 @@ const arrLiteral = [10] as const; // can only be an array with a single element 
 const objLiteral = { key: 'value' } as const; // can only be this specific object mapping
 ```
 
-These types on there own are not that useful but when combined with unions and conditional types they can make your types very powerful.
+These types on their own are not that useful but when combined with unions and conditional types they can make your types very powerful.
 
 # Unions
 
@@ -132,12 +132,12 @@ interface PostCreatedEvent {
 // and many others
 ```
 
-Once you have typed out all the different events and you want them group them together to a single event type
+Once you have typed out all the different events and you want to group them together to a single event type
 you might think a simple union like `type ApiEvent = LoginEvent | PostCreatedEvent | ...` would be good but
 when you want to narrow this type down you would have to end up with a lot of `if ('user' in event) {..}` checks or many custom type predicate functions.
 
 To avoid that issue you can define the event types as a [Discriminated union](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions).
-All this is a union type where all types in the union have a field whos value is unique in all the union's types. We can redefine the above types as follows
+All this is, is a union type where all types in the union have a field whos value is unique in all the union's types. We can redefine the above types as follows
 
 ```typescript
 interface LoginEvent {
@@ -170,8 +170,8 @@ function logEvent(event: ApiEvent) {
 }
 ```
 
-This style of checking the discriminating field in if statments is fine but is a little verbose to me.
-I find that a switch statment makes it more readble and less verbose.
+This style of checking the discriminating field in if statement is fine but is a little verbose to me.
+I find that a switch statement makes it more readable and less verbose.
 
 ```typescript
 function logEvent(event: ApiEvent) {
@@ -217,6 +217,6 @@ since its type is not `never` (it would be `NewEvent`) we would get a compile er
 
 # Wrap up
 
-While these features I covered can help you alot (these are almost all I used during the inital typescript migration),
-there are many other really cool typescript features, like generics, mapped types and conditonal types.
+While these features I covered can help you a lot (these are almost all I used during the initial typescript migration),
+there are many other really cool typescript features, like generics, mapped types and conditional types.
 I hope to cover them all in a Part 2 so check back soon!
