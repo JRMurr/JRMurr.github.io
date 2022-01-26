@@ -1,3 +1,5 @@
 {
-  "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix"
+  "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
+  "prettier.semi": true,
+  "editor.formatOnSave": true
 }
