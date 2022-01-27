@@ -143,7 +143,7 @@ All this is, is a union type where all types in the union have a field whose val
 interface LoginEvent {
   type: 'login';
   user: string;
-  wasSuccessful: ApiEvent;
+  wasSuccessful: boolean;
 }
 
 interface PostCreatedEvent {
