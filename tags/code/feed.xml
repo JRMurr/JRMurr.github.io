@@ -12,7 +12,7 @@
       
   <item>
     <guid>https://johns.codes/blog/intermediate-typescript</guid>
-    <title>Intermediate Typescript Part 1</title>
+    <title>Intermediate Typescript: Literals and Unions </title>
     <link>https://johns.codes/blog/intermediate-typescript</link>
     <description>Typescript patterns I have found to make your life easier in a big codebase</description>
     <pubDate>Tue, 25 Jan 2022 00:00:00 GMT</pubDate>
