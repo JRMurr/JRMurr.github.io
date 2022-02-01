@@ -8,7 +8,7 @@
       <managingEditor>undefined (John Murray)</managingEditor>
       <webMaster>undefined (John Murray)</webMaster>
       <lastBuildDate>Mon, 31 Jan 2022 00:00:00 GMT</lastBuildDate>
-      <atom:link href="https://johns.codes/tags/code/feed.xml" rel="self" type="application/rss+xml"/>
+      <atom:link href="https://johns.codes/tags/guide/feed.xml" rel="self" type="application/rss+xml"/>
       
   <item>
     <guid>https://johns.codes/blog/intermediate-typescript-generics-and-mapped-types</guid>

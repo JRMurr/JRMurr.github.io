@@ -7,9 +7,19 @@
       <language>en-us</language>
       <managingEditor>undefined (John Murray)</managingEditor>
       <webMaster>undefined (John Murray)</webMaster>
-      <lastBuildDate>Tue, 25 Jan 2022 00:00:00 GMT</lastBuildDate>
+      <lastBuildDate>Mon, 31 Jan 2022 00:00:00 GMT</lastBuildDate>
       <atom:link href="https://johns.codes/tags/types/feed.xml" rel="self" type="application/rss+xml"/>
       
+  <item>
+    <guid>https://johns.codes/blog/intermediate-typescript-generics-and-mapped-types</guid>
+    <title>Intermediate Typescript: Generics and Mapped Types</title>
+    <link>https://johns.codes/blog/intermediate-typescript-generics-and-mapped-types</link>
+    <description>Useful applications of generics and mapped types</description>
+    <pubDate>Mon, 31 Jan 2022 00:00:00 GMT</pubDate>
+    <author>undefined (John Murray)</author>
+    <category>Typescript</category><category>code</category><category>types</category><category>guide</category>
+  </item>
+
   <item>
     <guid>https://johns.codes/blog/intermediate-typescript</guid>
     <title>Intermediate Typescript: Literals and Unions</title>
@@ -17,7 +27,7 @@
     <description>Typescript patterns I have found to make your life easier in a big codebase</description>
     <pubDate>Tue, 25 Jan 2022 00:00:00 GMT</pubDate>
     <author>undefined (John Murray)</author>
-    <category>Typescript</category><category>code</category><category>types</category>
+    <category>Typescript</category><category>code</category><category>types</category><category>guide</category>
   </item>
 
     </channel>
