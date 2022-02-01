@@ -1,15 +1,14 @@
 ---
 title: 'Intermediate Typescript: Generics and Mapped Types'
-date: '2022-01-26'
-tags: ['Typescript', 'code', 'types']
-draft: true
+date: '2022-01-31'
+tags: ['Typescript', 'code', 'types', 'guide']
+draft: false
 summary: Useful applications of generics and mapped types
 images: []
 layout: PostLayout
 ---
 
-{/_ TODO: links _/}
-In the last post, I covered Literal and Union types. Those types are great and can get you a long way when writing your apps. When your codebase starts to grow you may find your "middleware"/helper functions still have too general of types which leads to more type casting than you would like. This is where generics and mapped types come in.
+In the [last post](/blog/intermediate-typescript), I covered Literal and Union types. Those types are great and can get you a long way when writing your apps. When your codebase starts to grow you may find your middleware/helper functions still have too general of types which leads to more type casting than you would like. This is where generics and mapped types come in.
 
 ## Generics
 
@@ -29,7 +28,7 @@ interface Box<T> {
 }
 
 const stringBox: Box<string> = { value: 'aString' };
-const arrayNumBox: Box<[number]> = { value: [1, 2, 3] };
+const arrayNumBox: Box<number[]> = { value: [1, 2, 3] };
 const literalBox: Box<'aLiteral'> = { value: 'aLiteral' };
 ```
 
@@ -75,7 +74,7 @@ interface PostCreatedEvent {
 type ApiEvent = LoginEvent | PostCreatedEvent;
 ```
 
-Now let's say you are making a function that will take and event, and add a new field `logged: boolean` to show the event was logged out. Your first attempt might look something like this.
+Now let's say you are making a function that will take an event, and add a new field `logged: boolean` to show the event was logged out. Your first attempt might look something like this.
 
 ```typescript
 function addLogged(event: ApiEvent): ApiEvent & { logged: boolean } {
@@ -110,7 +109,7 @@ This does not lose generality if you had a list of `ApiEvents` you could still m
 
 ### Generics in type definitions
 
-Sometimes you may have a few wrapper types like hold the same types. This example is a little contrived, but I've run into this a few times before.
+Sometimes you may have a few wrapper types that hold the same types. This example is a little contrived, but I've run into this a few times before.
 
 ```typescript
 type ValidValue = string | number;
@@ -124,7 +123,7 @@ interface WrapperOne {
 interface WrapperTwo {
   type: 'wrapperTwo';
   value: ValidValue;
-  info: number;
+  extra: number;
 }
 
 type Wrapper = WrapperOne | WrapperTwo;
@@ -135,12 +134,12 @@ In this example lets say the wrappers should both hold the same value type (both
 ```typescript
 const wrappedValues: Wrapper[] = [{
     type: 'wrapperOne',
-    value: 'aVal',
+    value: 'aVal', // this wrapper is using a string
     info: ['extra info', 'more info']
 }, {
     type: 'wrapperTwo'
-    value: 1,
-    info: 'wait why is the value a number'
+    value: 1, // this wrapper is using a number
+    extra: 10,
 }]
 ```
 
@@ -163,15 +162,27 @@ interface WrapperTwo<T extends ValidValue> {
   info: number;
 }
 
-type Wrappers<T extends ValidValue> = WrapperOne<T> | WrapperTwo<T>;
+type Wrapper<T extends ValidValue> = WrapperOne<T> | WrapperTwo<T>;
 ```
 
 Now when we say we have a `Wrappers<string>` both wrapper's `value` type will be string.
 
+```typescript
+const wrappedValues: Wrapper<string>[] = [{
+    type: 'wrapperOne',
+    value: 'aVal', // this wrapper is using a string
+    info: ['extra info', 'more info']
+}, {
+    type: 'wrapperTwo'
+    value: 'I can only use string' // using a number here would now throw an error
+    extra: 10,
+}]
+```
+
 ## Mapped Types
 
 [Mapped Types](https://www.typescriptlang.org/docs/handbook/2/mapped-types.html) are a specific kind of generic types to help you build out new types.
-You may have seen is the `Record<K,V>` type, this lets you define an object whose keys are in the type `k` and values are in the type `V`. You can define your own record type like so.
+You may have seen is the `Record<K,V>` type, this lets you define an object whose keys are in the type `K` and values are in the type `V`. You can define your own record type like so.
 
 ```typescript
 type MyRecord<KeyType extends string, ValueType> = {
@@ -193,3 +204,71 @@ type OnlyFoo = myPick<typeof myRecord, 'foo'>; // resulting type is {foo: number
 ```
 
 Typescript has a number of built-in [Utility types](https://www.typescriptlang.org/docs/handbook/utility-types.html#picktype-keys), look over them all, they are extremely handy to avoid repeating yourself.
+
+### Incrementally Type an object
+
+Mapped types are excellent for incrementally adding types when converting from javascript to typescript. Let's say you are adding types for database tables. When you first converted you may have made a type like `type Tables = Record<string, any>`. This doesn't but you much other than saying `Tables` is an object.
+
+When you decide it's time to add types for tables you start by typing a simple database table like so
+
+```typescript
+interface UserTable {
+  id: number;
+  username: string;
+  email: string;
+  ...
+}
+```
+
+Now you run into an issue, how can you add just this type to the `Tables` type we had before without specifying all your tables? Mapped types can set a default type for anything you have not explicitly set.
+
+```typescript
+type Tables = {
+  users: UserTable;
+  [key: string]: any;
+};
+
+type Users = Tables['users']; // This is the UserTable type above
+type Other = Tables['somethingElse']; // This is any
+```
+
+Now you can add types for just tables you have manually typed while allowing old code to still reference any untyped table.
+
+### Using Mapped Types instead of Enums
+
+Typescript added [Enums](https://www.typescriptlang.org/docs/handbook/enums.html) to Javascript, personally I would avoid them. There is some debate on how useful enums are, I will avoid that discussion here and show how what I do instead.
+
+I like to use an `as const` object to hold my enum like types.
+
+```typescript
+const UserStates = {
+    guest: 'guest',
+    loggedIn: 'loggedIn',
+    paid: 'paid'
+} as const;
+
+type UserStatesMap = typeof UserStates;
+type UserStates = UserStatesMap[keyof UserStatesMap]; // UserStates is now 'guest' | 'loggedIn' | 'paid'
+
+function handleState(state: UserStates) {...}
+
+handleState(UserStates.guest);
+```
+
+Now this looks like more code than just using a typescript enum, but this buys us a few things. Since the type is just an object map we can use mapped types to modify/filter our types as we need. Let's say we wanted to filter our `UserStates` type to not include `guest` accounts. We could do the following
+
+```typescript
+type NonGuest = {
+  [key in keyof UserStatesMap]: key extends 'guest' ? never : UserStatesMap[key];
+}[keyof UserStatesMap]; // This type resolves to `'loggedIn' | 'paid'`
+```
+
+In this example we actually used something called a [Conditional Type](https://www.typescriptlang.org/docs/handbook/2/conditional-types.html) to filter our the `guest` type. These types basically provide the ternary operator to the typescript type system. In this example if the key extends `'guest'` its value in the resulting object would be `never`. Then when we get all the values of the map the `never` type is dropped from the union.
+
+Conditional and Mapped types show up together a lot. They can be very powerful to modify existing types. They allow you to avoid redefining types for small changes.
+
+I plan on covering Conditional Types in more detail in my next post!
+
+## Wrap up
+
+Generics and Mapped Types are extremely powerful tools to help types follow through your program and to avoid repeating yourself. They can be a little confusing to newcomers so be sure to comment them well.

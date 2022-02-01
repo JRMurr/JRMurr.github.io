@@ -1,0 +1,3 @@
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QNow you can add types for just tables you have manually typed while allowing old code to still reference any untyped table.\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QMapped types are excellent for incrementally adding types when converting from javascript to typescript.\\E$"}
+{"rule":"EN_A_VS_AN","sentence":"^\\QI like to use an \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q object to hold my enum like types.\\E$"}
