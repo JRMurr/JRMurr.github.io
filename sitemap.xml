@@ -5,6 +5,10 @@
   </url>
 
   <url>
+    <loc>https://johns.codes/blog/rust-enviorment-and-docker-build-with-nix-flakes</loc>
+  </url>
+
+  <url>
     <loc>https://johns.codes/blog/intermediate-typescript-generics-and-mapped-types</loc>
   </url>
 
