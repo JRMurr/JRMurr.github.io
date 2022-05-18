@@ -2,3 +2,5 @@ Javascript
 Enums
 enums
 enum
+rustup
+direnv

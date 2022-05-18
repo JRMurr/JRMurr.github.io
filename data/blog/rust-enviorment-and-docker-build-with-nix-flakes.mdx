@@ -1,0 +1,133 @@
+---
+title: Rust Environment and Docker Build with Nix Flakes
+date: '2022-05-17'
+tags: ['rust', 'nix', 'docker']
+draft: true
+summary: Reproducible dev environments and build with nix
+images: []
+layout: PostLayout
+---
+
+## Why Nix
+
+Getting a dev environment setup with rust is usually pretty simple, just use rustup then you're good to go.
+Using a build tool like [nix](https://nixos.org/) can buy you much more for not much extra work. Nix lets you
+
+- Specify non rust project dependencies in code
+- Automatically add all your projects tools/dependencies to your path with [direnv](https://direnv.net/)
+- Easily build slim docker containers
+
+Once you start working in a repo with nix you never want to go back.
+No more READMEs with a list of Homebrew, apt, pacman, etc. commands you need to run.
+Building slim docker containers is a breeze without needing to manually handle multiple layers to copy build artifacts from.
+
+## The Dev environment
+
+We will use [nix flakes](https://nixos.wiki/wiki/Flakes) to setup nix for our project.
+Flakes are nix's newish way to make nix builds more reproudible by adding a lock file concept to the project.
+Each flake can have `inputs` which are other flakes/nix files and many [outputs](https://nixos.wiki/wiki/Flakes#Output_schema).
+One thing to note, all files referenced in your flake (including itself) must be added to git.
+If you run into any file not found errors make sure you `git add` everything you need.
+
+To get started in the root of your project run
+
+```sh
+nix flake init
+```
+
+This will give you a `flake.nix` file that looks like
+
+```nix
+{
+  description = "A very basic flake";
+
+  outputs = { self, nixpkgs }: {
+
+    packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
+
+    defaultPackage.x86_64-linux = self.packages.x86_64-linux.hello;
+
+  };
+}
+```
+
+This starter flake will build a hello world binary with `nix build .#hello` which calls the first line or with just `nix build` to call the `defaultPackage` line.
+The downside is this only builds the package on x86/64 linux, lets add some inputs to generalize this to more systems.
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+  };
+
+  outputs = { self, nixpkgs, flake-utils, ... }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let pkgs = import nixpkgs { inherit system; };
+      in {
+        packages.hello = pkgs.hello;
+        defaultPackage = pkgs.hello;
+      });
+}
+```
+
+We added two inputs, the first is `nixpkgs` which lets us specify which version of nixpkgs we should use.
+There are many [thousands of packages](https://search.nixos.org/packages) in the nixpkg repository and they are updated often so here will use the unstable branch.
+We also added [flake-utils](https://github.com/numtide/flake-utils) which helps us generalize the flake to support multiple systems, not just linux.
+
+Now on linux and mac the hello package will build. Now run `nix build`, you should see a `result` folder which contains the `hello` package,
+you can run it with `./result/bin/hello`.
+
+## Rust in nix
+
+To move on from "hello world" to rust lets add another input
+
+```nix
+inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+    rust-overlay.url = "github:oxalica/rust-overlay";
+  };
+
+  outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        overlays = [ (import rust-overlay) ];
+        pkgs = import nixpkgs { inherit system overlays; };
+        rustVersion = pkgs.rust-bin.stable.latest.default;
+      in { devShell = pkgs.mkShell { buildInputs = [ rustVersion ]; }; });
+}
+```
+
+Now we added [rust-overlay](https://github.com/oxalica/rust-overlay) so we can easily specify different rust versions
+without relying on `nixpkgs` to give us what ever rust version in there.
+
+We also switched the `outyputs` to only have `devShell`. Now when you run `nix develop` you will get a new sandboxed shell with the stable rust version.
+
+If you want to use a specific version/nightly build you can use
+`rustVersion = (pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml);` to read a rust toolchain file and use the version specificed in there.
+
+## Automatically load the nix environment
+
+Now that we have the rust version we want lets make the `nix develop` step automatic.
+
+Install [direnv](https://direnv.net/) and [nix-direnv](https://github.com/nix-community/nix-direnv).
+The second is optional but helps with chaching so I reccomend it.
+
+Direnv will add hooks to your shell so when you cd into your project it will auto load the nix enviorment for you without needing to run `nix develop`.
+
+In the root of your project run
+
+```sh
+echo "use flake" >> .envrc
+direnv allow
+```
+
+The `.envrc` file will be loaded by direnv and it will use the flake's `devShell` output to setup your enviorment.
+On changes to your flake direnv will reload only what has changed.
+
+## Making docker containers
+
+Now that nix knows about our rust version we can use nix to build our rust project and make a slim container with it
+
+TODO:......
