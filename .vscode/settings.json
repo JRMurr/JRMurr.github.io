@@ -1,5 +1,5 @@
 {
-  "nixEnvSelector.nixFile": "${workspaceRoot}/shell.nix",
+  "nixEnvSelector.nixFile": "${workspaceRoot}/flake.nix",
   "prettier.semi": true,
   "editor.formatOnSave": true,
   "cSpell.words": ["typeof"]
