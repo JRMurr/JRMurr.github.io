@@ -36,12 +36,12 @@ If you run into any file not found errors make sure you `git add` everything you
 To get started in the root of your project run
 
 ```bash
-nix flake init
+$ nix flake init
 ```
 
 This will give you a `flake.nix` file that looks like
 
-```nix
+```nix:flake.nix
 {
   description = "A very basic flake";
 
@@ -58,7 +58,7 @@ This will give you a `flake.nix` file that looks like
 This starter flake will build a hello world binary with `nix build .#hello` which calls the first line or with just `nix build` to call the `defaultPackage` line.
 The downside is this only builds the package on x86/64 Linux, let's add some inputs to generalize this to more systems.
 
-```nix
+```nix:flake.nix
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -87,7 +87,7 @@ It will not always be a folder, it will just depend on the build.
 
 To move on from "hello world" to rust lets add another input
 
-```nix
+```nix:flake.nix
 inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
@@ -131,8 +131,8 @@ Direnv will add hooks to your shell so when you `cd` into your project it will a
 In the root of your project run
 
 ```bash
-echo "use flake" >> .envrc
-direnv allow
+$ echo "use flake" >> .envrc
+$ direnv allow
 ```
 
 The `.envrc` file will be loaded by direnv, and it will use the flake's `devShell` output to set up your environment.
@@ -145,7 +145,7 @@ If you are using VS Code, use [nix env selector](https://marketplace.visualstudi
 Now that we have rust in our dev environment we can make a new rust app with
 
 ```bash
-cargo init
+$ cargo init
 ```
 
 Then we can run/build the project like you normally would with `cargo run`/`cargo build`.
@@ -153,7 +153,7 @@ That works well while developing but let's use nix to build the project, this wi
 
 Let's update the outputs too
 
-```nix
+```nix:flake.nix
 outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
@@ -194,7 +194,7 @@ Now we can run `nix build`, then your project will be in the `result` folder aga
 
 Now that we have nix building the rust project making the docker container is quite easy.
 
-```nix
+```nix:flake.nix
 outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
@@ -238,7 +238,7 @@ Now `nix build` or `nix build .#docker` will build the docker image. After build
 Since nix is declarative it does not load it directly into docker for you. You can load it with
 
 ```bash
-docker load < result
+$ docker load < result
 ```
 
 You should see an output like `rust-nix-blog:yyc9gd4nkydrikzpsvlp3gmwnpxhh1ik` which is the image and tag loaded in.
@@ -246,7 +246,7 @@ You should see an output like `rust-nix-blog:yyc9gd4nkydrikzpsvlp3gmwnpxhh1ik` w
 Now run the image with
 
 ```bash
-docker run rust-nix-blog:yyc9gd4nkydrikzpsvlp3gmwnpxhh1ik
+$ docker run rust-nix-blog:yyc9gd4nkydrikzpsvlp3gmwnpxhh1ik
 ```
 
 We can automate this a bit with a script like. (Slightly modified example from [here](https://jamey.thesharps.us/2021/02/02/docker-containers-nix/))
