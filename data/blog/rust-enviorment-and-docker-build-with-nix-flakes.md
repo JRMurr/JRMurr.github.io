@@ -1,6 +1,6 @@
 ---
 title: Rust Environment and Docker Build with Nix Flakes
-date: '2022-05-17'
+date: '2022-05-19'
 tags: ['rust', 'nix', 'docker']
 draft: true
 summary: Reproducible dev environments and builds with Nix
@@ -11,7 +11,7 @@ layout: PostLayout
 ## Why Nix
 
 Getting a dev environment setup with rust is usually pretty simple, just use rustup then you're good to go.
-Using a build tool like [nix](https://nixos.org/) can buy you much more for not much extra work. Nix lets you
+Using a build tool like [Nix](https://nixos.org/) can buy you much more for not much extra work. Nix lets you
 
 - Specify non rust project dependencies in code
 - Automatically add all your projects tools/dependencies to your path with [direnv](https://direnv.net/)
@@ -20,6 +20,10 @@ Using a build tool like [nix](https://nixos.org/) can buy you much more for not 
 Once you start working in a repo with nix you never want to go back.
 No more READMEs with a list of Homebrew, apt, pacman, etc. commands you need to run.
 Building slim docker containers is a breeze without needing to manually handle multiple layers to copy build artifacts from.
+
+This post will mostly be a quick and dirty guide to getting started with nix, so I won't go into too much detail on what nix is doing under the hood/nix syntax.
+For a quick and dirty nix syntax reference I recommend [learn X in Y's post](https://learnxinyminutes.com/docs/nix/),
+if you have some functional programming experience most of the basics will be quick to pick up.
 
 ## The Dev environment
 
@@ -75,10 +79,11 @@ We added two inputs, the first is `nixpkgs` which lets us specify which version 
 There are many [thousands of packages](https://search.nixos.org/packages) in the nixpkg repository, and they are updated often so here will use the unstable branch.
 We also added [flake-utils](https://github.com/numtide/flake-utils) which helps us generalize the flake to support multiple systems, not just Linux.
 
-Now on Linux and mac the hello package will build. Now run `nix build`, you should see a `result` folder which contains the `hello` package,
-you can run it with `./result/bin/hello`.
+Now on Linux and mac the hello package will build. When you run `nix build`, you should see a `result` folder which contains the `hello` package,
+you can run it with `./result/bin/hello`. The `result` folder is a symlink to the output of build in the nix store (where nix keeps all outputs).
+It will not always be a folder, it will just depend on the build.
 
-## Rust in nix
+## Rust in Nix
 
 To move on from "hello world" to rust lets add another input
 
@@ -104,17 +109,17 @@ inputs = {
 }
 ```
 
-Now we added [rust-overlay](https://github.com/oxalica/rust-overlay) so we can easily specify different rust versions
+We added [rust-overlay](https://github.com/oxalica/rust-overlay), so we can easily specify different rust versions
 without relying on `nixpkgs` to give us what ever rust version in there.
 
-We also switched the `outyputs` to only have `devShell`. Now when you run `nix develop` you will get a new sandboxed shell with the stable rust version.
+We also switched the `outputs` to only have `devShell`, that output is tied to `nix develop`, when run you will get a new sandboxed shell with the stable rust version.
 
 If you want to use a specific version/nightly build you can use
 `rustVersion = (pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml);` to read a rust toolchain file and use the version specified in there.
 
 You may also have noticed we added `.override { extensions = [ "rust-src" ]; })`. This is needed for rust analyzer to get rust source code.
 
-## Automatically load the nix environment
+## Automatically load the Nix environment
 
 Now that we have the rust version we want let's make the `nix develop` step automatic.
 
@@ -133,7 +138,9 @@ direnv allow
 The `.envrc` file will be loaded by direnv, and it will use the flake's `devShell` output to set up your environment.
 On changes to your flake direnv will reload only what has changed.
 
-## Build rust project
+If you are using VS Code, use [nix env selector](https://marketplace.visualstudio.com/items?itemName=arrterian.nix-env-selector), so VS Code is aware of the flake. It is not always necessary if you open VS Code from your terminal, but It's simple to set up.
+
+## Build Rust project
 
 Now that we have rust in our dev environment we can make a new rust app with
 
@@ -141,7 +148,7 @@ Now that we have rust in our dev environment we can make a new rust app with
 cargo init
 ```
 
-Then we can build the project like you normally would with `cargo build`.
+Then we can run/build the project like you normally would with `cargo run`/`cargo build`.
 That works well while developing but let's use nix to build the project, this will help us later on when we make the docker image.
 
 Let's update the outputs too
@@ -178,12 +185,12 @@ outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
 ```
 
 First we have to make a `rustPlatform` with our rust version.
-Then that will let us build our rust package with `rustPlatform.buildRustPackage`. This is the equivalent of `cargo build`.
+The platform will let us build our rust package with `rustPlatform.buildRustPackage`. This is the nix equivalent of `cargo build`.
 We need `cargoLock.lockFile` so nix can cache all of your project's dependencies based on your existing lock file.
 
 Now we can run `nix build`, then your project will be in the `result` folder again. In my case I can run `./result/bin/rust_nix_blog`.
 
-## Make a docker image
+## Make a Docker image
 
 Now that we have nix building the rust project making the docker container is quite easy.
 
