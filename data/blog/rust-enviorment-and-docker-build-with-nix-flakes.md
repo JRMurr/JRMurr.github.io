@@ -25,7 +25,7 @@ This post will mostly be a quick and dirty guide to getting started with nix, so
 For a quick and dirty nix syntax reference I recommend [learn X in Y's post](https://learnxinyminutes.com/docs/nix/),
 if you have some functional programming experience most of the basics will be quick to pick up.
 
-## The Dev environment
+## The Dev Environment
 
 We will use [nix flakes](https://nixos.wiki/wiki/Flakes) to set up nix for our project.
 Flakes are nix's newish way to make nix builds more reproducible by adding a lock file concept to the project.
@@ -119,7 +119,7 @@ If you want to use a specific version/nightly build you can use
 
 You may also have noticed we added `.override { extensions = [ "rust-src" ]; })`. This is needed for rust analyzer to get rust source code.
 
-## Automatically load the Nix environment
+## Automatically Load the Nix Environment
 
 Now that we have the rust version we want let's make the `nix develop` step automatic.
 
@@ -140,7 +140,7 @@ On changes to your flake direnv will reload only what has changed.
 
 If you are using VS Code, use [nix env selector](https://marketplace.visualstudio.com/items?itemName=arrterian.nix-env-selector), so VS Code is aware of the flake. It is not always necessary if you open VS Code from your terminal, but It's simple to set up.
 
-## Build Rust project
+## Build Rust Project
 
 Now that we have rust in our dev environment we can make a new rust app with
 
@@ -190,7 +190,7 @@ We need `cargoLock.lockFile` so nix can cache all of your project's dependencies
 
 Now we can run `nix build`, then your project will be in the `result` folder again. In my case I can run `./result/bin/rust_nix_blog`.
 
-## Make a Docker image
+## Make a Docker Image
 
 Now that we have nix building the rust project making the docker container is quite easy.
 
@@ -266,7 +266,7 @@ Looking at the output you can see it's a single layer image with just they need 
 
 ## Common troubleshooting issues
 
-### Non rust build dependencies
+### Non Rust Build Dependencies
 
 Building with nix is great once its working, it will stay working forever.
 Getting to a working state can be a bit of pain sometimes.
@@ -284,7 +284,7 @@ rustPlatform.buildRustPackage {
 };
 ```
 
-For OpenSSL specifically I would recommend using rusttls when possible. It's easier to build and in rust.
+For OpenSSL specifically I would recommend using rustls when possible. It's easier to build and in rust.
 
 ### Nix Docs
 
