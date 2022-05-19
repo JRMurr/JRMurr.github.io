@@ -2,7 +2,7 @@
 title: Rust Environment and Docker Build with Nix Flakes
 date: '2022-05-19'
 tags: ['rust', 'nix', 'docker']
-draft: true
+draft: false
 summary: Reproducible dev environments and builds with Nix
 images: []
 layout: PostLayout
