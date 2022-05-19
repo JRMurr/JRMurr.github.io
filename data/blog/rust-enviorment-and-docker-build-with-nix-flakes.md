@@ -3,7 +3,7 @@ title: Rust Environment and Docker Build with Nix Flakes
 date: '2022-05-17'
 tags: ['rust', 'nix', 'docker']
 draft: true
-summary: Reproducible dev environments and build with nix
+summary: Reproducible dev environments and builds with Nix
 images: []
 layout: PostLayout
 ---
@@ -31,7 +31,7 @@ If you run into any file not found errors make sure you `git add` everything you
 
 To get started in the root of your project run
 
-```sh
+```bash
 nix flake init
 ```
 
@@ -125,7 +125,7 @@ Direnv will add hooks to your shell so when you `cd` into your project it will a
 
 In the root of your project run
 
-```sh
+```bash
 echo "use flake" >> .envrc
 direnv allow
 ```
@@ -137,7 +137,7 @@ On changes to your flake direnv will reload only what has changed.
 
 Now that we have rust in our dev environment we can make a new rust app with
 
-```sh
+```bash
 cargo init
 ```
 
@@ -215,8 +215,10 @@ outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
         };
 
       in {
-        rustPackage = myRustBuild;
-        docker = dockerImage;~~~~
+        packages = {
+          rustPackage = myRustBuild;
+          docker = dockerImage;
+        };
         defaultPackage = dockerImage;
         devShell = pkgs.mkShell {
           buildInputs =
@@ -228,7 +230,7 @@ outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
 Now `nix build` or `nix build .#docker` will build the docker image. After building `result` is just a sym link to the image tar file of a folder like before.
 Since nix is declarative it does not load it directly into docker for you. You can load it with
 
-```sh
+```bash
 docker load < result
 ```
 
@@ -236,13 +238,13 @@ You should see an output like `rust-nix-blog:yyc9gd4nkydrikzpsvlp3gmwnpxhh1ik` w
 
 Now run the image with
 
-```sh
+```bash
 docker run rust-nix-blog:yyc9gd4nkydrikzpsvlp3gmwnpxhh1ik
 ```
 
 We can automate this a bit with a script like. (Slightly modified example from [here](https://jamey.thesharps.us/2021/02/02/docker-containers-nix/))
 
-```sh
+```bash
 #!/usr/bin/env bash
 set -e; set -o pipefail;
 

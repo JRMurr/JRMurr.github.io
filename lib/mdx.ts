@@ -19,7 +19,7 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeKatex from 'rehype-katex';
 import rehypeCitation from 'rehype-citation';
-import rehypePrismPlus from 'rehype-prism-plus';
+import rehypePrismPlus from 'rehype-prism-plus'; // syntax hightlighting
 
 const root = process.cwd();
 
@@ -84,7 +84,7 @@ export async function getFileBySlug(type: 'authors' | 'blog', slug: string | str
           rehypeCitation,
           { bibliography: frontmatter?.bibliography, path: path.join(root, 'data') },
         ],
-        [rehypePrismPlus, { ignoreMissing: true }],
+        [rehypePrismPlus, { ignoreMissing: false }],
       ];
       return options;
     },
