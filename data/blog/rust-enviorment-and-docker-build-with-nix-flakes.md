@@ -262,7 +262,16 @@ docker image tag "$image" rust-nix-blog:latest
 
 Let's use [dive](https://github.com/wagoodman/dive) to look at the image. You can use it temporarily with `nix shell nixpkgs#dive`.
 
-Looking at the output you can see it's a single layer image with just they need nix store package to run the binary (in case just libc and the rust code).
+```
+ 33 MB  └── nix
+ 33 MB      └── store
+374 kB          ├─⊕ h4isr1pyv1fjdrxj2g80vsa4hp2hp76s-rust_nix_blog-0.1.0
+1.8 MB          ├─⊕ ik4qlj53grwmg7avzrfrn34bjf6a30ch-libunistring-1.0
+246 kB          ├─⊕ w3zngkrag7vnm7v1q8vnqb71q6a1w8gn-libidn2-2.3.2
+ 30 MB          └─⊕ ybkkrhdwdj227kr20vk8qnzqnmj7a06x-glibc-2.34-115
+```
+
+Looking at the output you can see it's a single layer image with just what is needed to run the binary (in case just libc and the rust code).
 
 ## Common troubleshooting issues
 
@@ -278,8 +287,8 @@ rustPlatform.buildRustPackage {
     "rust_nix_blog"; # make this what ever your cargo.toml package.name is
   version = "0.1.0";
   src = ./.; # the folder with the cargo.toml
-  nativeBuildInputs = [pkg-config ]; # just for the host building the package
-  buildInputs = [openssl]; # packages needed by the consumer
+  nativeBuildInputs = [pkgs.pkg-config ]; # just for the host building the package
+  buildInputs = [pkgs.openssl]; # packages needed by the consumer
   cargoLock.lockFile = ./Cargo.lock;
 };
 ```
