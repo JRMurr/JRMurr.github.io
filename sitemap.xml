@@ -17,7 +17,19 @@
   </url>
 
   <url>
+    <loc>https://johns.codes/tags/docker</loc>
+  </url>
+
+  <url>
     <loc>https://johns.codes/tags/guide</loc>
+  </url>
+
+  <url>
+    <loc>https://johns.codes/tags/nix</loc>
+  </url>
+
+  <url>
+    <loc>https://johns.codes/tags/rust</loc>
   </url>
 
   <url>

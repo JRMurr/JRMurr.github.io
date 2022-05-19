@@ -7,9 +7,19 @@
       <language>en-us</language>
       <managingEditor>undefined (John Murray)</managingEditor>
       <webMaster>undefined (John Murray)</webMaster>
-      <lastBuildDate>Mon, 31 Jan 2022 00:00:00 GMT</lastBuildDate>
+      <lastBuildDate>Thu, 19 May 2022 00:00:00 GMT</lastBuildDate>
       <atom:link href="https://johns.codes/feed.xml" rel="self" type="application/rss+xml"/>
       
+  <item>
+    <guid>https://johns.codes/blog/rust-enviorment-and-docker-build-with-nix-flakes</guid>
+    <title>Rust Environment and Docker Build with Nix Flakes</title>
+    <link>https://johns.codes/blog/rust-enviorment-and-docker-build-with-nix-flakes</link>
+    <description>Reproducible dev environments and builds with Nix</description>
+    <pubDate>Thu, 19 May 2022 00:00:00 GMT</pubDate>
+    <author>undefined (John Murray)</author>
+    <category>rust</category><category>nix</category><category>docker</category>
+  </item>
+
   <item>
     <guid>https://johns.codes/blog/intermediate-typescript-generics-and-mapped-types</guid>
     <title>Intermediate Typescript: Generics and Mapped Types</title>
