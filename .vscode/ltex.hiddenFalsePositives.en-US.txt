@@ -4,3 +4,6 @@
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QNo more READMEs with\\E$"}
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QNo more READMEs with a list of Homebrew, apt, pacman, etc. commands you need to run\\E$"}
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QA flake is nix's newish way of making nix even more reproducible.\\E$"}
+{"rule":"COMMA_COMPOUND_SENTENCE","sentence":"^\\QNow we added rust-overlay so we can easily specify different rust versions without relying on \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q to give us what ever rust version in there.\\E$"}
+{"rule":"ADVERB_OR_HYPHENATED_ADJECTIVE","sentence":"^\\QLooking at the output you can see it's a single layered image with just they need nix store package to run the binary (in case just libc and the rust code).\\E$"}
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QFor OpenSSL specifically I would recommend using rusttls when possible.\\E$"}

@@ -4,3 +4,12 @@ enums
 enum
 rustup
 direnv
+newish
+nixpkg
+nixpkgs
+flake-utils
+toolchain
+Direnv
+nix-direnv
+READMEs
+pacman
