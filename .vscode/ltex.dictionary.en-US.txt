@@ -13,3 +13,5 @@ Direnv
 nix-direnv
 READMEs
 pacman
+lodash
+Lodash
