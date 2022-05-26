@@ -2,13 +2,15 @@
 title: Type Safe GroupBy In TypeScript
 date: '2022-05-25'
 tags: ['typescript', 'types', 'code', 'guide']
-draft: true
+draft: false
 summary: Create a better groupBy function that only allows valid keys to be grouped on
 images: []
 layout: PostLayout
 ---
 
-## Lodash's GroupBy
+<TOCInline toc={props.toc} asDisclosure />
+
+## Lodash's groupBy
 
 I would bet if you have a sizeable Javascript/Typescript codebase you most likely are using [lodash](https://lodash.com/) somewhere in there.
 While Javascript has gotten more "batteries included" over the last few years, lodash still has many nice functions for manipulating arrays/objects.
@@ -81,16 +83,17 @@ In this case the objects where coerced to string values so all elements of `vals
 
 Finally, the return type of this function is `Dictionary`, while its "right" it could be "more right" by encoding that the returning object's keys would be the values of the grouping key in the input object.
 
-## Making our Own GroupBy
+## Making our own groupBy
 
 _insert Bender joke here_
 
-To start making our own type safe `groupBy`, we first need some code that actually does the grouping logic. Let's start with that and really basic types.
+To start making our own type safe `groupBy`, we first need some code that actually does the grouping logic. Let's start with that and some basic types.
 
 ```typescript
 // Note: PropertyKey is a builtIn type alias of
 // type PropertyKey = string | number | symbol
-// This lets us use "Record<PropertyKey, any>" to represent any object but is slightly nicer to use than the "object" type
+// This lets us use "Record<PropertyKey, any>" to represent any object
+// but is slightly nicer to use than the "object" type
 function simpleGroupBy<T extends Record<PropertyKey, any>>(arr: T[], key: keyof T): any {
   return arr.reduce((accumulator, val) => {
     const groupedKey = val[key];
@@ -133,7 +136,7 @@ function sadAttempt<T extends object>(arr: T[], key: keyof T): Record<string, T[
 }
 ```
 
-The lines with `accumulator[groupedKey]` will error with `Type 'T[keyof T]' cannot be used to index type 'Record<string, T>'`. Here the `keyof T` could be any key in T so since not every key's value in T is a string typescript will not let you treat `groupedKey` as a string.
+The lines with `accumulator[groupedKey]` will error with `Type 'T[keyof T]' cannot be used to index type 'Record<string, T>'`. Here the `keyof T` could be any key in `T` so since not every key's value in `T` is a string typescript will not let you treat `groupedKey` as a string.
 
 We can almost fix this by adding some more information on the input key by binding it to a new generic parameter, though there will still be some issues.
 
@@ -153,7 +156,7 @@ function betterSadAttempt<T extends Record<PropertyKey, any>, Key extends keyof 
 }
 ```
 
-Here we added a new generic `Key extends keyof T` so when we supply a specific key to the function, the Key generic will be narrowed to that value. For example if we did `betterSadAttempt(vals, 'someLiteral')`, `Key` would exactly be `someLiteral` instead of `keyof Foo = 'someLiteral' | 'num' | 'object'`
+Here we added a new generic `Key extends keyof T` so when we supply a specific key to the function, the Key generic will be narrowed to that value. For example if we did `betterSadAttempt(vals, 'someLiteral')`, `Key` would exactly be `'someLiteral'` instead of `keyof Foo = 'someLiteral' | 'num' | 'object'`
 
 However, typescript is still sad on the `Record<T[Key], T[]>` lines with `Type 'T[Key]' does not satisfy the constraint 'string | number | symbol'`.
 This error is similar to the error before, basically `T[Key]` can not be a key for the `Record` since it could be some weird value.
@@ -168,7 +171,7 @@ type MapValuesToKeysIfAllowed<T> = {
 type Filter<T> = MapValuesToKeysIfAllowed<T>[keyof T];
 ```
 
-This type helper does a few things. First it maps over all the values in T (`[K in keyof T]`) and makes the value the key if it is a subset of `string | number | symbol` (`T[K] extends PropertyKey ? K`), if it's not a subset its value the `never` type. Finally, we use an [index access type](https://www.typescriptlang.org/docs/handbook/2/indexed-access-types.html) to get all values of the transformed object as a union. This step will drop all the `never` values automatically for us since adding `never` to a union is like saying `or false` its basically is a no op.
+This type helper does a few things. First it maps over all the values in `T` (`[K in keyof T]`) and makes the value the key if it is a subset of `string | number | symbol` (`T[K] extends PropertyKey ? K`), if it's not a subset its value will bethe `never` type. Finally, we use an [index access type](https://www.typescriptlang.org/docs/handbook/2/indexed-access-types.html) to get all values of the transformed object as a union. This step will drop all the `never` values automatically for us since adding `never` to a union is like saying `or false` its basically is a no op.
 
 That was a mouthful so let's see an example
 
@@ -189,6 +192,7 @@ type MappedFoo = MapValuesToKeysIfAllowed<Foo>;
 }
 */
 // we replace the values of this object with just the key as a string literal or never
+
 type FooKeys = Filter<Foo>;
 // => "num" | "someLiteral"
 // notice the never does not show up in the union
@@ -205,6 +209,7 @@ type MappedAllObjects = MapValuesToKeysIfAllowed<AllObjects>;
   diffObject: never;
 }
 */
+
 type AllObjectsKeys = Filter<AllObjects>;
 // => never
 // the output is only never. Think of this like saying "false or false", the output will just be false
@@ -212,7 +217,14 @@ type AllObjectsKeys = Filter<AllObjects>;
 
 With this filter type helper function we can now properly limit the `Key` generic by replacing `Key extends keyof T` with `Key extends Filter<T>`.
 
+## Putting it all together
+
 ```typescript
+type MapValuesToKeysIfAllowed<T> = {
+  [K in keyof T]: T[K] extends PropertyKey ? K : never;
+};
+type Filter<T> = MapValuesToKeysIfAllowed<T>[keyof T];
+
 function groupBy<T extends Record<PropertyKey, any>, Key extends Filter<T>>(
   arr: T[],
   key: Key
@@ -238,9 +250,9 @@ const sad = groupBy(vals, 'object');
 ```
 
 Now this works great, we can only pass in keys that have valid values, and we even get autocomplete on it! However, one thing that bothers me is the error message in the last case.
-While it's correct, saying `not assignable to parameter of type 'Filter<Foo>` is not very useful to a user. This pops up sometimes with typescript where it won't show the underlying type and instead just show the higher level type helper instead.
+While it's correct, saying `not assignable to parameter of type 'Filter<Foo>'` is not very useful to a user. This pops up sometimes with typescript where it won't show the underlying type and instead just show the higher level type helper instead.
 
-To make the error message show the valid keys we can use a modified version of [this "hack"](https://stackoverflow.com/a/57683652). Here instead of creating the `Expand` type in the post, we can make our own `valuesOf` to replace the `[keyof T]` at the end of `Filter`
+To make the error message show the valid keys we can use a modified version of [this "hack"](https://stackoverflow.com/a/57683652). Here instead of creating the `Expand` type in the post, we can make our own `ValuesOf` to replace the `[keyof T]` at the end of `Filter`
 
 ```typescript
 type ValuesOf<A> = A extends infer O ? A[keyof A] : never;
@@ -269,7 +281,7 @@ While this is not perfect this mostly works
 ```typescript
 function groupByFunc<
   RetType extends PropertyKey,
-  T extends Record<PropertyKey, any>,
+  T, // no longer need any requirements on T since the grouper can do w/e it wants
   Func extends (arg: T) => RetType
 >(arr: T[], mapper: Func): Record<RetType, T[]> {
   return arr.reduce((accumulator, val) => {
@@ -282,10 +294,8 @@ function groupByFunc<
   }, {} as Record<RetType, T[]>);
 }
 
-const test = groupByFunc(vals, (v) => {
-  return v.num;
-});
+const test = groupByFunc([6.1, 4.2, 6.3], Math.floor);
 // test = Record<PropertyKey, Foo[]>
 ```
 
-This works by only letting you pass in functions that return `PropertyKey`, but typescript does not seem to narrow the types. In this case `test` should be `Record<number, Foo[]>` since TS _should_ infer the return type of the grouping function. If you know how to improve this function to make the return type narrow properly feel free to leave an issue/pr on my [blog's github](https://github.com/JRMurr/JRMurr.github.io)!
+This works by only letting you pass in functions that return `PropertyKey`, but typescript does not seem to narrow the types. In this case `test` should be `Record<number, Foo[]>` since TS _should_ infer the return type of the grouping function. If you know how to improve this function to make the return type narrow properly feel free to leave an issue/pr on my [blog's GitHub](https://github.com/JRMurr/JRMurr.github.io)!

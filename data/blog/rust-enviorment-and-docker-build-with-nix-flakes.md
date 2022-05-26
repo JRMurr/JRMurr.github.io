@@ -8,6 +8,8 @@ images: []
 layout: PostLayout
 ---
 
+<TOCInline toc={props.toc} asDisclosure />
+
 ## Why Nix
 
 Getting a dev environment setup with rust is usually pretty simple, just use rustup then you're good to go.

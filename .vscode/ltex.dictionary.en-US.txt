@@ -15,3 +15,8 @@ READMEs
 pacman
 lodash
 Lodash
+TOCInline
+toc
+asDisclosure
+groupBy
+Nextjs

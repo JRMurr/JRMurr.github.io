@@ -8,6 +8,8 @@ images: []
 layout: PostLayout
 ---
 
+<TOCInline toc={props.toc} asDisclosure />
+
 In the [last post](/blog/intermediate-typescript), I covered Literal and Union types. Those types are great and can get you a long way when writing your apps. When your codebase starts to grow you may find your middleware/helper functions still have too general of types which leads to more type casting than you would like. This is where generics and mapped types come in.
 
 ## Generics
