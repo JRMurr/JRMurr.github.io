@@ -7,9 +7,19 @@
       <language>en-us</language>
       <managingEditor>undefined (John Murray)</managingEditor>
       <webMaster>undefined (John Murray)</webMaster>
-      <lastBuildDate>Mon, 31 Jan 2022 00:00:00 GMT</lastBuildDate>
+      <lastBuildDate>Wed, 25 May 2022 00:00:00 GMT</lastBuildDate>
       <atom:link href="https://johns.codes/tags/typescript/feed.xml" rel="self" type="application/rss+xml"/>
       
+  <item>
+    <guid>https://johns.codes/blog/type-safe-groupby-in-typescript</guid>
+    <title>Type Safe GroupBy In TypeScript</title>
+    <link>https://johns.codes/blog/type-safe-groupby-in-typescript</link>
+    <description>Create a better groupBy function that only allows valid keys to be grouped on</description>
+    <pubDate>Wed, 25 May 2022 00:00:00 GMT</pubDate>
+    <author>undefined (John Murray)</author>
+    <category>typescript</category><category>types</category><category>code</category><category>guide</category>
+  </item>
+
   <item>
     <guid>https://johns.codes/blog/intermediate-typescript-generics-and-mapped-types</guid>
     <title>Intermediate Typescript: Generics and Mapped Types</title>
