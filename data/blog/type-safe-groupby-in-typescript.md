@@ -123,7 +123,7 @@ Let's start by adding a few more generics, so we can type the output correctly.
 Your first change might be to make the return type `Record<string, T[]>` since the keys will be coerced to strings by JavaScript and the values will be the same values in the array.
 This will unfortunately make typescript sad.
 
-```typescript {7,8,10}
+```typescript {4,5,6}
 function sadAttempt<T extends object>(arr: T[], key: keyof T): Record<string, T[]> {
   return arr.reduce((accumulator, val) => {
     const groupedKey = val[key];
