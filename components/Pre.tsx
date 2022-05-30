@@ -2,9 +2,10 @@ import { useState, useRef, ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
+  className: string;
 }
 
-const Pre = ({ children }: Props) => {
+const Pre = ({ children, className }: Props) => {
   const textInput = useRef(null);
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -67,7 +68,7 @@ const Pre = ({ children }: Props) => {
         </button>
       )}
 
-      <pre>{children}</pre>
+      <pre className={className}>{children}</pre>
     </div>
   );
 };

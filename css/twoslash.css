@@ -20,14 +20,14 @@ pre {
   padding: 12px;
 
   /* All code samples get a grey border, twoslash ones get a different color */
-  border-left: 1px solid #999;
-  border-bottom: 1px solid #999;
+  /* border-left: 1px solid #999;
+  border-bottom: 1px solid #999; */
 
   margin-bottom: 3rem;
 
   /* Important to allow the code to move horizontally; */
   overflow-x: auto;
-  position: relative;
+  /* position: relative; */
 }
 pre.shiki {
   overflow-x: auto;
