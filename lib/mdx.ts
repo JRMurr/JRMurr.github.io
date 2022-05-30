@@ -83,7 +83,6 @@ export async function getFileBySlug(type: 'authors' | 'blog', slug: string | str
       options.rehypePlugins = [
         ...(options.rehypePlugins ?? []),
         [rehypeRaw, { passThrough: nodeTypes }],
-        // rehypeRaw,
         rehypeSlug,
         rehypeAutolinkHeadings,
         rehypeKatex,
@@ -91,10 +90,7 @@ export async function getFileBySlug(type: 'authors' | 'blog', slug: string | str
           rehypeCitation,
           { bibliography: frontmatter?.bibliography, path: path.join(root, 'data') },
         ],
-        // [rehypePrismPlus, { ignoreMissing: false }],
       ];
-      console.log('mdx.ts:97');
-      console.dir(options.remarkPlugins, { depth: null, showHidden: true, colors: true });
       return options;
     },
     esbuildOptions: (options) => {
@@ -105,8 +101,6 @@ export async function getFileBySlug(type: 'authors' | 'blog', slug: string | str
       return options;
     },
   });
-  console.log('mdx.ts:107');
-  console.dir(code, { depth: null, showHidden: true, colors: true });
   return {
     mdxSource: code,
     toc,
