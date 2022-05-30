@@ -96,19 +96,18 @@ inputs = {
     rust-overlay.url = "github:oxalica/rust-overlay";
   };
 
-  outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        overlays = [ (import rust-overlay) ];
-        pkgs = import nixpkgs { inherit system overlays; };
-        rustVersion = pkgs.rust-bin.stable.latest.default;
-      in {
-        devShell = pkgs.mkShell {
-          buildInputs =
-            [ (rustVersion.override { extensions = [ "rust-src" ]; }) ];
-        };
-      });
-}
+outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
+  flake-utils.lib.eachDefaultSystem (system:
+    let
+      overlays = [ (import rust-overlay) ];
+      pkgs = import nixpkgs { inherit system overlays; };
+      rustVersion = pkgs.rust-bin.stable.latest.default;
+    in {
+      devShell = pkgs.mkShell {
+        buildInputs =
+          [ (rustVersion.override { extensions = [ "rust-src" ]; }) ];
+      };
+    });
 ```
 
 We added [rust-overlay](https://github.com/oxalica/rust-overlay), so we can easily specify different rust versions

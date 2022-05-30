@@ -1,4 +1,5 @@
 import { bundleMDX } from 'mdx-bundler';
+import { nodeTypes } from '@mdx-js/mdx';
 import fs from 'fs';
 import matter from 'gray-matter';
 import path from 'path';
@@ -19,7 +20,10 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeKatex from 'rehype-katex';
 import rehypeCitation from 'rehype-citation';
-import rehypePrismPlus from 'rehype-prism-plus'; // syntax hightlighting
+
+import rehypeRaw from 'rehype-raw';
+
+import remarkShikiTwoslash from 'remark-shiki-twoslash';
 
 const root = process.cwd();
 
@@ -68,15 +72,17 @@ export async function getFileBySlug(type: 'authors' | 'blog', slug: string | str
       // plugins in the future.
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
+        remarkCodeTitles, // this needs to be before remarkShikiTwoslash
+        [remarkShikiTwoslash, { theme: 'dracula' }],
         [remarkTocHeadings, { exportRef: toc }],
         remarkGfm,
-        remarkCodeTitles,
         [remarkFootnotes, { inlineNotes: true }],
         remarkMath,
         remarkImgToJsx,
       ];
       options.rehypePlugins = [
         ...(options.rehypePlugins ?? []),
+        [rehypeRaw, { passThrough: nodeTypes }],
         rehypeSlug,
         rehypeAutolinkHeadings,
         rehypeKatex,
@@ -84,7 +90,6 @@ export async function getFileBySlug(type: 'authors' | 'blog', slug: string | str
           rehypeCitation,
           { bibliography: frontmatter?.bibliography, path: path.join(root, 'data') },
         ],
-        [rehypePrismPlus, { ignoreMissing: false }],
       ];
       return options;
     },
@@ -96,7 +101,6 @@ export async function getFileBySlug(type: 'authors' | 'blog', slug: string | str
       return options;
     },
   });
-
   return {
     mdxSource: code,
     toc,
