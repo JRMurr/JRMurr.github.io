@@ -72,10 +72,10 @@ export async function getFileBySlug(type: 'authors' | 'blog', slug: string | str
       // plugins in the future.
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
+        remarkCodeTitles, // this needs to be before remarkShikiTwoslash
         [remarkShikiTwoslash, { theme: 'dracula' }],
         [remarkTocHeadings, { exportRef: toc }],
         remarkGfm,
-        remarkCodeTitles,
         [remarkFootnotes, { inlineNotes: true }],
         remarkMath,
         remarkImgToJsx,

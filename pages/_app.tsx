@@ -1,5 +1,5 @@
 import '@/css/tailwind.css';
-// import '@/css/prism.css';
+import '@/css/prism.css';
 import '@/css/twoslash.css';
 
 import { ThemeProvider } from 'next-themes';
