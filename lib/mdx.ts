@@ -20,7 +20,6 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeKatex from 'rehype-katex';
 import rehypeCitation from 'rehype-citation';
-import rehypePrismPlus from 'rehype-prism-plus'; // syntax hightlighting
 
 import rehypeRaw from 'rehype-raw';
 
@@ -63,7 +62,6 @@ export async function getFileBySlug(type: 'authors' | 'blog', slug: string | str
 
   // Parsing frontmatter here to pass it in as options to rehype plugin
   const { data: frontmatter } = matter(source);
-  console.log(`mdx.ts:66	fart!`);
   const { code } = await bundleMDX({
     source,
     // mdx imports can be automatically source from the components directory
@@ -74,13 +72,13 @@ export async function getFileBySlug(type: 'authors' | 'blog', slug: string | str
       // plugins in the future.
       options.remarkPlugins = [
         ...(options.remarkPlugins ?? []),
+        [remarkShikiTwoslash, { theme: 'dracula' }],
         [remarkTocHeadings, { exportRef: toc }],
         remarkGfm,
         remarkCodeTitles,
         [remarkFootnotes, { inlineNotes: true }],
         remarkMath,
         remarkImgToJsx,
-        [remarkShikiTwoslash, { theme: 'dark-plus' }],
       ];
       options.rehypePlugins = [
         ...(options.rehypePlugins ?? []),
@@ -95,6 +93,8 @@ export async function getFileBySlug(type: 'authors' | 'blog', slug: string | str
         ],
         // [rehypePrismPlus, { ignoreMissing: false }],
       ];
+      console.log('mdx.ts:97');
+      console.dir(options.remarkPlugins, { depth: null, showHidden: true, colors: true });
       return options;
     },
     esbuildOptions: (options) => {
@@ -104,12 +104,9 @@ export async function getFileBySlug(type: 'authors' | 'blog', slug: string | str
       };
       return options;
     },
-  }).catch((e) => {
-    console.log('mdx.ts:108');
-    console.dir(e, { depth: null, showHidden: true, colors: true });
-    throw e;
   });
-
+  console.log('mdx.ts:107');
+  console.dir(code, { depth: null, showHidden: true, colors: true });
   return {
     mdxSource: code,
     toc,
