@@ -33,7 +33,7 @@ These types are fine for many cases and I still default most types to be these u
 
 [Literal Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types) on the other hand are a much stronger restriction on what the allowed values are
 
-```typescript
+```ts twoslash
 const numLiteral = 1 as const; // this can only be the number 1, no other number
 const strLiteral = 'literal' as const; // can only be the string 'literal'
 const boolLiteral = true as const; // can only be true
@@ -48,7 +48,7 @@ These types on their own are not that useful but when combined with unions and c
 [Union Types](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types) allow you to say a type is either
 `foo` or `bar` or `number` or `string`...
 
-```typescript
+```ts twoslash
 function printId(id: number | string) {
   console.log('Your ID is: ' + id);
 }
@@ -58,14 +58,17 @@ This function will allow you to pass in a string or number, this is fine since b
 
 When combined with literals you can make types very strongly defined.
 
-```typescript
-type MethodType = "GET" | "PUT" | "POST" | "DELETE"
+```ts twoslash
+// @errors: 2345 1128
+type MethodType = 'GET' | 'PUT' | 'POST' | 'DELETE';
 
-function makeHttpCall(url: string, method: MethodType) {...}
-const url = "johns.codes"
-makeHttpCall(url, "GET") // allowed
-makeHttpCall(url, "GeT") // not allowed
-makeHttpCall(url, "POG") // not allowed
+function makeHttpCall(url: string, method: MethodType) {
+  console.log(`Im hitting ${url} with ${method}`);
+}
+const url = 'johns.codes';
+makeHttpCall(url, 'GET'); // allowed
+makeHttpCall(url, 'GeT'); // not allowed
+makeHttpCall(url, 'POG'); // not allowed
 ```
 
 This helps greatly for new users of this function to see what the valid method fields are without having to look at external documentation,
@@ -75,7 +78,8 @@ your editor will provide autocomplete on the method field, and you get a compile
 
 Literals allow for strongly typed APIs, but how do you properly narrow a general type to a more specific type? Typescript allows this in a few ways
 
-```typescript
+```ts twoslash
+ // @errors: 2304 1109
 function handleAny(url: string, method: unknown) {
   if (typeof method === "string") {
     // in this block method is now a string type
@@ -92,7 +96,7 @@ function handleAny(url: string, method: unknown) {
 This manual checking is fine but if you have a more complex type or a union with many possible values this gets unwieldy quite fast.
 The next best approach is a [type predicate](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates)
 
-```typescript
+```ts twoslash
 // First define valid methods as a const array
 const ValidMethods = ['GET', 'PUT', 'POST', 'DELETE'] as const;
 type MethodType = typeof ValidMethods[number]; // resulting type is the same as before
@@ -119,7 +123,7 @@ Type predicates are a good simple way to encode any runtime checks into the type
 Now unions of basic literals are quite powerful, but unions can be even more powerful when you make unions of objects.
 Say in your app you track different events. The events could look like the following
 
-```typescript
+```ts twoslash
 interface LoginEvent {
   // the user's email
   user: string;
@@ -141,7 +145,7 @@ when you want to narrow this type down you would have to end up with a lot of `i
 To avoid that issue you can define the event types as a [Discriminated union](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#discriminated-unions).
 All this is, is a union type where all types in the union have a field whose value is unique in all the union's types. We can redefine the above types as follows
 
-```typescript
+```ts twoslash
 interface LoginEvent {
   type: 'login';
   user: string;
@@ -162,7 +166,7 @@ type EventTypes = ApiEvent['type']; // this resolves to 'login' | 'postCreated'
 In this example you could name the key `type` whatever you want, as long as every type has that field the union type will allow you to access the key.
 Now to narrow this type down you could do the following
 
-```typescript
+```ts twoslash
 function logEvent(event: ApiEvent) {
   if (event.type === 'login') {
     console.log(`user: ${event.user}, wasSuccessful: ${event.wasSuccessful}`);
@@ -175,7 +179,7 @@ function logEvent(event: ApiEvent) {
 This style of checking the discriminating field in if statement is fine but is a little verbose to me.
 I find that a switch statement makes it more readable and less verbose.
 
-```typescript
+```ts twoslash
 function logEvent(event: ApiEvent) {
   switch (event.type) {
     case 'login':
@@ -193,7 +197,7 @@ function logEvent(event: ApiEvent) {
 There is one issue with this approach, in the future when we add a new event type it would fall through to default case, and we wouldn't know about it until runtime.
 However, using Typescript's `never` type we can force a compile error when we don't handle all cases
 
-```typescript
+```ts twoslash
 function assertUnreachable(type: never): never {
     throw new Error(`Invalid event type: ${type}`);
 }
