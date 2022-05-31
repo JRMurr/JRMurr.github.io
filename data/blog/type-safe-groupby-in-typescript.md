@@ -131,7 +131,6 @@ Cool the logic here seems to work, but obviously the types could use some love.
 Let's start by adding a few more generics, so we can type the output correctly.
 Your first change might be to make the return type `Record<string, T[]>` since the keys will be coerced to strings by JavaScript and the values will be the same values in the array.
 This will unfortunately make typescript sad.
-[]
 
 ```ts twoslash
 // @include: main
@@ -153,7 +152,7 @@ The lines with `accumulator[groupedKey]` will error with `Type 'T[keyof T]' cann
 
 We can almost fix this by adding some more information on the input key by binding it to a new generic parameter, though there will still be some issues.
 
-```ts twoslash {1,4,12}
+```ts twoslash
 function betterSadAttempt<T extends Record<PropertyKey, any>, Key extends keyof T>(
   arr: T[],
   key: Key
