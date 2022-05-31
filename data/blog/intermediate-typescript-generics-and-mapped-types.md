@@ -19,7 +19,7 @@ If your first interaction with generics was with java in school they may have pu
 The simplest way to think of them is sort of like a function that takes types as parameters and yields back a new type.
 To drive that point home lets look at a few simple examples.
 
-```typescript
+```ts twoslash
 type AddString<T> = T | string;
 
 type NumOrString = AddString<number>; // yields number | string
@@ -38,7 +38,7 @@ Generics act as a template, you define a type using a type parameter (in these c
 
 The most likely instance you would run into generics is with functions. Generics in functions allows types to flow through it when the function does not really care about any specific type.
 
-```typescript
+```ts twoslash
 type Nullable<T> = T | null;
 function getWithDefault<T>(possibleValue: Nullable<T>, defaultVal: T): T {
   if (possibleValue) {
@@ -59,7 +59,7 @@ In this example, we use the same type `T` 3 times, as a `Nullable<T>`, a default
 
 Generics can help address a number of potential issues of types not "flowing" the way you want. A great example of this is a function modifying members of a union type. Recall the `ApiEvent` type from the last post
 
-```typescript
+```twoslash include main
 interface LoginEvent {
   type: 'login';
   user: string;
@@ -76,9 +76,15 @@ interface PostCreatedEvent {
 type ApiEvent = LoginEvent | PostCreatedEvent;
 ```
 
+```ts twoslash
+// @include: main
+```
+
 Now let's say you are making a function that will take an event, and add a new field `logged: boolean` to show the event was logged out. Your first attempt might look something like this.
 
-```typescript
+```ts twoslash
+// @include: main
+// ---cut---
 function addLogged(event: ApiEvent): ApiEvent & { logged: boolean } {
   return { ...event, logged: true };
 }
@@ -86,23 +92,32 @@ function addLogged(event: ApiEvent): ApiEvent & { logged: boolean } {
 
 This makes sense initially however, when you go to use this function you notice an issue.
 
-```typescript
+```ts twoslash
+// @errors: 2339
+// @include: main
+function addLogged(event: ApiEvent): ApiEvent & { logged: boolean } {
+  return { ...event, logged: true };
+}
+// ---cut---
 const loginEvent: LoginEvent = { type: 'login', user: 'john', wasSuccessful: true };
 
 const updated = addLogged(loginEvent);
-console.log(updated.user); // error: Property 'user' does not exist on type 'PostCreatedEvent & { logged: boolean; }'
+console.log(updated.user);
 ```
 
 Weird, it's obvious to you that all this function does is add on a field, why is typescript complaining that `user` does not exist on `PostCreatedEvent`? The issue is the function definition. Based on the types we pass in `ApiEvent` and get back `ApiEvent` with some extra stuff. To the type system we could just always return a `PostCreatedEvent` with the logged field.
 
 Generics help us tell typescript what we put in, is what we are going get out. Let's re-write this function like so.
 
-```typescript
+```ts twoslash
+// @include: main
+// ---cut---
 function addLogged<T extends ApiEvent>(event: T): T & { logged: boolean } {
   return { ...event, logged: true };
 }
 
 const loginEvent: LoginEvent = { type: 'login', user: 'john', wasSuccessful: true };
+const updated = addLogged(loginEvent);
 console.log(updated.user); // no error
 ```
 
@@ -113,7 +128,7 @@ This does not lose generality if you had a list of `ApiEvents` you could still m
 
 Sometimes you may have a few wrapper types that hold the same types. This example is a little contrived, but I've run into this a few times before.
 
-```typescript
+```twoslash include wrapOne
 type ValidValue = string | number;
 
 interface WrapperOne {
@@ -131,25 +146,35 @@ interface WrapperTwo {
 type Wrapper = WrapperOne | WrapperTwo;
 ```
 
+```ts twoslash
+// @include: wrapOne
+```
+
 In this example lets say the wrappers should both hold the same value type (both string or both number). But with this definition you could do
 
-```typescript
-const wrappedValues: Wrapper[] = [{
+```ts twoslash
+// @include: wrapOne
+
+// ---cut---
+const wrappedValues: Wrapper[] = [
+  {
     type: 'wrapperOne',
     value: 'aVal', // this wrapper is using a string
-    info: ['extra info', 'more info']
-}, {
-    type: 'wrapperTwo'
+    info: ['extra info', 'more info'],
+  },
+  {
+    type: 'wrapperTwo',
     value: 1, // this wrapper is using a number
     extra: 10,
-}]
+  },
+];
 ```
 
 Since the `value` field can be `string | number` there is nothing stopping a user of this type to mix and match the wrapped value types in the objects of the array.
 
 Generics can be used to "lock" the value type in for all elements of the array.
 
-```typescript
+```twoslash include wrapTwo
 type ValidValue = string | number;
 
 interface WrapperOne<T extends ValidValue> {
@@ -167,18 +192,28 @@ interface WrapperTwo<T extends ValidValue> {
 type Wrapper<T extends ValidValue> = WrapperOne<T> | WrapperTwo<T>;
 ```
 
+```ts twoslash
+// @include: wrapTwo
+```
+
 Now when we say we have a `Wrappers<string>` both wrapper's `value` type will be string.
 
-```typescript
-const wrappedValues: Wrapper<string>[] = [{
+```ts twoslash
+// @include: wrapTwo
+
+// ---cut---
+const wrappedValues: Wrapper<string>[] = [
+  {
     type: 'wrapperOne',
     value: 'aVal', // this wrapper is using a string
-    info: ['extra info', 'more info']
-}, {
-    type: 'wrapperTwo'
-    value: 'I can only use string' // using a number here would now throw an error
-    extra: 10,
-}]
+    info: ['extra info', 'more info'],
+  },
+  {
+    type: 'wrapperTwo',
+    value: 'I can only use string', // using a number here would now throw an error
+    info: 10,
+  },
+];
 ```
 
 ## Mapped Types
@@ -186,7 +221,7 @@ const wrappedValues: Wrapper<string>[] = [{
 [Mapped Types](https://www.typescriptlang.org/docs/handbook/2/mapped-types.html) are a specific kind of generic types to help you build out new types.
 You may have seen is the `Record<K,V>` type, this lets you define an object whose keys are in the type `K` and values are in the type `V`. You can define your own record type like so.
 
-```typescript
+```ts twoslash
 type MyRecord<KeyType extends string, ValueType> = {
   [key in KeyType]: ValueType;
 };
@@ -196,7 +231,13 @@ const myRecord: MyRecord<'foo' | 'bar', number | string> = { foo: 10, bar: 'stri
 All mapped types do is iterate over possible values to define new keys (notice the `key in KeyType`).
 Another common mapped type is `Pick<T, Keys>`, this will yield a new type by picking the set of properties (`Keys`) from `T`. You can define it like so.
 
-```typescript
+```ts twoslash
+type MyRecord<KeyType extends string, ValueType> = {
+  [key in KeyType]: ValueType;
+};
+const myRecord: MyRecord<'foo' | 'bar', number | string> = { foo: 10, bar: 'string' };
+
+// --cut--
 type myPick<Type, Keys extends keyof Type> = {
   [key in Keys]: Type[key];
 };
@@ -213,18 +254,23 @@ Mapped types are excellent for incrementally adding types when converting from j
 
 When you decide it's time to add types for tables you start by typing a simple database table like so
 
-```typescript
+```ts twoslash
 interface UserTable {
   id: number;
   username: string;
   email: string;
-  ...
 }
 ```
 
 Now you run into an issue, how can you add just this type to the `Tables` type we had before without specifying all your tables? Mapped types can set a default type for anything you have not explicitly set.
 
-```typescript
+```ts twoslash
+interface UserTable {
+  id: number;
+  username: string;
+  email: string;
+}
+// ---cut---
 type Tables = {
   users: UserTable;
   [key: string]: any;
@@ -242,24 +288,33 @@ Typescript added [Enums](https://www.typescriptlang.org/docs/handbook/enums.html
 
 I like to use an `as const` object to hold my enum like types.
 
-```typescript
+```ts twoslash
 const UserStates = {
-    guest: 'guest',
-    loggedIn: 'loggedIn',
-    paid: 'paid'
+  guest: 'guest',
+  loggedIn: 'loggedIn',
+  paid: 'paid',
 } as const;
 
 type UserStatesMap = typeof UserStates;
 type UserStates = UserStatesMap[keyof UserStatesMap]; // UserStates is now 'guest' | 'loggedIn' | 'paid'
 
-function handleState(state: UserStates) {...}
+function handleState(state: UserStates) {}
 
 handleState(UserStates.guest);
 ```
 
 Now this looks like more code than just using a typescript enum, but this buys us a few things. Since the type is just an object map we can use mapped types to modify/filter our types as we need. Let's say we wanted to filter our `UserStates` type to not include `guest` accounts. We could do the following
 
-```typescript
+```ts twoslash
+const UserStates = {
+  guest: 'guest',
+  loggedIn: 'loggedIn',
+  paid: 'paid',
+} as const;
+
+type UserStatesMap = typeof UserStates;
+type UserStates = UserStatesMap[keyof UserStatesMap];
+// ---cut---
 type NonGuest = {
   [key in keyof UserStatesMap]: key extends 'guest' ? never : UserStatesMap[key];
 }[keyof UserStatesMap]; // This type resolves to `'loggedIn' | 'paid'`
