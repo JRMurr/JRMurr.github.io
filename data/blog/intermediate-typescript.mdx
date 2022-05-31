@@ -79,16 +79,22 @@ your editor will provide autocomplete on the method field, and you get a compile
 Literals allow for strongly typed APIs, but how do you properly narrow a general type to a more specific type? Typescript allows this in a few ways
 
 ```ts twoslash
- // @errors: 2304 1109
+type MethodType = 'GET' | 'PUT' | 'POST' | 'DELETE';
+function makeHttpCall(url: string, method: MethodType) {
+  console.log(`Im hitting ${url} with ${method}`);
+}
+// ---cut---
 function handleAny(url: string, method: unknown) {
-  if (typeof method === "string") {
+  if (typeof method === 'string') {
     // in this block method is now a string type
-    if (method == "GET") {
-        // method is now the literal "GET"
-        makeHttpCall(url, method);
+    if (method == 'GET') {
+      // method is now the literal "GET"
+      makeHttpCall(url, method);
     }
-    if (method == "PUT")
-    ...
+    if (method == 'PUT') {
+      // method is now the literal "PUT"
+      makeHttpCall(url, method);
+    }
   }
 }
 ```
@@ -97,6 +103,10 @@ This manual checking is fine but if you have a more complex type or a union with
 The next best approach is a [type predicate](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#using-type-predicates)
 
 ```ts twoslash
+function makeHttpCall(url: string, method: MethodType) {
+  console.log(`Im hitting ${url} with ${method}`);
+}
+// ---cut---
 // First define valid methods as a const array
 const ValidMethods = ['GET', 'PUT', 'POST', 'DELETE'] as const;
 type MethodType = typeof ValidMethods[number]; // resulting type is the same as before
@@ -127,13 +137,13 @@ Say in your app you track different events. The events could look like the follo
 interface LoginEvent {
   // the user's email
   user: string;
-  wasSuccessful: bool;
+  wasSuccessful: boolean;
 }
 
 interface PostCreatedEvent {
   name: string;
   body: string;
-  createdAt: date;
+  createdAt: Date;
 }
 // and many others
 ```
@@ -167,6 +177,22 @@ In this example you could name the key `type` whatever you want, as long as ever
 Now to narrow this type down you could do the following
 
 ```ts twoslash
+interface LoginEvent {
+  type: 'login';
+  user: string;
+  wasSuccessful: boolean;
+}
+
+interface PostCreatedEvent {
+  type: 'postCreated';
+  name: string;
+  body: string;
+  createdAt: Date;
+}
+
+type ApiEvent = LoginEvent | PostCreatedEvent;
+// ---cut---
+
 function logEvent(event: ApiEvent) {
   if (event.type === 'login') {
     console.log(`user: ${event.user}, wasSuccessful: ${event.wasSuccessful}`);
@@ -180,16 +206,32 @@ This style of checking the discriminating field in if statement is fine but is a
 I find that a switch statement makes it more readable and less verbose.
 
 ```ts twoslash
+interface LoginEvent {
+  type: 'login';
+  user: string;
+  wasSuccessful: boolean;
+}
+
+interface PostCreatedEvent {
+  type: 'postCreated';
+  name: string;
+  body: string;
+  createdAt: Date;
+}
+
+type ApiEvent = LoginEvent | PostCreatedEvent;
+// ---cut---
+
 function logEvent(event: ApiEvent) {
   switch (event.type) {
     case 'login':
-      console.log(`user: ${event.user}, wasSuccessful: ${event.wasSuccessful}`)
+      console.log(`user: ${event.user}, wasSuccessful: ${event.wasSuccessful}`);
       break;
-    case: 'postCreated':
-      console.log(`post ${event.name} was created at ${event.createdAt}`)
+    case 'postCreated':
+      console.log(`post ${event.name} was created at ${event.createdAt}`);
       break;
     default:
-      throw new Error(`invalid event type: ${event.type}`)
+      throw new Error(`invalid event type: ${(event as { type: string }).type}`);
   }
 }
 ```
@@ -198,22 +240,38 @@ There is one issue with this approach, in the future when we add a new event typ
 However, using Typescript's `never` type we can force a compile error when we don't handle all cases
 
 ```ts twoslash
+interface LoginEvent {
+  type: 'login';
+  user: string;
+  wasSuccessful: boolean;
+}
+
+interface PostCreatedEvent {
+  type: 'postCreated';
+  name: string;
+  body: string;
+  createdAt: Date;
+}
+
+type ApiEvent = LoginEvent | PostCreatedEvent;
+// ---cut---
+
 function assertUnreachable(type: never): never {
-    throw new Error(`Invalid event type: ${type}`);
+  throw new Error(`Invalid event type: ${type}`);
 }
 
 function logEvent(event: ApiEvent) {
   const type = event.type;
   switch (type) {
     case 'login':
-      console.log(`user: ${event.user}, wasSuccessful: ${event.wasSuccessful}`)
+      console.log(`user: ${event.user}, wasSuccessful: ${event.wasSuccessful}`);
       break;
-    case: 'postCreated':
-      console.log(`post ${event.name} was created at ${event.createdAt}`)
+    case 'postCreated':
+      console.log(`post ${event.name} was created at ${event.createdAt}`);
       break;
     default:
       // event.type is `never` here since this default case would never be hit since all possible cases are handled
-      assertUnreachable(type)
+      assertUnreachable(type);
   }
 }
 ```
