@@ -5,11 +5,11 @@ import { BlogSEO } from '@/components/SEO';
 // import Image from '@/components/Image'
 // import Tag from '@/components/Tag'
 import siteMetadata from '@/data/siteMetadata';
-// import Comments from '@/components/comments'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment';
 import { ReactNode } from 'react';
 import { PostFrontMatter } from 'types/PostFrontMatter';
 import { AuthorFrontMatter } from 'types/AuthorFrontMatter';
+import Comments from '@/components/comments';
 
 // const editUrl = (fileName) => `${siteMetadata.siteRepo}/blob/master/data/blog/${fileName}`
 // const discussUrl = (slug) =>
@@ -108,7 +108,7 @@ export default function PostLayout({ frontMatter, authorDetails, children }: Pro
             </dl> */}
             <div className="divide-y divide-gray-200 dark:divide-gray-700 xl:pb-0 xl:col-span-4 xl:row-span-2">
               <div className="pt-10 pb-8 prose dark:prose-dark max-w-none">{children}</div>
-              {/* <Comments frontMatter={frontMatter} /> */}
+              <Comments frontMatter={frontMatter} />
             </div>
             {/* <footer>
               <div className="text-sm font-medium leading-5 divide-gray-200 xl:divide-y dark:divide-gray-700 xl:col-start-1 xl:row-start-2">
