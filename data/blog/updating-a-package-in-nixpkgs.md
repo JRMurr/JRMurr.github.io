@@ -112,9 +112,13 @@ $ git rebase -i HEAD~2 # the number 2 here assumes you only had one commit. If y
 # in the interactive rebase window change all but the top `pick` to `s` for squash
 # this will squash all commits into one
 
+# git commit —amend would also work
+
 $ git push --force
 ```
 
 # Profit
 
 You have now joined the ranks of thankless open source developers! Feel free to enjoy the dopamine of the PR being merged.
+
+If you want some more nix posts I recently wrote a [blog for my job](https://medium.com/immuta-engineering/nix-and-skaffold-for-painless-developer-environments-bec6529ac82f) on how to setup simple nix flakes.
