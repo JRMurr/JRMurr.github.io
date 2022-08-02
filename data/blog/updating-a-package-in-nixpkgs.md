@@ -122,3 +122,5 @@ $ git push --force
 You have now joined the ranks of thankless open source developers! Feel free to enjoy the dopamine of the PR being merged.
 
 If you want some more nix posts I recently wrote a [blog for my job](https://medium.com/immuta-engineering/nix-and-skaffold-for-painless-developer-environments-bec6529ac82f) on how to setup simple nix flakes.
+
+IF you would like a more in depth video walking through this process [this video](https://www.youtube.com/watch?v=fvj8H5yUKu8) by Jon Ringer is quite good!
