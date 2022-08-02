@@ -12,7 +12,7 @@ const siteMetadata = {
   socialBanner: '/static/images/twitter-card.png',
   // email: 'address@yoursite.com',
   github: 'https://github.com/JRMurr',
-  // twitter: 'https://twitter.com/Twitter',
+  twitter: 'https://twitter.com/JRMurrCodes',
   // facebook: 'https://facebook.com',
   // youtube: 'https://youtube.com',
   // linkedin: 'https://www.linkedin.com',
