@@ -183,7 +183,7 @@ type MapValuesToKeysIfAllowed<T> = {
 type Filter<T> = MapValuesToKeysIfAllowed<T>[keyof T];
 ```
 
-This type helper does a few things. First it maps over all the values in `T` (`[K in keyof T]`) and makes the value the key if it is a subset of `string | number | symbol` (`T[K] extends PropertyKey ? K`), if it's not a subset its value will bethe `never` type. Finally, we use an [index access type](https://www.typescriptlang.org/docs/handbook/2/indexed-access-types.html) to get all values of the transformed object as a union. This step will drop all the `never` values automatically for us since adding `never` to a union is like saying `or false` its basically is a no op.
+This type helper does a few things. First it maps over all the values in `T` (`[K in keyof T]`) and makes the value the key if it is a subset of `string | number | symbol` (`T[K] extends PropertyKey ? K`), if it's not a subset its value will be the `never` type. Finally, we use an [index access type](https://www.typescriptlang.org/docs/handbook/2/indexed-access-types.html) to get all values of the transformed object as a union. This step will drop all the `never` values automatically for us since adding `never` to a union is like saying `or false` its basically is a no op.
 
 That was a mouthful so let's see an example
 

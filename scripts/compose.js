@@ -21,12 +21,7 @@ const getLayouts = () => {
 };
 
 const genFrontMatter = (answers) => {
-  let d = new Date();
-  const date = [
-    d.getFullYear(),
-    ('0' + (d.getMonth() + 1)).slice(-2),
-    ('0' + d.getDate()).slice(-2),
-  ].join('-');
+  const date = new Date();
   const tagArray = answers.tags.split(',');
   tagArray.forEach((tag, index) => (tagArray[index] = tag.trim()));
   const tags = "'" + tagArray.join("','") + "'";
@@ -34,7 +29,7 @@ const genFrontMatter = (answers) => {
 
   let frontMatter = dedent`---
   title: ${answers.title ? answers.title : 'Untitled'}
-  date: '${date}'
+  date: ${date.toISOString()}
   tags: [${answers.tags ? tags : ''}]
   draft: ${answers.draft === 'yes' ? true : false}
   summary: ${answers.summary ? answers.summary : ' '}

@@ -20,3 +20,7 @@ toc
 asDisclosure
 groupBy
 Nextjs
+NixOS
+Nixpkgs
+neovim
+Nixpkgs-review
