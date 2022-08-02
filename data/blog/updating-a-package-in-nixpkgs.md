@@ -76,12 +76,12 @@ For this case if the `./result` file is empty it worked as expected.
 
 ## Nixpkgs-review
 
-[Nixpkgs-review](https://github.com/Mic92/Nixpkgs-review) is a really handy tool to build a nixpkg pr and make sure all deps of a change still build properly.
+[nixpkgs-review](https://github.com/Mic92/Nixpkgs-review) is a really handy tool to build a nixpkg pr and make sure all deps of a change still build properly.
 
 To run it while developing you can run
 
 ```sh
-$ Nixpkgs-review wip
+$ nixpkgs-review wip
 ```
 
 this will build all changes then give you a `nix-shell` to test out all the builds
@@ -89,7 +89,7 @@ this will build all changes then give you a `nix-shell` to test out all the buil
 If your changes are commited you can also run
 
 ```sh
-$ Nixpkgs-review rev HEAD
+$ nixpkgs-review rev HEAD
 ```
 
 For the same effect.
