@@ -13,6 +13,8 @@ layout: PostLayout
 Rust-analyzer was [updated recently](https://rust-analyzer.github.io/thisweek/2022/08/01/changelog-140.html#an-update-on-proc-macros) to better support proc macros when working on nightly rust versions.
 I wanted to use this change right away but since I use [NixOS](https://nixos.org/) I needed the [nix pkg repo](https://github.com/NixOS/Nixpkgs) to update its version of rust-analyzer, so I can use it properly.
 
+Edit: You don't need to make a pr to Nixpkgs just to update a version, they are other ways such as using overlays. Majiir on reddit goes over some options [here](https://www.reddit.com/r/NixOS/comments/wec9ob/making_a_pr_to_nixpkgs/iip657n/)
+
 Since the version in Nixpkgs was out of date I decided it was time I finally learn how to make a PR back to Nixpkgs. So what follows are my rough ramblings of the process.
 Some of this is rust-analyzer/rust specific, some will be nix-build issues in general, and some will be Nixpkgs PRs in general.
 
