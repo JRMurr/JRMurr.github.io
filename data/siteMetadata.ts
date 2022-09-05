@@ -68,4 +68,6 @@ export const siteMetadata = {
   },
 } as const;
 
+export const siteUrl = siteMetadata.siteUrl;
+
 export default siteMetadata;
