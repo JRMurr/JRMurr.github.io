@@ -26,32 +26,32 @@ const DisqusComponent = dynamic(
 );
 
 const Comments = ({ frontMatter }: Props) => {
-  let term;
-  switch (
-    siteMetadata.comment.giscusConfig.mapping ||
-    siteMetadata.comment.utterancesConfig.issueTerm
-  ) {
-    case 'pathname':
-      term = frontMatter.slug;
-      break;
-    case 'url':
-      term = window.location.href;
-      break;
-    case 'title':
-      term = frontMatter.title;
-      break;
-  }
+  // let term;
+  // switch (
+  //   siteMetadata.comment.giscusConfig.mapping ||
+  //   siteMetadata.comment.utterancesConfig.issueTerm
+  // ) {
+  //   case 'pathname':
+  //     term = frontMatter.slug;
+  //     break;
+  //   case 'url':
+  //     term = window.location.href;
+  //     break;
+  //   case 'title':
+  //     term = frontMatter.title;
+  //     break;
+  // }
   return (
     <>
       {siteMetadata.comment && siteMetadata.comment.provider === 'giscus' && (
-        <GiscusComponent mapping={term} />
+        <GiscusComponent mapping={frontMatter.slug} />
       )}
-      {siteMetadata.comment && siteMetadata.comment.provider === 'utterances' && (
+      {/* {siteMetadata.comment && siteMetadata.comment.provider === 'utterances' && (
         <UtterancesComponent issueTerm={term} />
       )}
       {siteMetadata.comment && siteMetadata.comment.provider === 'disqus' && (
         <DisqusComponent frontMatter={frontMatter} />
-      )}
+      )} */}
     </>
   );
 };

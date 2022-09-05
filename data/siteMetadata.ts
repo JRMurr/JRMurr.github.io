@@ -10,7 +10,7 @@ export const siteMetadata = {
   siteLogo: '/static/images/logo.png',
   image: '/static/images/avatar.png',
   socialBanner: '/static/images/twitter-card.png',
-  // email: 'address@yoursite.com',
+  email: '',
   github: 'https://github.com/JRMurr',
   twitter: 'https://twitter.com/JRMurrCodes',
   // facebook: 'https://facebook.com',
