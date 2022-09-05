@@ -5,8 +5,8 @@
       <link>https://johns.codes/blog</link>
       <description>My ramblings on programming</description>
       <language>en-us</language>
-      <managingEditor>undefined (John Murray)</managingEditor>
-      <webMaster>undefined (John Murray)</webMaster>
+      <managingEditor> (John Murray)</managingEditor>
+      <webMaster> (John Murray)</webMaster>
       <lastBuildDate>Thu, 19 May 2022 00:00:00 GMT</lastBuildDate>
       <atom:link href="https://johns.codes/tags/docker/feed.xml" rel="self" type="application/rss+xml"/>
       
@@ -16,7 +16,7 @@
     <link>https://johns.codes/blog/rust-enviorment-and-docker-build-with-nix-flakes</link>
     <description>Reproducible dev environments and builds with Nix</description>
     <pubDate>Thu, 19 May 2022 00:00:00 GMT</pubDate>
-    <author>undefined (John Murray)</author>
+    <author> (John Murray)</author>
     <category>rust</category><category>nix</category><category>docker</category>
   </item>
 
