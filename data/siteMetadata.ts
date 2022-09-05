@@ -1,4 +1,4 @@
-const siteMetadata = {
+export const siteMetadata = {
   title: "John's Codes",
   author: 'John Murray',
   headerTitle: "John's Codes",
@@ -66,6 +66,6 @@ const siteMetadata = {
       shortname: process.env.NEXT_PUBLIC_DISQUS_SHORTNAME,
     },
   },
-};
+} as const;
 
-module.exports = siteMetadata;
+export default siteMetadata;
