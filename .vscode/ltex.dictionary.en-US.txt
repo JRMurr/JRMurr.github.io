@@ -24,3 +24,9 @@ NixOS
 Nixpkgs
 neovim
 Nixpkgs-review
+Fastify
+json
+tsconfig
+
+codegen
+mkDerivation
