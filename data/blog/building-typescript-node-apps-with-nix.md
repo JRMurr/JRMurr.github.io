@@ -21,8 +21,6 @@ My job primarily involves node web servers written in typescript. All I've done 
 
 ## The APP
 
-{/_ TODO: add example repo _/}
-
 First I need a basic app to build. I have been using [Fastify](https://www.fastify.io/) recently, so I will attempt to build this basic web server.
 
 ```ts:index.ts
