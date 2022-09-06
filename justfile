@@ -6,4 +6,4 @@ run:
   npm run dev
 
 new:
-  node ./scripts/compose.js
+  npx ts-node ./scripts/compose.ts
