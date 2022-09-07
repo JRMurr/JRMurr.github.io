@@ -3,23 +3,27 @@ title: Building Typescript Node Apps With Nix
 date: 2022-09-05T23:57:55.477Z
 tags: ['nix', 'typescript', 'node']
 draft: false
-summary: Trying some different nix builders for ts node apps
+summary: Trying some different nix builders for typescript node apps
 images: []
 layout: PostLayout
 ---
 
 <TOCInline toc={props.toc} asDisclosure />
 
-## Being a Poser Shill
+## Being a Nix Stan
 
-I recently accepted that I am obsessed with nix. Ask anyone with a remotely technical person with a pulse, and they can probably mention at least 10 times I've told them "but with nix X is way easier/a non issue" (same with rust, but that's for another day...). I love being a shill, it makes for easy punchlines and I get the smug sense of superiority that everyone dreams of.
+I recently accepted that I am obsessed with nix. Ask anyone with a remotely technical person with a pulse, and they can probably mention at least 10 times I've told them "but with nix X is way easier/a non issue" (same with rust, but that's for another day...).
 
-The issue is, I'm a bit of a poser. I've been using Nix on/off for about 2.5 years but only seriously for the last 10 months.
+The issue is, I'm a bit of a poser. I've been using Nix on/off for about 2.5 years but only seriously for the last 10ish months.
 I've mostly just consumed existing NixOS modules, nix packages, setup basic nix-shells/flakes, and relatively simple nix builders ([like for rust/docker images](/blog/rust-enviorment-and-docker-build-with-nix-flakes)). All of these uses of nix where pretty great, and it definitely made my life easier, but it only went so far to solve some of the challenges I come across in my personal projects/work.
 
-My job primarily involves node web servers written in typescript. All I've done with nix so far at work is set up basic dev environments with node. While it did make our README(s) a little nicer, does not really solve our issues in actually deploying our apps yet. So I decided to become more than just a shill, I need to try to force even more complicated nix builds in front of everyone. Surely then they will realize I was right?
+During my initial nix learning phase I came across `node2nix` but the codegen step made me think that node and nix just don't get along well, and I never looked further.
+My job primarily involves node web servers written in typescript. All I've done with nix so far at work is set up basic dev environments with node. While it did make our README(s) a little nicer, it does not really solve our issues in actually deploying our apps.
+Now that I got over the initial hump of adding nix to some of our processes, it's time to make it even better!
 
 ## The APP
+
+The source code for the app is [here](https://github.com/JRMurr/example-ts-node-nix)
 
 First I need a basic app to build. I have been using [Fastify](https://www.fastify.io/) recently, so I will attempt to build this basic web server.
 
@@ -160,7 +164,7 @@ error: builder for '/nix/store/7lis43p7zj10y2cf6inzicjdgzc3b5qs-example-ts-node.
        For full logs, run 'nix log /nix/store/7lis43p7zj10y2cf6inzicjdgzc3b5qs-example-ts-node.drv'.
 ```
 
-The error `getaddrinfo EAI_AGAIN registry.npmjs.org` is a failure to connect to the NPM registry to install the dependencies. What I failed to realize is that the nix sandbox would block outside requests in the builder since they are not fully reproducible. You can disable the nix sandbox, but that would make me an awful shill. So time to try one of these builders
+The error `getaddrinfo EAI_AGAIN registry.npmjs.org` is a failure to connect to the NPM registry to install the dependencies. What I failed to realize is that the nix sandbox would block outside requests in the builder since they are not fully reproducible. You can disable the nix sandbox, but that would be gross. So time to try one of these builders.
 
 ### node2nix
 
@@ -293,4 +297,117 @@ It changed `#!/usr/bin/env node` to `#!/nix/store/6cdccplrjwga5rd3b2s7xb8zd25hns
 
 Overall I think `node2nix` is a good start for most node apps. Since its all mostly code-gen It's fast to follow what's going on. I've come across [this template](https://github.com/MatrixAI/TypeScript-Demo-Lib-Native) which seems to have figured out to work around some cons listed, but I have not tried it yet so your mileage may vary.
 
-TODO: look into https://github.com/nix-community/dream2nix/issues/158 and https://www.reddit.com/r/NixOS/comments/vsk4vk/override_nodepackages_with_the_defaultnix_from/
+### dream2nix
+
+[dream2nix](https://github.com/nix-community/dream2nix) says its "A framework for automated nix packaging" by mostly standardizing the many "2nix" tools. The [docs](https://nix-community.github.io/dream2nix/) list Rust, Haskell, Python, and Node builders.
+For whatever reason I have been skeptical of dream2nix. It looked "too good to be true" so I never really gave it a fair shake. Better late than never, let's try it
+
+```nix:flake.nix
+{
+  description = "Sample Nix ts-node build";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+    gitignore = {
+      url = "github:hercules-ci/gitignore.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    dream2nix.url = "github:nix-community/dream2nix";
+  };
+
+  outputs = { self, nixpkgs, flake-utils, gitignore, dream2nix, ... }:
+    # Note: no need for flake-utils.lib.eachDefaultSystem, dream2nix does it for us
+    dream2nix.lib.makeFlakeOutputs {
+      systems = flake-utils.lib.defaultSystems;
+      config.projectRoot = ./.;
+      source = gitignore.lib.gitignoreSource ./.;
+    };
+}
+```
+
+The core idea of dream2nix is that it will find you package.json/package-lock.json to figure out what node deps you need and how to build `npm run build` or w/e else. You can customize it but for most apps this should "just work".
+
+Running `nix flake show` returns
+
+```
+git+file:///home/jr/code/node/example-node-nix
+├───devShell
+│   ├───aarch64-darwin: development environment 'nix-shell'
+│   ├───aarch64-linux: development environment 'nix-shell'
+│   ├───i686-linux: development environment 'nix-shell'
+│   ├───x86_64-darwin: development environment 'nix-shell'
+│   └───x86_64-linux: development environment 'nix-shell'
+├───devShells
+│   ├───aarch64-darwin
+│   │   ├───default: development environment 'nix-shell'
+│   │   └───example-node-nix: development environment 'nix-shell'
+│   ├───aarch64-linux
+│   │   ├───default: development environment 'nix-shell'
+│   │   └───example-node-nix: development environment 'nix-shell'
+│   ├───i686-linux
+│   │   ├───default: development environment 'nix-shell'
+│   │   └───example-node-nix: development environment 'nix-shell'
+│   ├───x86_64-darwin
+│   │   ├───default: development environment 'nix-shell'
+│   │   └───example-node-nix: development environment 'nix-shell'
+│   └───x86_64-linux
+│       ├───default: development environment 'nix-shell'
+│       └───example-node-nix: development environment 'nix-shell'
+├───packages
+│   ├───aarch64-darwin
+│   │   ├───default: package 'example-node-nix-1.0.0'
+│   │   ├───example-node-nix: package 'example-node-nix-1.0.0'
+│   │   └───resolveImpure: package 'resolve'
+│   ├───aarch64-linux
+│   │   ├───default: package 'example-node-nix-1.0.0'
+│   │   ├───example-node-nix: package 'example-node-nix-1.0.0'
+│   │   └───resolveImpure: package 'resolve'
+│   ├───i686-linux
+│   │   ├───default: package 'example-node-nix-1.0.0'
+│   │   ├───example-node-nix: package 'example-node-nix-1.0.0'
+│   │   └───resolveImpure: package 'resolve'
+│   ├───x86_64-darwin
+│   │   ├───default: package 'example-node-nix-1.0.0'
+│   │   ├───example-node-nix: package 'example-node-nix-1.0.0'
+│   │   └───resolveImpure: package 'resolve'
+│   └───x86_64-linux
+│       ├───default: package 'example-node-nix-1.0.0'
+│       ├───example-node-nix: package 'example-node-nix-1.0.0'
+│       └───resolveImpure: package 'resolve'
+└───projectsJson: unknown
+```
+
+dream2nix gave us a dev shell and package build for us, neat. Expecting something to break I ran `nix build` to build the app and got no errors. Looking at `./result` gives
+
+```sh
+$ exa --tree --level 3 ./result/
+./result
+├── bin
+│  └── ts-node-nix -> ../lib/node_modules/example-node-nix/dist/index.js
+└── lib
+   └── node_modules
+      └── example-node-nix
+```
+
+`ts-node-nix` is a compiled javascript file with the right shebang. Still somewhat shocked running `./result/bin/ts-node-nix` ran the server, and it worked!
+
+This is simply wild, I really expected something to break here and require a manual build step of some kind. One nice thing to note is the [node dev shell](https://nix-community.github.io/dream2nix/guides/getting-started-nodejs.html#development-shell) it gives will copy over the `node_modules` folder for you so you don't need to manually run `npm install`.
+
+To limit my excitement a bit this is a simple build. I need to investigate how well it works with more complicated builds with native node add-ons, mono repo tools like NX, etc. Though the examples in the [README](https://github.com/nix-community/dream2nix#test-the-experimental-version-of-dream2nix) seem promising to allow for easily overriding the builds.
+
+**dream2nix Pros**
+
+- very little code to set up
+- generated dev shell is really nice
+
+**dream2nix Cons**
+
+- A bit of a "black box" which could make debugging harder
+- It seems to include the full development dependencies in the output
+
+## Conclusion
+
+I came into this thinking building ts node apps with nix would be a pain, and I'm happily surprised it is not. While `node2nix` may be good for highly customizable builds, dream2nix is just a delight. I haven't come across a nix utility that just worked like that with minimal messing around.
+
+I've been meaning to give [napi-rs](https://napi.rs/) a shot, so maybe that will be a good test case to see how well dream2nix builds rust projects and native node add-ons all in one.
