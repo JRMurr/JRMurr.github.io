@@ -295,7 +295,7 @@ It changed `#!/usr/bin/env node` to `#!/nix/store/6cdccplrjwga5rd3b2s7xb8zd25hns
 - The generated outputs seem to re-build too often, see [here](https://github.com/svanderburg/node2nix/issues/301)
 - With the current setup the final build is still using the development `node_modules` which is wasteful
 
-Overall I think `node2nix` is a good start for most node apps. Since its all mostly code-gen It's fast to follow what's going on. I've come across [this template](https://github.com/MatrixAI/TypeScript-Demo-Lib-Native) which seems to have figured out to work around some cons listed, but I have not tried it yet so your mileage may vary.
+Overall I think `node2nix` is a good start for most node apps. Since its all mostly code-gen It's easy to follow what's going on. I've come across [this template](https://github.com/MatrixAI/TypeScript-Demo-Lib-Native) which seems to have figured out to work around some cons listed, but I have not tried it yet so your mileage may vary.
 
 ### dream2nix
 
@@ -408,11 +408,11 @@ To limit my excitement a bit this is a simple build. I need to investigate how w
 
 ## Conclusion
 
-I came into this thinking building ts node apps with nix would be a pain, and I'm happily surprised it is not. While `node2nix` may be good for highly customizable builds, dream2nix is just a delight. I haven't come across a nix utility that just worked like that with minimal messing around.
+I came into this thinking building ts node apps with nix would be a pain, and I'm happily surprised it is not. While `node2nix` may be good for highly customizable builds, `dream2nix` is just a delight. I haven't come across a nix utility that just worked like that with minimal messing around.
 
-I've been meaning to give [napi-rs](https://napi.rs/) a shot, so maybe that will be a good test case to see how well dream2nix builds rust projects and native node add-ons all in one.
+I've been meaning to give [napi-rs](https://napi.rs/) a shot, so maybe that will be a good test case to see how well `dream2nix` builds rust projects and native node add-ons all in one.
 
-Since you made it to the end here's a dream2nix example with a docker build
+Since you made it to the end here's a `dream2nix` example with a docker build
 
 ```nix:flake.nix
 {
