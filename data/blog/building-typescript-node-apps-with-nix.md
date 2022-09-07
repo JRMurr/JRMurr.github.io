@@ -15,11 +15,13 @@ layout: PostLayout
 I recently accepted that I am obsessed with nix. Ask anyone with a remotely technical person with a pulse, and they can probably mention at least 10 times I've told them "but with nix X is way easier/a non issue" (same with rust, but that's for another day...).
 
 The issue is, I'm a bit of a poser. I've been using Nix on/off for about 2.5 years but only seriously for the last 10ish months.
-I've mostly just consumed existing NixOS modules, nix packages, setup basic nix-shells/flakes, and relatively simple nix builders ([like for rust/docker images](/blog/rust-enviorment-and-docker-build-with-nix-flakes)). All of these uses of nix where pretty great, and it definitely made my life easier, but it only went so far to solve some of the challenges I come across in my personal projects/work.
+I've mostly just consumed existing NixOS modules, nix packages, setup basic nix-shells/flakes, and relatively simple nix builders. All of these uses of nix where pretty great, and it definitely made my life easier, but it only went so far to solve some of the challenges I come across in my personal projects/work.
 
 During my initial nix learning phase I came across `node2nix` but the codegen step made me think that node and nix just don't get along well, and I never looked further.
 My job primarily involves node web servers written in typescript. All I've done with nix so far at work is set up basic dev environments with node. While it did make our README(s) a little nicer, it does not really solve our issues in actually deploying our apps.
 Now that I got over the initial hump of adding nix to some of our processes, it's time to make it even better!
+
+If you are not familiar with nix, [this post](/blog/rust-enviorment-and-docker-build-with-nix-flakes) goes over the basics of nix and builds a basic rust app.
 
 ## The APP
 
