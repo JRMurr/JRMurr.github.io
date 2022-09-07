@@ -7,9 +7,19 @@
       <language>en-us</language>
       <managingEditor> (John Murray)</managingEditor>
       <webMaster> (John Murray)</webMaster>
-      <lastBuildDate>Tue, 02 Aug 2022 03:43:05 GMT</lastBuildDate>
+      <lastBuildDate>Tue, 06 Sep 2022 23:57:55 GMT</lastBuildDate>
       <atom:link href="https://johns.codes/feed.xml" rel="self" type="application/rss+xml"/>
       
+  <item>
+    <guid>https://johns.codes/blog/building-typescript-node-apps-with-nix</guid>
+    <title>Building Typescript Node Apps With Nix</title>
+    <link>https://johns.codes/blog/building-typescript-node-apps-with-nix</link>
+    <description>Trying some different nix builders for typescript node apps</description>
+    <pubDate>Tue, 06 Sep 2022 23:57:55 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>nix</category><category>typescript</category><category>node</category>
+  </item>
+
   <item>
     <guid>https://johns.codes/blog/updating-a-package-in-nixpkgs</guid>
     <title>Making a PR to Nixpkgs</title>

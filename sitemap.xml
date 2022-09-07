@@ -5,6 +5,10 @@
   </url>
 
   <url>
+    <loc>https://johns.codes/blog/building-typescript-node-apps-with-nix</loc>
+  </url>
+
+  <url>
     <loc>https://johns.codes/blog/intermediate-typescript-generics-and-mapped-types</loc>
   </url>
 
@@ -34,6 +38,10 @@
 
   <url>
     <loc>https://johns.codes/tags/nix</loc>
+  </url>
+
+  <url>
+    <loc>https://johns.codes/tags/node</loc>
   </url>
 
   <url>

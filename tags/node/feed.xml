@@ -1,0 +1,24 @@
+
+  <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+      <title>John&#39;s Codes</title>
+      <link>https://johns.codes/blog</link>
+      <description>My ramblings on programming</description>
+      <language>en-us</language>
+      <managingEditor> (John Murray)</managingEditor>
+      <webMaster> (John Murray)</webMaster>
+      <lastBuildDate>Tue, 06 Sep 2022 23:57:55 GMT</lastBuildDate>
+      <atom:link href="https://johns.codes/tags/node/feed.xml" rel="self" type="application/rss+xml"/>
+      
+  <item>
+    <guid>https://johns.codes/blog/building-typescript-node-apps-with-nix</guid>
+    <title>Building Typescript Node Apps With Nix</title>
+    <link>https://johns.codes/blog/building-typescript-node-apps-with-nix</link>
+    <description>Trying some different nix builders for typescript node apps</description>
+    <pubDate>Tue, 06 Sep 2022 23:57:55 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>nix</category><category>typescript</category><category>node</category>
+  </item>
+
+    </channel>
+  </rss>
