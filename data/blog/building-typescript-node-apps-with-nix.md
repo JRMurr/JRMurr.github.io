@@ -1,6 +1,6 @@
 ---
 title: Building Typescript Node Apps With Nix
-date: 2022-09-05T23:57:55.477Z
+date: 2022-09-06T23:57:55.477Z
 tags: ['nix', 'typescript', 'node']
 draft: false
 summary: Trying some different nix builders for typescript node apps
