@@ -411,3 +411,53 @@ To limit my excitement a bit this is a simple build. I need to investigate how w
 I came into this thinking building ts node apps with nix would be a pain, and I'm happily surprised it is not. While `node2nix` may be good for highly customizable builds, dream2nix is just a delight. I haven't come across a nix utility that just worked like that with minimal messing around.
 
 I've been meaning to give [napi-rs](https://napi.rs/) a shot, so maybe that will be a good test case to see how well dream2nix builds rust projects and native node add-ons all in one.
+
+Since you made it to the end here's a dream2nix example with a docker build
+
+```nix:flake.nix
+{
+  description = "Sample Nix ts-node build";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+    gitignore = {
+      url = "github:hercules-ci/gitignore.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    dream2nix.url = "github:nix-community/dream2nix";
+  };
+
+  outputs = { self, nixpkgs, flake-utils, gitignore, dream2nix, ... }:
+    let
+      dream2nixOutputs = dream2nix.lib.makeFlakeOutputs {
+        systems = flake-utils.lib.defaultSystems;
+        config.projectRoot = ./.;
+        source = gitignore.lib.gitignoreSource ./.;
+      };
+      customOutput = flake-utils.lib.eachDefaultSystem (system:
+        let
+          pkgs = import nixpkgs { inherit system; };
+          # the dream2nix output for this system
+          app = dream2nixOutputs.packages."${system}".example-node-nix;
+        in with pkgs; {
+          packages.docker = dockerTools.buildImage {
+            name = app.packageName;
+            copyToRoot = pkgs.buildEnv {
+              name = app.packageName;
+              paths = [ app ];
+              pathsToLink = [ "/bin" "/lib" ];
+            };
+
+            # This ensures symlinks to directories are preserved in the image
+            keepContentsDirlinks = true;
+            config = { Cmd = [ "/bin/ts-node-nix" ]; };
+          };
+        });
+
+      # deep merge outputs together
+    in nixpkgs.lib.recursiveUpdate dream2nixOutputs customOutput;
+}
+```
+
+You can then run `nix build .#docker` and then run `docker load < result` to load the image into docker. See [here](/blog/rust-enviorment-and-docker-build-with-nix-flakes) for some more info on nix docker builds.
