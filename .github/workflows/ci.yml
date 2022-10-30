@@ -12,14 +12,14 @@ jobs:
               with:
                   fetch-depth: 0
             - name: "Setup env"
-              uses: JRMurr/direnv-nix-action@c93aad6edb5767e98bc0f312ba9c6f2711da1796
+              uses: JRMurr/direnv-nix-action@1d35e0daeb98b7c0a44d3c1e34b1b95ac404736f
 
             # This only caches the npm cache dir not the actual node modules
             # caching node modules is not recommended https://github.com/actions/cache/blob/main/examples.md#node---npm
             - name: Get npm cache directory
               id: npm-cache-dir
               run: |
-                  echo "::set-output name=dir::$(npm config get cache)"
+                  echo "{dir}=$(npm config get cache)" >> $GITHUB_OUTPUT
 
             - name: use npm cache
               uses: actions/cache@v3
