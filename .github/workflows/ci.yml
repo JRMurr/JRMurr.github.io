@@ -12,7 +12,7 @@ jobs:
               with:
                   fetch-depth: 0
             - name: "Setup env"
-              uses: JRMurr/direnv-nix-action@1d35e0daeb98b7c0a44d3c1e34b1b95ac404736f
+              uses: JRMurr/direnv-nix-action@e3b3538ef5f107e281d35011b56972778fc99443
 
             # This only caches the npm cache dir not the actual node modules
             # caching node modules is not recommended https://github.com/actions/cache/blob/main/examples.md#node---npm
