@@ -1,0 +1,16 @@
+name: "CI"
+on:
+    pull_request:
+env:
+    USER: runner
+    DEV_SHELL_NAME: CI
+jobs:
+    tests:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2.4.0
+              with:
+                  fetch-depth: 0
+            - uses: JRMurr/direnv-nix-action@v1
+            - run: node --version
+              shell: bash
