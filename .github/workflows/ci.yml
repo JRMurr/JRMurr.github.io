@@ -12,5 +12,9 @@ jobs:
               with:
                   fetch-depth: 0
             - uses: JRMurr/direnv-nix-action@v1
-            - run: node --version
+            - name: install node modules
+              run: npm ci
+              shell: bash
+            - name: type check
+              run: just type-check
               shell: bash

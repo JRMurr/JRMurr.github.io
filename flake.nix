@@ -13,18 +13,9 @@
         nodeVerion = pkgs.nodejs-16_x;
       in with pkgs; {
         devShells = {
-          default = mkShell {
-            buildInputs = [ nodeVerion just ];
-            shellHook = ''
-              # Install global npm packages to `.nix-node` and add bin to the path for cli tools
-              mkdir -p .nix-node
-              # install node modules to the nix-node folder
-              export NODE_PATH=$PWD/.nix-node
-              export NPM_CONFIG_PREFIX=$PWD/.nix-node
-              export PATH=$NODE_PATH/bin:$PATH
-            '';
-          };
-          CI = mkShell { buildInputs = [ nodeVerion ]; };
+          # TODO: they are the same deps but nice to have seperate configs
+          default = mkShell { buildInputs = [ nodeVerion just ]; };
+          CI = mkShell { buildInputs = [ nodeVerion just ]; };
         };
       });
 }
