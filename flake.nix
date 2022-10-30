@@ -8,18 +8,14 @@
 
   outputs = { self, nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
-      let pkgs = import nixpkgs { inherit system; };
+      let
+        pkgs = import nixpkgs { inherit system; };
+        nodeVerion = pkgs.nodejs-16_x;
       in with pkgs; {
-        devShell = pkgs.mkShell {
-          buildInputs = [ nodejs-16_x just ];
-          shellHook = ''
-            # Install global npm packages to `.nix-node` and add bin to the path for cli tools
-            mkdir -p .nix-node
-            # install node modules to the nix-node folder
-            export NODE_PATH=$PWD/.nix-node
-            export NPM_CONFIG_PREFIX=$PWD/.nix-node
-            export PATH=$NODE_PATH/bin:$PATH
-          '';
+        devShells = {
+          # TODO: they are the same deps but nice to have seperate configs
+          default = mkShell { buildInputs = [ nodeVerion just ]; };
+          CI = mkShell { buildInputs = [ nodeVerion just ]; };
         };
       });
 }
