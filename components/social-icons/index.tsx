@@ -5,6 +5,7 @@ import Youtube from './youtube.svg';
 import Linkedin from './linkedin.svg';
 import Twitter from './twitter.svg';
 import Rss from './rss.svg';
+import Mastodon from './mastodon.svg';
 
 // Icons taken from: https://simpleicons.org/
 
@@ -16,9 +17,16 @@ const components = {
   linkedin: Linkedin,
   twitter: Twitter,
   rss: Rss,
-};
+  mastodon: Mastodon,
+} as const;
 
-const SocialIcon = ({ kind, href, size = 8 }) => {
+interface SocialIconArgs {
+  kind: keyof typeof components;
+  href: string;
+  size?: number;
+}
+
+const SocialIcon = ({ kind, href, size = 8 }: SocialIconArgs) => {
   if (!href || (kind === 'mail' && !/^mailto:\w+([.-]?\w+)@\w+([.-]?\w+)(.\w{2,3})+$/.test(href)))
     return null;
 
@@ -28,7 +36,7 @@ const SocialIcon = ({ kind, href, size = 8 }) => {
     <a
       className="text-sm text-gray-500 transition hover:text-gray-600"
       target="_blank"
-      rel="noopener noreferrer"
+      rel="noopener noreferrer me"
       href={href}
     >
       <span className="sr-only">{kind}</span>

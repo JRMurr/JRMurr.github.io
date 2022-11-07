@@ -6,11 +6,21 @@ import { AuthorFrontMatter } from 'types/AuthorFrontMatter';
 
 interface Props {
   children: ReactNode;
-  frontMatter: AuthorFrontMatter;
+  frontMatter: Partial<AuthorFrontMatter>;
 }
 
 export default function AuthorLayout({ children, frontMatter }: Props) {
-  const { name, avatar, occupation, company, email, twitter, linkedin, github } = frontMatter;
+  const {
+    name,
+    avatar,
+    occupation,
+    company,
+    email,
+    twitter,
+    linkedin,
+    github,
+    mastodon,
+  } = frontMatter;
 
   return (
     <>
@@ -38,6 +48,7 @@ export default function AuthorLayout({ children, frontMatter }: Props) {
               <SocialIcon kind="github" href={github} />
               <SocialIcon kind="linkedin" href={linkedin} />
               <SocialIcon kind="twitter" href={twitter} />
+              <SocialIcon kind="mastodon" href={mastodon} />
             </div>
           </div>
           <div className="pt-8 pb-8 prose dark:prose-dark max-w-none xl:col-span-2">{children}</div>

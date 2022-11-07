@@ -13,6 +13,7 @@ export const siteMetadata = {
   email: '',
   github: 'https://github.com/JRMurr',
   twitter: 'https://twitter.com/JRMurrCodes',
+  mastodon: 'https://hachyderm.io/@jrmurr',
   // facebook: 'https://facebook.com',
   // youtube: 'https://youtube.com',
   // linkedin: 'https://www.linkedin.com',
