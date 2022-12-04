@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 
 // Adapated from https://github.com/hashicorp/next-remote-watch
 // A copy of next-remote-watch with an additional ws reload emitter.
