@@ -19,6 +19,8 @@ const Pre = ({ children, className }: Props) => {
   };
   const onCopy = () => {
     setCopied(true);
+    console.log('Pre.tsx:22');
+    console.dir(textInput, { depth: null, showHidden: true, colors: true });
     navigator.clipboard.writeText(textInput.current.outerText.replace(/\u00A0/g, ''));
     setTimeout(() => {
       setCopied(false);

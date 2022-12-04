@@ -5,11 +5,6 @@ import dedent from 'dedent';
 
 const root = process.cwd();
 
-function log(msg: string): void {
-  // eslint-disable-next-line no-console
-  console.log(msg);
-}
-
 const getAuthors = () => {
   const authorPath = path.join(root, 'data', 'authors');
   const authorList = fs.readdirSync(authorPath).map((filename) => path.parse(filename).name);
@@ -108,14 +103,14 @@ inquirer
       if (err) {
         throw err;
       } else {
-        log(`Blog post generated successfully at ${filePath}`);
+        console.log(`Blog post generated successfully at ${filePath}`);
       }
     });
   })
   .catch((error) => {
     if (error.isTtyError) {
-      log("Prompt couldn't be rendered in the current environment");
+      console.log("Prompt couldn't be rendered in the current environment");
     } else {
-      log('Something went wrong, sorry!');
+      console.log('Something went wrong, sorry!');
     }
   });

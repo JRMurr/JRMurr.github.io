@@ -1,6 +1,6 @@
 # Johns.codes
 
-My personal blog using the [Tailwind Nextjs blog template](https://github.com/timlrx/tailwind-nextjs-starter-blog/tree/typescript)
+My personal blog using the [Tailwind Nextjs blog template](https://github.com/timlrx/tailwind-nextjs-starter-blog)
 
 ## Development
 
