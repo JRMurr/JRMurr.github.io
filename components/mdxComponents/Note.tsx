@@ -6,7 +6,7 @@ interface Props {
 }
 
 const Note = ({ children, className }: Props) => {
-  return <div className="pl-2 border-l-4 ">{children}</div>;
+  return <div className="pl-2 border-l-4 dark:bg-gray-800 bg-gray-100">{children}</div>;
 };
 
 export default Note;
