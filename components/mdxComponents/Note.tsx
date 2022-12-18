@@ -1,0 +1,12 @@
+import { useState, useRef, ReactNode } from 'react';
+
+interface Props {
+  children: ReactNode;
+  className: string;
+}
+
+const Note = ({ children, className }: Props) => {
+  return <div className="pl-2 border-l-4 ">{children}</div>;
+};
+
+export default Note;

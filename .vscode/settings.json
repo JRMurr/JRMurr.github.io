@@ -2,5 +2,8 @@
   "nixEnvSelector.nixFile": "${workspaceRoot}/flake.nix",
   "prettier.semi": true,
   "editor.formatOnSave": true,
-  "cSpell.words": ["globby", "Nextjs", "Shiki", "Twoslash", "typeof", "vals"]
+  "cSpell.words": ["globby", "Nextjs", "Shiki", "Twoslash", "typeof", "vals"],
+  "editor.quickSuggestions": {
+    "strings": true
+  }
 }

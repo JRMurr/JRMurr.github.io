@@ -1,4 +1,4 @@
-import Image from './Image';
+import Image from './mdxComponents/Image';
 import Link from './Link';
 
 const Card = ({ title, description, imgSrc, href }) => (

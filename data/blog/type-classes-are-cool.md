@@ -8,6 +8,13 @@ images: []
 layout: PostLayout
 ---
 
+<TOCInline toc={props.toc} asDisclosure />
+
+<Note>
+For the purposes of this blog I will use trait/typeclass interchanibly. They are techincally different for the points ill raise it does not really matter
+
+</Note>
+
 Functional programming ideas have alaways had an appeal to me since I was exposed to them in school. While its hard to give a strong list of what makes a lang functional, these are the points that matter most to me
 
 - Pattern matching + Algerbraic data types is my go to mental model to use when exploring a problem for the first time.
