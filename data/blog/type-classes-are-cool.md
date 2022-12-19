@@ -246,4 +246,4 @@ VVVVV this is the main point i want to show
   - many different `from<T>` impls would be very sad for a java/ts since it requires more code / less saftey / less ergonomic
 - Talk about the expression problem as a whole https://craftinginterpreters.com/representing-code.html#the-expression-problem https://en.wikipedia.org/wiki/Expression_problem
   - I think traits are the soltuion but maybe it will just be discussing this as a whole?
-  -
+- why traits can be sad https://lobste.rs/s/hot5by/garnet_generics_problem#c_angn1i
