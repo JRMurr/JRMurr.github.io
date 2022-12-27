@@ -1,6 +1,6 @@
 ---
 title: Building a Simple DB in Rust - Part 1
-date: 2022-12-26T03:47:02.984Z
+date: 2022-12-27T07:37:33.398Z
 tags: ['rust', 'database']
 draft: false
 summary: building a basic database in rust
@@ -36,7 +36,10 @@ I really don't know how hard this will be so here's my list of goals and stretch
 
 I really don't know how unreasonable these are so will update if the goals change.
 
-These mostly follow being an even more basic SQLite so lets call this SQLJr
+I hate naming things, so I'll keep it basic. My goals mostly follow being an even more light/simple SQLite so lets call this SQLJr
+
+If you wanna just jump to some code [this is the repo for it](https://github.com/JRMurr/SQLJr).
+It will be mostly the same with some minor tweaks here and there (and obviously more up to date).
 
 ## Project setup
 
