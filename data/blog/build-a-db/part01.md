@@ -89,7 +89,7 @@ The [rustyline crate](https://github.com/kkawakam/rustyline) seems like it will 
 
 We can basically copy the example with some small tweaks to get started
 
-```rust:repl/main.rs
+```rust:sql_jr_repl/main.rs
 use rustyline::error::ReadlineError;
 use rustyline::{Editor, Result};
 
@@ -264,6 +264,7 @@ impl<'a> Parse<'a> for SqlTypeInfo {
         // context will help give better error messages later on
         context(
             "Column Type",
+            // alt will try each passed parser and return what ever succeeds
             alt((
                 map(tag_no_case("string"), |_| Self::String),
                 map(tag_no_case("int"), |_| Self::Int),
@@ -444,7 +445,7 @@ mod tests {
 
 Now that we have commands parsing we can add it to our REPL. First we need to add our parser crate to our `Cargo.toml` in the REPL crate
 
-```toml:repl/Cargo.toml
+```toml:sql_jr_repl/Cargo.toml
 ...
 [dependencies]
 ...
@@ -454,7 +455,7 @@ sql_jr_parser = { path = "../sql_jr_parser" }
 
 then update our main function
 
-```rust:repl/main.rs
+```rust:sql_jr_repl/main.rs
 ...
     match readline {
             Ok(line) => {
@@ -476,7 +477,7 @@ However, when we get an error we just get a debug out, gross... let's fix that.
 
 ### Parser Errors
 
-Errors can be a giant rabbit hole to keep improving. For now as long as we show a span in the source tree and what highlight the sad spots I'll be happy.
+Errors can be a giant rabbit hole to keep improving. For now as long as we show a span in the source tree and highlight the sad spots I'll be happy.
 
 I will be using [miette](https://github.com/zkat/miette) to format/display errors. It can hook into source errors very easily and can show help, context, and much more.
 
@@ -497,6 +498,7 @@ pub struct FormattedError<'b> {
     #[label("{kind}")]
     span: miette::SourceSpan,
 
+    // will explain this later. TLDR: the parsing error
     kind: BaseErrorKind<&'b str, Box<dyn std::error::Error + Send + Sync + 'static>>,
 
     #[related]
@@ -559,7 +561,7 @@ Here we use the [error tree](https://docs.rs/nom-supreme/latest/nom_supreme/erro
 
 The error tree type will make it easier to handle errors on "alts" (like our root type). If you tried to parse `select +!@#!@!!`
 nom would fail in the select parser but still try the other ones, so it would not know what parser errors to show.
-That issue can be fixed slightly with [cut](https://docs.rs/nom/latest/nom/combinator/fn.cut.html) (and we will use cut) to not try other branches in the alt if we know for sure we are in a select/insert/create/etc.
+That issue can be fixed slightly with [cut](https://docs.rs/nom/latest/nom/combinator/fn.cut.html) to not try other branches in the alt if we know for sure we are in a select/insert/create/etc.
 
 However, cases like parsing `I like rust` are tough, all the parsers would fail without being cut, so what can we show? Ideally we would say something like `expected select|create|insert, got ....` which the error tree type will help with (though not now).
 
@@ -638,7 +640,7 @@ fn parse_format_error(i: &'a str) -> Result<Self, FormattedError<'a>> {
 
 Now we can finally update our REPL with
 
-```toml:repl/Cargo.toml
+```toml:sql_jr_repl/Cargo.toml
 ...
 [dependencies]
 # use the workspace version of miette but also use the fancy feature
