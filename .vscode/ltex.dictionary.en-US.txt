@@ -37,3 +37,6 @@ simplish
 SQLJr
 rustyline
 dirs
+nom
+combinator
+combinators

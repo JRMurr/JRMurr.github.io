@@ -1,4 +1,4 @@
-import { useState, useRef, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
@@ -7,8 +7,10 @@ interface Props {
 
 const Note = ({ children, className }: Props) => {
   return (
-    <div className={'pl-2 border-l-4 dark:bg-gray-800 bg-gray-100 ' + (className ?? '')}>
-      {children}
+    <div className={'grid place-content-center'}>
+      <div className={'dark:bg-gray-800 bg-gray-100' + (className ?? '')}>
+        <div className={'box-content px-3 py-0'}>{children}</div>
+      </div>
     </div>
   );
 };
