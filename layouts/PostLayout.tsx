@@ -27,12 +27,9 @@ const postDateTemplate: Intl.DateTimeFormatOptions = {
 interface Props {
   frontMatter: PostFrontMatter;
   authorDetails: AuthorFrontMatter[];
-  next?: { slug: string; title: string };
-  prev?: { slug: string; title: string };
   children: ReactNode;
 }
 
-// next, prev
 export default function PostLayout({ frontMatter, authorDetails, children }: Props) {
   const { slug, date, title, readingTime } = frontMatter; //tags
 
