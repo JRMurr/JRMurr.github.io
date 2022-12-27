@@ -30,6 +30,7 @@ I really don't know how hard this will be so here's my list of goals and stretch
 
 ### Stretch goals
 
+- Native client for node and/or python
 - Basic transactions
 - More than basic concurrency (try to avoid fully locking tables to allow at least multiple readers)
 - JSON column support
@@ -97,7 +98,7 @@ The [rustyline crate](https://github.com/kkawakam/rustyline) seems like it will 
 
 We can basically copy the example with some small tweaks to get started
 
-```rust:main.rs
+```rust:repl/main.rs
 use rustyline::error::ReadlineError;
 use rustyline::{Editor, Result};
 
@@ -137,7 +138,7 @@ Try it out with `cargo run`, it will just repeat lines you send with enter and r
 
 ## Parsing
 
-Now that the basic REPL is set up we can work on parsing our simple SQL language. In Rust, I have usually gone to [nom](https://github.com/Geal/nom) when I need to make a parser.
+Now that the basic REPL is set up we can work on parsing our simple SQL language. In Rust, I have usually used [nom](https://github.com/Geal/nom) when I need to make a parser.
 I like that I stay in rust and don't need to mess with a new "language" to get my parsing code. With that said [pest](https://pest.rs/) looks pretty great as a more generator approach and may end up switching to that later on.
 
 ### nom for dummies
@@ -158,7 +159,7 @@ assert_eq!(parser("Hello, World!"), Ok((", World!", "Hello")));
 
 // NOTE: this is missing some trait bounds but the vibe is right
 /// Run the given parser f on a comma seperated list
-pub(crate) fn comma_sep<'a, I, O, E, F>(
+pub(crate) fn comma_sep<I, O, E, F>(
     f: F,
 ) -> impl FnMut(I) -> IResult<I, Vec<O>, E>
 where
@@ -185,11 +186,11 @@ SELECT col1, col2 FROM foo;
 ```
 
 To start we can make a new lib crate `sql_jr_parser`. We will add in nom, [nom_locate](https://github.com/fflorent/nom_locate), and [nom_supreme](https://github.com/Lucretiel/nom-supreme).
-nom locate gives a nice `LocatedSpan` type to easily track where in the source code a parser ran/threw an error on.
-nom supreme is mostly a nom utility lib, we will use it mostly for postfix calls on parsers to make the code a little easier to read and [error tree](https://docs.rs/nom-supreme/latest/nom_supreme/error/type.ErrorTree.html)
+`nom_locate` has a nice `LocatedSpan` type to easily track where in the source code a parser ran/threw an error on.
+`nom_supreme` is mostly a nom utility lib, we will use it mostly for postfix calls on parsers to make the code a little easier to read and [error tree](https://docs.rs/nom-supreme/latest/nom_supreme/error/type.ErrorTree.html)
 to help with error formatting
 
-To be completely honest we probably could get by without nom_locate and just use nom_supreme but where's the fun in that.
+To be completely honest we probably could get by without nom_locate and just use nom_supreme but if its good enough for [Amos](https://fasterthanli.me/series/advent-of-code-2022/part-11#nice-parser-errors) its good enough for me
 
 ### Actual parsing
 
@@ -200,12 +201,11 @@ nom requires ALOT of imports so will be ignoring most of them in the code snippe
 First we need to define some type aliases
 
 ```rust
-
-// Use nom_locates LocatedSpan as a wrapper around a string input
+// Use nom_locate's LocatedSpan as a wrapper around a string input
 pub type RawSpan<'a> = LocatedSpan<&'a str>;
 
 // the result for all of our parsers, they will have our span type as input and can have any output
-// this current will use a default error type but we will change that latter
+// this will use a default error type but we will change that latter
 pub type ParseResult<'a, T> = IResult<RawSpan<'a>, T>
 ```
 
@@ -233,7 +233,7 @@ pub trait Parse<'a>: Sized {
     /// Parse the given span into self
     fn parse(input: RawSpan<'a>) -> ParseResult<'a, Self>;
 
-    // Helper method to convert a raw str into a raw span and parse
+    /// Helper method for tests to convert a str into a raw span and parse
     fn parse_from_raw(input: &'a str) -> ParseResult<'a, Self> {
         let i = LocatedSpan::new(input);
         Self::parse(i)
@@ -258,7 +258,9 @@ So let's make a type + parser for each
 // Using tag_no_case from nom_supreme since its error is nicer
 // ParserExt is mostly for adding `.context` on calls to identifier to say what kind of identifier we want
 use nom_supreme::{tag::complete::tag_no_case, ParserExt};
+// many other imports omitted
 
+/// A colum's type
 #[derive(Debug, Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum SqlTypeInfo {
     // these are basic for now. Will add more + size max later on
@@ -279,6 +281,7 @@ impl<'a> Parse<'a> for SqlTypeInfo {
     }
 }
 
+/// A column's name + type
 #[derive(Debug, Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct Column {
     pub name: String,
@@ -301,6 +304,7 @@ impl<'a> Parse<'a> for Column {
     }
 }
 
+/// The table and its columns to create
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct CreateStatement {
     pub table: String,
@@ -440,12 +444,11 @@ mod tests {
         )
     }
 }
-
 ```
 
 Now that we have commands parsing we can add it to our REPL. First we need to add our parser crate to our `Cargo.toml` in the REPL crate
 
-```toml
+```toml:repl/Cargo.toml
 ...
 [dependencies]
 ...
@@ -453,9 +456,9 @@ sql_jr_parser = { path = "../sql_jr_parser" }
 ...
 ```
 
-then update our main func
+then update our main function
 
-```rust
+```rust:repl/main.rs
 ...
     match readline {
             Ok(line) => {
@@ -583,6 +586,8 @@ pub fn format_parse_error<'a>(input: &'a str, e: MyParseError<'a>) -> FormattedE
         // a "normal" error like unexpected charcter
         GenericErrorTree::Base { location, kind } => {
             // the location type is nom_locate's RawSpan type
+            // Might be nice to just use our own span/make a wrapper to implement
+            // From<OurSpan> for miette::SourceSpan
             let offset = location.location_offset().into();
             FormattedError {
                 src: input,
@@ -591,7 +596,7 @@ pub fn format_parse_error<'a>(input: &'a str, e: MyParseError<'a>) -> FormattedE
                 others: Vec::new(),
             }
         }
-        // an error that has a context attched (from nom's context function)
+        // an error that has a context attached (from nom's context function)
         GenericErrorTree::Stack { base, contexts } => {
             let mut base = format_parse_error(input, *base);
             let mut contexts: Vec<FormattedErrorContext> = contexts
@@ -636,6 +641,15 @@ fn parse_format_error(i: &'a str) -> Result<Self, FormattedError<'a>> {
 ```
 
 Now we can finally update our REPL with
+
+```toml:repl/Cargo.toml
+...
+[dependencies]
+# use the workspace version of miette but also use the fancy feature
+# to allow for display errors
+miette = {workspace = true, features = ["fancy"]}
+...
+```
 
 ```rust
 let query = parse_sql_query(line);
