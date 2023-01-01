@@ -41,3 +41,5 @@ nom
 combinator
 combinators
 miette
+cstack
+psql

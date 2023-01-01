@@ -11,40 +11,31 @@ layout: PostLayout
 <TOCInline toc={props.toc} asDisclosure />
 
 While I've used rust for a while and have had a few small projects in it, I felt like I was missing a truly "systems" project.
-So I figured why not try to make my own basic DB in rust.
+So when I came across [this series](https://cstack.github.io/db_tutorial/) for making a simple DB in C, I figured why not try to make my own basic DB in rust.
+I will roughly follow the structure of that series at first I will most likely deviate and focus on what interests me more.
 
-I've worked on basic compilers/interpreters before, but I have not done much with database implementation outside of making my own (awful) B-Tree in college.
-
-This series will be mostly a dev log but will try to do what I can to use it as tutorial content when possible.
+This series will be mostly a dev log (I'm making this up as I go) but will try to do what I can to use it as tutorial content when possible.
 I will probably get things wrong, so please call me out in comments, on my [GitHub](https://github.com/JRMurr/JRMurr.github.io), or on my [socials](/about)
 
-I really don't know how hard this will be so here's my list of goals and stretch goals.
-
-## Goals
-
-- Have "reasonable" performance
-- Support basic data types (bool, int, floats, text)
-- Support simplish queries (some aggregates, basic joins/filters)
-- Start out with existing crates when possible. Make my own when it sounds fun, would be a good learning experience, or needed for performance
-- Good error messages
-
-### Stretch goals
-
-- Native client for node and/or python
-- Basic transactions
-- More than basic concurrency (try to avoid fully locking tables to allow at least multiple readers)
-- JSON column support
-
-I really don't know how unreasonable these are so will update if the goals change.
-
-I hate naming things, so I'll keep it basic. My goals mostly follow being an even more light/simple SQLite so lets call this SQLJr
+I hate naming things, so I'll keep it basic, I will be calling my DB SQLJr
 
 If you wanna just jump to some code [this is the repo for it](https://github.com/JRMurr/SQLJr).
 It will be mostly the same with some minor tweaks here and there (and obviously more up to date).
 
+## What am I Making
+
+I plan on mostly focusing on building my own SQL (not following any spec) that will have basic filtering, aggregates, and joins.
+Since rust has many B-Tree libraries I will try to focus more on good concurrency+transaction support instead of building my own B-tree/persistence logic.
+Also, many Rust based tools I used have excellent error messages, so I will try to have good/informative errors for all parts of the DB.
+
+I will probably end up on some side tangents from those core features, so I will follow what ever vibe I get.
+
+In this post we will focus on getting the project setup and building a basic REPL (in a similar vein to [psql](https://www.postgresql.org/docs/current/app-psql.html)) + parser
+to make it easy to interact with the rest of the DB later on.
+
 ## Project setup
 
-I love nix, so I always start with that to get rust installed.
+I love [nix](https://nixos.org/), so I always start with that to get rust installed.
 I recently made my own [nix flake templates](https://github.com/JRMurr/NixOsConfig/tree/main/templates) to make starting new projects easier.
 You can run
 
@@ -63,7 +54,7 @@ I would like to try to split up the crates across more logical boundaries. This 
 My current idea is a different crate for
 
 - a CLI/REPL to interact with a db
-- Parsing/the SQL language
+- Parsing SQL
 - Query Execution
 
 Some things like defining the different commands/queries doesn't quite feel right in being in the parsing/execution crates so might make sense to add a crate just for shared types.
@@ -86,7 +77,7 @@ serde = { version = "1.0.151", features = ["derive"] }
 thiserror = "1.0.38"
 ```
 
-this will tell cargo we are using workspaces. Once we start making crates I will explain how to use the shared dependencies listed above
+This will tell cargo we are using workspaces. Once we start making crates I will explain how to use the shared dependencies listed above
 
 ## The REPL
 
@@ -170,7 +161,7 @@ where
 
 There are [many combinators](https://github.com/Geal/nom/blob/main/doc/choosing_a_combinator.md) provided by nom.
 
-### The SQL language
+### My Own SQL
 
 Right now I'm going to handle basic select, insert, and create table statements that will look like
 
@@ -267,7 +258,7 @@ pub enum SqlTypeInfo {
     String,
     Int,
 }
-
+// parses "string | int"
 impl<'a> Parse<'a> for SqlTypeInfo {
     fn parse(input: RawSpan<'a>) -> ParseResult<'a, Self> {
         // context will help give better error messages later on
@@ -288,6 +279,7 @@ pub struct Column {
     pub type_info: SqlTypeInfo,
 }
 
+// parses "<colName> <colType>"
 impl<'a> Parse<'a> for Column {
     fn parse(input: RawSpan<'a>) -> ParseResult<'a, Self> {
         context(
@@ -311,6 +303,7 @@ pub struct CreateStatement {
     pub columns: Vec<Column>,
 }
 
+// parses a comma seperated list of column definitions contained in parens
 fn column_definitions(input: RawSpan<'_>) -> ParseResult<'_, Vec<Column>> {
     context(
         "Column Definitions",
@@ -321,10 +314,12 @@ fn column_definitions(input: RawSpan<'_>) -> ParseResult<'_, Vec<Column>> {
     )(input)
 }
 
+// parses "CREATE TABLE <table name> <column defs>
 impl<'a> Parse<'a> for CreateStatement {
     fn parse(input: RawSpan<'a>) -> ParseResult<'a, Self> {
         map(
             separated_pair(
+                // table name
                 preceded(
                     tuple((
                         tag_no_case("create"),
@@ -335,6 +330,7 @@ impl<'a> Parse<'a> for CreateStatement {
                     identifier.context("Table Name"),
                 ),
                 multispace1,
+                // column defs
                 column_definitions,
             )
             .context("Create Table"),

@@ -30,7 +30,6 @@ export const getStaticProps: GetStaticProps<{
   next?: { slug: string; title: string };
 }> = async ({ params }) => {
   const slug = (params.slug as string[]).join('/');
-  console.dir({ slug });
   const allPosts = await getAllFilesFrontMatter('blog');
   const post = await getFileBySlug('blog', slug);
   // @ts-ignore
