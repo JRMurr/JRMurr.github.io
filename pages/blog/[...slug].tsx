@@ -26,8 +26,6 @@ export async function getStaticPaths() {
 export const getStaticProps: GetStaticProps<{
   post: { mdxSource: string; toc: Toc; frontMatter: PostFrontMatter };
   authorDetails: AuthorFrontMatter[];
-  prev?: { slug: string; title: string };
-  next?: { slug: string; title: string };
 }> = async ({ params }) => {
   const slug = (params.slug as string[]).join('/');
   const allPosts = await getAllFilesFrontMatter('blog');
