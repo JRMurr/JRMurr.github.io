@@ -32,3 +32,14 @@ codegen
 mkDerivation
 NX
 stan
+bool
+simplish
+SQLJr
+rustyline
+dirs
+nom
+combinator
+combinators
+miette
+cstack
+psql

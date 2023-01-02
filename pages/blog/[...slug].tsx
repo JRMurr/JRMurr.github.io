@@ -26,14 +26,9 @@ export async function getStaticPaths() {
 export const getStaticProps: GetStaticProps<{
   post: { mdxSource: string; toc: Toc; frontMatter: PostFrontMatter };
   authorDetails: AuthorFrontMatter[];
-  prev?: { slug: string; title: string };
-  next?: { slug: string; title: string };
 }> = async ({ params }) => {
   const slug = (params.slug as string[]).join('/');
   const allPosts = await getAllFilesFrontMatter('blog');
-  const postIndex = allPosts.findIndex((post) => formatSlug(post.slug) === slug);
-  const prev: { slug: string; title: string } = allPosts[postIndex + 1] || null;
-  const next: { slug: string; title: string } = allPosts[postIndex - 1] || null;
   const post = await getFileBySlug('blog', slug);
   // @ts-ignore
   const authorList = post.frontMatter.authors || ['default'];
@@ -53,8 +48,6 @@ export const getStaticProps: GetStaticProps<{
     props: {
       post,
       authorDetails,
-      prev,
-      next,
     },
   };
 };
@@ -62,8 +55,6 @@ export const getStaticProps: GetStaticProps<{
 export default function Blog({
   post,
   authorDetails,
-  prev,
-  next,
 }: InferGetStaticPropsType<typeof getStaticProps>) {
   const { mdxSource, toc, frontMatter } = post;
 
@@ -76,8 +67,6 @@ export default function Blog({
           mdxSource={mdxSource}
           frontMatter={frontMatter}
           authorDetails={authorDetails}
-          prev={prev}
-          next={next}
         />
       ) : (
         <div className="mt-24 text-center">

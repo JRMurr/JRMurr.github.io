@@ -8,3 +8,8 @@
 {"rule":"ADVERB_OR_HYPHENATED_ADJECTIVE","sentence":"^\\QLooking at the output you can see it's a single layered image with just they need nix store package to run the binary (in case just libc and the rust code).\\E$"}
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QFor OpenSSL specifically I would recommend using rusttls when possible.\\E$"}
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QMaking our Own GroupBy\ninsert Bender joke here\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qto create a new folder with a \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q file to get rust setup with nightly, update the \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q to the most recent nightly.\\E$"}
+{"rule":"EN_A_VS_AN","sentence":"^\\QWhile we could probably get away with having a \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q/\\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q crate then make an \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q crate for cli/http access to the DB, I would like to try to split up the crates across more logical boundaries.\\E$"}
+{"rule":"EN_A_VS_AN","sentence":"^\\QWhile we could probably get away with having a \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q/\\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q crate then make an \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q crate for CLI/HTTP access to the DB, I would like to try to split up the crates across more logical boundaries.\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qnom is a parser combinator library.\\E$"}
+{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qnom locate gives a nice \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q type to easily track where in the source code a parser ran/threw an error on.\\E$"}
