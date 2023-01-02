@@ -12,7 +12,7 @@ layout: PostLayout
 
 While I've used rust for a while and have had a few small projects in it, I felt like I was missing a truly "systems" project.
 So when I came across [this series](https://cstack.github.io/db_tutorial/) for making a simple DB in C, I figured why not try to make my own basic DB in rust.
-I will roughly follow the structure of that series at first I will most likely deviate and focus on what interests me more.
+I will roughly follow the structure of that series at first, but I will most likely deviate and focus on what interests me more.
 
 This series will be mostly a dev log (I'm making this up as I go) but will try to do what I can to use it as tutorial content when possible.
 I will probably get things wrong, so please call me out in comments, on my [GitHub](https://github.com/JRMurr/JRMurr.github.io), or on my [socials](/about)
@@ -25,7 +25,7 @@ It will be mostly the same with some minor tweaks here and there (and obviously 
 ## What am I Making
 
 I plan on mostly focusing on building my own SQL (not following any spec) that will have basic filtering, aggregates, and joins.
-Since rust has many B-Tree libraries I will try to focus more on good concurrency+transaction support instead of building my own B-tree/persistence logic.
+Since rust has many B-Tree libraries (One of the core data structures for how to store/search rows), I will try to focus more on good concurrency+transaction support instead of building my own B-tree/persistence logic.
 Also, many Rust based tools I used have excellent error messages, so I will try to have good/informative errors for all parts of the DB.
 
 I will probably end up on some side tangents from those core features, so I will follow what ever vibe I get.
@@ -129,7 +129,7 @@ Try it out with `cargo run`, it will just repeat lines you send with enter and r
 
 ## Parsing
 
-Now that the basic REPL is set up we can work on parsing our simple SQL language. In Rust, I have usually used [nom](https://github.com/Geal/nom) when I need to make a parser.
+Now that the basic REPL is set up we can work on parsing our simple SQL. In Rust, I have usually used [nom](https://github.com/Geal/nom) when I need to make a parser.
 I like that I stay in rust and don't need to mess with a new "language" to get my parsing code. With that said [pest](https://pest.rs/) looks pretty great as a more generator approach and may end up switching to that later on.
 
 ### nom for dummies
@@ -178,10 +178,10 @@ SELECT col1, col2 FROM foo;
 
 To start we can make a new lib crate `sql_jr_parser`. We will add in nom, [nom_locate](https://github.com/fflorent/nom_locate), and [nom_supreme](https://github.com/Lucretiel/nom-supreme).
 `nom_locate` has a nice `LocatedSpan` type to easily track where in the source code a parser ran/threw an error on.
-`nom_supreme` is mostly a nom utility lib, we will use it mostly for postfix calls on parsers to make the code a little easier to read and [error tree](https://docs.rs/nom-supreme/latest/nom_supreme/error/type.ErrorTree.html)
+`nom_supreme` is a nom utility lib, we will use it mostly for postfix calls on parsers to make the code a little easier to read and [error tree](https://docs.rs/nom-supreme/latest/nom_supreme/error/type.ErrorTree.html)
 to help with error formatting
 
-To be completely honest we probably could get by without nom_locate and just use nom_supreme but if its good enough for [Amos](https://fasterthanli.me/series/advent-of-code-2022/part-11#nice-parser-errors) its good enough for me
+To be completely honest we probably could get by without `nom_locate` and just use `nom_supreme` but if its good enough for [Amos](https://fasterthanli.me/series/advent-of-code-2022/part-11#nice-parser-errors) its good enough for me
 
 ### Actual parsing
 
