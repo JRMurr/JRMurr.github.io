@@ -1,6 +1,6 @@
 ---
 title: Building a Simple DB in Rust - Part 1
-date: 2022-12-27T07:37:33.398Z
+date: 2023-01-02T05:19:22.985Z
 tags: ['rust', 'database', 'parsing']
 draft: false
 summary: building a basic database in rust
