@@ -25,7 +25,15 @@
   </url>
 
   <url>
+    <loc>https://johns.codes/blog/build-a-db/part01</loc>
+  </url>
+
+  <url>
     <loc>https://johns.codes/tags/code</loc>
+  </url>
+
+  <url>
+    <loc>https://johns.codes/tags/database</loc>
   </url>
 
   <url>
@@ -42,6 +50,10 @@
 
   <url>
     <loc>https://johns.codes/tags/node</loc>
+  </url>
+
+  <url>
+    <loc>https://johns.codes/tags/parsing</loc>
   </url>
 
   <url>

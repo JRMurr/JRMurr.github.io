@@ -7,9 +7,19 @@
       <language>en-us</language>
       <managingEditor> (John Murray)</managingEditor>
       <webMaster> (John Murray)</webMaster>
-      <lastBuildDate>Tue, 06 Sep 2022 23:57:55 GMT</lastBuildDate>
+      <lastBuildDate>Mon, 02 Jan 2023 05:19:22 GMT</lastBuildDate>
       <atom:link href="https://johns.codes/feed.xml" rel="self" type="application/rss+xml"/>
       
+  <item>
+    <guid>https://johns.codes/blog/build-a-db/part01</guid>
+    <title>Building a Simple DB in Rust - Part 1</title>
+    <link>https://johns.codes/blog/build-a-db/part01</link>
+    <description>building a basic database in rust</description>
+    <pubDate>Mon, 02 Jan 2023 05:19:22 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>rust</category><category>database</category><category>parsing</category>
+  </item>
+
   <item>
     <guid>https://johns.codes/blog/building-typescript-node-apps-with-nix</guid>
     <title>Building Typescript Node Apps With Nix</title>
