@@ -12,7 +12,7 @@
       
   <item>
     <guid>https://johns.codes/blog/build-a-db/part01</guid>
-    <title>Building a Simple DB in Rust - Part 1</title>
+    <title>Building a Simple DB in Rust - Part 1 - Parsing</title>
     <link>https://johns.codes/blog/build-a-db/part01</link>
     <description>building a basic database in rust</description>
     <pubDate>Mon, 02 Jan 2023 05:19:22 GMT</pubDate>
