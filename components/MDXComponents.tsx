@@ -6,6 +6,7 @@ import CustomLink from './Link';
 import TOCInline from './mdxComponents/TOCInline';
 import Pre from './mdxComponents/Pre';
 import Note from './mdxComponents/Note';
+import { SeriesInfo } from 'pages/blog/[...slug]';
 
 const Wrapper: React.ComponentType<{ layout: string }> = ({ layout, ...rest }) => {
   const Layout = require(`../layouts/${layout}`).default;
@@ -25,6 +26,7 @@ export const MDXComponents: ComponentMap = {
 interface Props {
   layout: string;
   mdxSource: string;
+  series?: SeriesInfo;
   [key: string]: unknown;
 }
 

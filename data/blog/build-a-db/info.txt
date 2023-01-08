@@ -1,0 +1,6 @@
+---
+title: Building a Simple DB in Rust
+seriesTitle: Part 1 - Parsing
+tags: ['rust', 'database', 'parsing']
+summary: building a basic database in rust
+---

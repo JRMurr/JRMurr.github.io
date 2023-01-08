@@ -1,5 +1,6 @@
 export type PostFrontMatter = {
   title: string;
+  seriesTitle?: string;
   date: string;
   tags: string[];
   lastmod?: string;
