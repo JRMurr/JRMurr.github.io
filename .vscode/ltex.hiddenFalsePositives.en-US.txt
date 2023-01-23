@@ -13,3 +13,4 @@
 {"rule":"EN_A_VS_AN","sentence":"^\\QWhile we could probably get away with having a \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q/\\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q crate then make an \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q crate for CLI/HTTP access to the DB, I would like to try to split up the crates across more logical boundaries.\\E$"}
 {"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qnom is a parser combinator library.\\E$"}
 {"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qnom locate gives a nice \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q type to easily track where in the source code a parser ran/threw an error on.\\E$"}
+{"rule":"EN_A_VS_AN","sentence":"^\\QThis will give us an \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q over \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q.\\E$"}

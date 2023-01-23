@@ -10,6 +10,8 @@ import { ReactNode } from 'react';
 import { PostFrontMatter } from 'types/PostFrontMatter';
 import { AuthorFrontMatter } from 'types/AuthorFrontMatter';
 import Comments from '@/components/comments';
+import { SeriesInfo } from 'pages/blog/[...slug]';
+import Series from '@/components/Series';
 
 // const editUrl = (fileName) => `${siteMetadata.siteRepo}/blob/master/data/blog/${fileName}`
 // const discussUrl = (slug) =>
@@ -27,10 +29,11 @@ const postDateTemplate: Intl.DateTimeFormatOptions = {
 interface Props {
   frontMatter: PostFrontMatter;
   authorDetails: AuthorFrontMatter[];
+  series?: SeriesInfo;
   children: ReactNode;
 }
 
-export default function PostLayout({ frontMatter, authorDetails, children }: Props) {
+export default function PostLayout({ frontMatter, authorDetails, children, series }: Props) {
   const { slug, date, title, readingTime } = frontMatter; //tags
 
   return (
@@ -69,7 +72,10 @@ export default function PostLayout({ frontMatter, authorDetails, children }: Pro
             style={{ gridTemplateRows: 'auto 1fr' }}
           >
             <div className="divide-y divide-gray-200 dark:divide-gray-700 xl:pb-0 xl:col-span-4 xl:row-span-2">
-              <div className="pt-10 pb-8 prose dark:prose-dark max-w-none">{children}</div>
+              <div className="pt-10 pb-8 prose dark:prose-dark max-w-none">
+                <Series series={series} currSlug={slug} />
+                {children}
+              </div>
               <Comments frontMatter={frontMatter} />
             </div>
           </div>
