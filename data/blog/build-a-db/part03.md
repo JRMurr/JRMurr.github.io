@@ -20,9 +20,14 @@ While that was a great milestone it leaves a lot to be desired
 
 - While we parse select with selecting queries, we never actually project, so you always get all the columns back
 - We aren't validating value types on insert, so the column types mean nothing
-- The database is all in memory so restarting loses all data (but its super secure...)
+- It's tedious to test since the database is wiped after the REPL is closed
+  - While I should write tables to disk, I'm not going there yet
 
 So those main points are what I want to tackle for this post
+
+<Note>
+This post is much less of a tutorial/guide than the previous posts. I needed to cleanup what I have so the changes are pretty straightforward, small, and all over. Check the [repo](https://github.com/JRMurr/SQLJr) for more detailed changes.
+</Note>
 
 # Actually selecting columns
 
@@ -92,6 +97,7 @@ impl Table {
             .map(|column_name| {
                 self.columns
                     .find_column(&column_name)
+                    .map(|col| col.clone())
             })
             .collect::<Result<Vec<_>, _>>()?;
 
@@ -123,3 +129,176 @@ impl<'a> Iterator for TableIter<'a> {
 ```
 
 All the iterator does is go over the stored table's b-tree, for each row it filters the hash map of row data to only the columns we selected.
+
+# Doing type checking
+
+Right now we track column types when you create tables
+
+```sql
+CREATE TABLE foo (
+    col1 int,
+    col2 string
+);
+```
+
+but we can just throw anything in there
+
+```sql
+INSERT INTO foo
+    VALUES
+        thisIsNotAnInt, 3
+```
+
+to have proper type checking we first need to update the insert statement to be type aware (instead of having every value be strings).
+
+So let's make a SQL value type
+
+```rust:parser/value.rs
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, Display)]
+pub enum Value {
+    Number(BigDecimal),
+    String(String),
+}
+```
+
+Here we just make an enum of what types/values we support in our SQL language. Here I decided to have one number representation with `BigDecimal`
+instead of having `Int`/`Float` types. Eventually I will, I'm just getting the basics in.
+
+Now we need to parse these values
+
+```rust:parser/value.rs
+/// Parse a single quoted string value
+fn parse_string_value(input: RawSpan<'_>) -> ParseResult<'_, Value> {
+    // TODO: look into https://github.com/rust-bakery/nom/blob/main/examples/string.rs
+    // for escaped strings
+    let (remaining, (_, str_value, _)) = context(
+        "String Literal",
+        tuple((
+            tag("'"),
+            take_until("'").map(|s: RawSpan| Value::String(s.fragment().to_string())),
+            tag("'"), // take_until does not consume the ending quote
+        )),
+    )(input)?;
+
+    Ok((remaining, str_value))
+}
+
+/// Parse a numeric literal
+fn parse_number_value(input: RawSpan<'_>) -> ParseResult<'_, Value> {
+    let (remaining, digits) =
+        context("Number Literal", take_while(|c: char| c.is_numeric()))(input)?; // TODO: handle floats
+
+    let digits = digits.fragment();
+
+    Ok((
+        remaining,
+        Value::Number(BigDecimal::from_str(digits).unwrap()),
+    ))
+}
+
+impl<'a> Parse<'a> for Value {
+    fn parse(input: RawSpan<'a>) -> ParseResult<'a, Self> {
+        context(
+            "Value",
+            preceded(
+                multispace0,
+                terminated(
+                    // peek_then_cut will give better errors so if we see
+                    // a quote we knows to only try to parse a string
+                    alt((peek_then_cut("'", parse_string_value), parse_number_value)),
+                    multispace0,
+                ),
+            ),
+        )(input)
+    }
+}
+```
+
+The parsing logic is mostly straightforward, the main weirdness you might be confused by is why the calls to `.fragment()`? That is because the input to the parse functions is a `RawSpan`, you need to call `fragment()` to get the actual string from the span.
+
+Now when we wants strings we will need to quote them like `"aString"`
+
+Now that we have this value type, we need to replace all our string values with this new type. This change was sorta all over, if you want a good diff this [commit](https://github.com/JRMurr/SQLJr/commit/55d66244a573a371983d75534b99577035ead478#diff-01c60d528deeaabdcb2502648bce756b7aa879d131d966016939ca85de7a039c) has the needed changes for that. This is still probably a little wasteful representation, but it starts us on the path to better types and performance.
+
+We can now check the value on insert and see if it lines up with the given column's data type
+
+```rust:table.rs
+impl Table {
+    pub fn insert(&mut self, values: Vec<Value>) -> Result<(), QueryExecutionError> {
+        let id = self
+            .rows
+            .last_key_value()
+            .map_or(0, |(max_id, _)| max_id + 1);
+
+        let row = values
+            .into_iter()
+            .zip(self.columns.iter())
+            .map(|(value, col)| match (col.type_info, value) {
+                (SqlTypeInfo::String, v @ Value::String(_)) => Ok((col.name.to_owned(), v)),
+                (SqlTypeInfo::Int, v @ Value::Number(_)) => Ok((col.name.to_owned(), v)), // TODO: when we add floats make sure number is an int
+                (_,v) => Err(QueryExecutionError::InsertTypeMismatch(col.type_info, v)),
+            })
+            .collect::<Result<HashMap<_, _>,_>>()?;
+
+        self.rows.insert(id, row.into());
+        Ok(())
+    }
+}
+```
+
+Here it's pretty basic, we match on the tuple of column type and value, if the value and type match up we allow the insert, otherwise error with a type mismatch.
+Later on we could add some logic for implicit conversions for things like converting `int`s to `float`s but for now we are going to be strict.
+
+So now we can run
+
+```sql
+CREATE TABLE sad (
+    col1 int,
+    col2 string
+);
+
+INSERT INTO sad
+    VALUES
+        1, 2;
+```
+
+and get back
+
+```
+ × Value 2 can not be inserted into a String column
+```
+
+For the happy path
+
+```sql
+CREATE TABLE foo (
+    col1 int,
+    col2 string
+);
+
+INSERT INTO foo
+    VALUES
+        1, 'aString';
+
+INSERT INTO foo
+    VALUES
+        4, 'aDiffString with spaces';
+
+SELECT
+    col1,
+    col2
+FROM
+    foo;
+```
+
+will return
+
+```
++------+-------------------------+
+| col1 | col2                    |
++------+-------------------------+
+| 1    | aString                 |
++------+-------------------------+
+| 4    | aDiffString with spaces |
++------+-------------------------+
+```
