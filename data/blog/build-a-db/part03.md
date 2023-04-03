@@ -18,10 +18,8 @@ all while having decent error messages throughout.
 
 While that was a great milestone it leaves a lot to be desired
 
-- While we parse select with selecting queries, we never actually project, so you always get all the columns back
-- We aren't validating value types on insert, so the column types mean nothing
-- It's tedious to test since the database is wiped after the REPL is closed
-  - While I should write tables to disk, I'm not going there yet
+- While we parse columns in select queries, we never actually project/use them, so you always get all the columns back
+- We aren't validating types on insert, so the column types mean nothing
 
 So those main points are what I want to tackle for this post
 
@@ -302,3 +300,13 @@ will return
 | 4    | aDiffString with spaces |
 +------+-------------------------+
 ```
+
+## Wrap up
+
+This is definitely getting to the point in every personal project where the initial burst of interest starts to wane.
+While I would love to focus on more "sexy" features like where clauses, joins, and saving the DB to disk;
+I really needed to clean up what I had.
+
+I do plan on focusing on some other side projects for now (and may write some posts on them), but I do plan on focusing more on the DB soon.
+
+If you really want some more I would highly recommend trying this yourself! As you can probably tell from reading this posts, I'm far from a DB expert. Just start somewhere, you would be impressed with how much you can accomplish already and how much you will learn as you go!
