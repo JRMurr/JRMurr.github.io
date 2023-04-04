@@ -1,0 +1,24 @@
+
+  <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+      <title>John&#39;s Codes</title>
+      <link>https://johns.codes/blog</link>
+      <description>My ramblings on programming</description>
+      <language>en-us</language>
+      <managingEditor> (John Murray)</managingEditor>
+      <webMaster> (John Murray)</webMaster>
+      <lastBuildDate>Tue, 04 Apr 2023 00:01:55 GMT</lastBuildDate>
+      <atom:link href="https://johns.codes/tags/repl/feed.xml" rel="self" type="application/rss+xml"/>
+      
+  <item>
+    <guid>https://johns.codes/blog/build-a-db/part03</guid>
+    <title>Building a Simple DB in Rust - Part 3 - Less Basic Execution</title>
+    <link>https://johns.codes/blog/build-a-db/part03</link>
+    <description>Cleaning up existing execution logic</description>
+    <pubDate>Tue, 04 Apr 2023 00:01:55 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>rust</category><category>database</category><category>repl</category>
+  </item>
+
+    </channel>
+  </rss>
