@@ -1,7 +1,7 @@
 ---
 title: Building a Simple DB in Rust - Part 3 - Less Basic Execution
 seriesTitle: Part 3 - Less Basic Execution
-date: 2023-03-08T04:28:29.986Z
+date: 2023-04-04T00:01:55.249Z
 tags: ['rust', 'database', 'repl']
 draft: false
 summary: Cleaning up existing execution logic
