@@ -50,3 +50,8 @@ Beingessner
 B-TreeMap
 BTreeMap
 IntoIterator
+addons
+addon
+Napi-rs
+napi-rs
+napi
