@@ -55,3 +55,7 @@ addon
 Napi-rs
 napi-rs
 napi
+npm
+pnpm
+jank
+stringify
