@@ -7,9 +7,19 @@
       <language>en-us</language>
       <managingEditor> (John Murray)</managingEditor>
       <webMaster> (John Murray)</webMaster>
-      <lastBuildDate>Tue, 06 Sep 2022 23:57:55 GMT</lastBuildDate>
+      <lastBuildDate>Mon, 01 May 2023 17:21:59 GMT</lastBuildDate>
       <atom:link href="https://johns.codes/tags/node/feed.xml" rel="self" type="application/rss+xml"/>
       
+  <item>
+    <guid>https://johns.codes/blog/exposing-a-rust-library-to-node-with-napirs</guid>
+    <title>Exposing a Rust Library to Node with Napi-rs</title>
+    <link>https://johns.codes/blog/exposing-a-rust-library-to-node-with-napirs</link>
+    <description>Short guide/exploration on making native node addons with rust</description>
+    <pubDate>Mon, 01 May 2023 17:21:59 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>rust</category><category>node</category><category>typescript</category>
+  </item>
+
   <item>
     <guid>https://johns.codes/blog/building-typescript-node-apps-with-nix</guid>
     <title>Building Typescript Node Apps With Nix</title>

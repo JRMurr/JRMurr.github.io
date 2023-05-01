@@ -7,9 +7,19 @@
       <language>en-us</language>
       <managingEditor> (John Murray)</managingEditor>
       <webMaster> (John Murray)</webMaster>
-      <lastBuildDate>Tue, 04 Apr 2023 00:01:55 GMT</lastBuildDate>
+      <lastBuildDate>Mon, 01 May 2023 17:21:59 GMT</lastBuildDate>
       <atom:link href="https://johns.codes/tags/rust/feed.xml" rel="self" type="application/rss+xml"/>
       
+  <item>
+    <guid>https://johns.codes/blog/exposing-a-rust-library-to-node-with-napirs</guid>
+    <title>Exposing a Rust Library to Node with Napi-rs</title>
+    <link>https://johns.codes/blog/exposing-a-rust-library-to-node-with-napirs</link>
+    <description>Short guide/exploration on making native node addons with rust</description>
+    <pubDate>Mon, 01 May 2023 17:21:59 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>rust</category><category>node</category><category>typescript</category>
+  </item>
+
   <item>
     <guid>https://johns.codes/blog/build-a-db/part03</guid>
     <title>Building a Simple DB in Rust - Part 3 - Less Basic Execution</title>
