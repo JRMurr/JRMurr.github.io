@@ -18,6 +18,17 @@ Since Node is written in C++, it provides ways to call native code via [addons](
 
 Napi-rs along with generating the node addon will also generate typescript type definitions and has a nice CLI to more easily make addons for all popular systems/architectures.
 
+## Why?
+
+BEACUSE I CAN.
+
+For real though, there are several reasons why creating a native Rust addon for a Node app could be beneficial:
+
+- Native code can be much more performant than JavaScript for certain use cases (although the JIT does help a lot).
+- Compared to C++ addons, building and deploying with napi is much easier. However, I have limited experience managing C++ addons.
+- There are many [Rust libraries](https://lib.rs/) that would be nice to reuse in Node.
+- Subjectively, Rust is a great language to write in. It has been voted the most loved language for the last few years for a reason.
+
 ## Setting up napi
 
 I'm going to experiment with napi in the codebase from the [build a db in rust series](/blog/build-a-db/part01), branch with all the code [here](https://github.com/JRMurr/SQLJr/tree/napi-bindings/crates/sql_jr_node).
