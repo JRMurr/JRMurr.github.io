@@ -59,3 +59,5 @@ npm
 pnpm
 jank
 stringify
+rustisms
+async

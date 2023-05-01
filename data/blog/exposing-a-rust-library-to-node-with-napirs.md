@@ -334,17 +334,12 @@ In the success case we get an array of records, in the failure case a JS error i
 
 ## napi limitations
 
-- Some “rustisms” can’t transfer to JS/TS
-  - The borrow checker cannot work across language boundaries, which could lead to unsound behavior with async code.
-  - JS uses exceptions and not Result so any napi function returning a result will throw an error in node. Similar issue for option which just becomes `undefined | T`
-    - Would be cool to add a feature in napi to make rust results be exposed as https://github.com/supermacro/neverthrow result or a similar lib
-- Need to convert errors into a custom napi error
-  - Not the end of the world but more boilerplate
-- No node stream support (hopefully coming in napi-rs v3)
-- Overhead when passing complex types between node and rust
-  - https://github.com/napi-rs/napi-rs/issues/1493
-  - Some workarounds like using typed-arrays which are zero copy but requires more work on the node side to serialize/deserialize properly
-- Generator support is expermintal and no async generator support
+One of the main issues with napi (or any rust FFI) is that some “rustisms” don't transfer well to JS/TS.
+For example JS uses exceptions and not Result so any napi function returning a result will throw an error in node. Similar issue for option which just becomes `undefined | T`. Would be cool if napi had a feature flag to make rust results be exposed as a https://github.com/supermacro/neverthrow result or a similar lib, but this would probably be a pretty heavy lift.
+
+The other main issue is there is overhead involved when passing large/complex type between node and rust. Rust needs to serialize/deserialize the JS types into a format it can use. There are workarounds like using buffers/typed arrays but that requires some manual work on both ends to manually serialize/deserialize the objects. In the [napi v3](https://github.com/napi-rs/napi-rs/issues/1493) goals they plan on adding ways to make working around this simpler.
+
+Lastly there is currently only [experimental JS generator support](https://docs.rs/napi/latest/napi/iterator/trait.Generator.html) (with no docs on it that I can find), and no support for async generators/node streams. While you could manually add JS code to support these would be much nicer if napi had native support for these. It would make supporting things like DB clients much nicer. Stream support is planned for v3, so hopefully the others will follow.
 
 ## Wrap up
 
