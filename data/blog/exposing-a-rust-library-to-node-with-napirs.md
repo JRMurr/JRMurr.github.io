@@ -1,6 +1,6 @@
 ---
 title: Exposing a Rust Library to Node with Napi-rs
-date: 2023-04-28T22:45:08.080Z
+date: 2023-05-01T17:21:59.515Z
 tags: ['rust', 'node', 'typescript']
 draft: false
 summary: Short guide/exploration on making native node addons with rust
