@@ -15,3 +15,4 @@
 {"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qnom locate gives a nice \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q type to easily track where in the source code a parser ran/threw an error on.\\E$"}
 {"rule":"EN_A_VS_AN","sentence":"^\\QThis will give us an \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q over \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q.\\E$"}
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QSome “rustisms” can't transfer to JS/TS\nThe borrow checker cannot work across language boundaries, which could lead to unsound behavior with async code.\\E$"}
+{"rule":"EN_A_VS_AN","sentence":"^\\QOne thing you will notice is that we needed to mark the function as \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q since we take in \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q in an \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q function.\\E$"}

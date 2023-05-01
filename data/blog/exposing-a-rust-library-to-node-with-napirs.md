@@ -176,6 +176,10 @@ test("basic test", (t) => {
 
 One thing you'll notice is the casing of `basic_query` in rust was changed to `basicQuery` in JS.
 
+### Allowed values
+
+When exposing a function with the napi macro you are limited into what types are supported in the arguments/returns types. The function doc page lists then [here](https://napi.rs/docs/concepts/function#arguments). The TLDR is most "primitive" rust types are supported and any struct you add the `#[napi]` macro too. This could cause issues with third party libraries, so you may need to make your own wrapper types to pass them between rust and node.
+
 ### Exposing Classes
 
 While the above works its obviously very restrictive and crappy rust, so let's expose a wrapper around `sql_jr_execution::Execution`, so the node side can run arbitrary queries + track state.
@@ -334,11 +338,58 @@ test('parse error', (t) => {
 
 In the success case we get an array of records, in the failure case a JS error is thrown.
 
-## async support
+## Async Support
 
 My db does not have any async code yet so lets play with a dummy example.
 
-TODO
+To enable async support you can enable the `tokio_rt` feature on the napi crate in the `Cargo.toml`
+
+```toml:Cargo.toml
+[dependencies]
+napi = { version = "2.10.0", default-features = false, features = ["napi4", "tokio_rt"] }
+```
+
+Let's add a dummy function on the execution class that will accept a promise as a parameter that will resolve to the query to run
+
+```rust:src/lib.rs
+#[napi]
+impl NodeExec {
+    /// # Safety
+    ///
+    /// The execution struct should not be handled in multiple async functions
+    /// at a time.
+    #[napi(ts_return_type = "Promise<Array<Record<string,string>>>")]
+    pub async unsafe fn query_async(
+        &mut self,
+        query_promise: Promise<String>,
+    ) -> napi::Result<QueryRes> {
+        let query = query_promise.await?; // awaits the js promise like any other rust future
+
+        self.query(query)
+    }
+}
+```
+
+One thing you will notice is that we needed to mark the function as `unsafe` since we take in `&mut self` in an `async` function. The issue is rust can not enforce its borrow checker rules across the boundary with node. In sync code this is not an issue since node is single threaded. However, in async contexts another async task could mutate the Execution struct while a different task using that struct is suspended.
+
+We can then test it like so
+
+```javascript
+test('async function', async (t) => {
+  const exec = new Execution();
+
+  const get_query = async () => {
+    return `
+            CREATE TABLE foo (
+                col1 int,
+                col2 string
+            );
+        `;
+  };
+
+  t.deepEqual(await exec.queryAsync(get_query()), []);
+});
+```
 
 ## napi limitations
 
