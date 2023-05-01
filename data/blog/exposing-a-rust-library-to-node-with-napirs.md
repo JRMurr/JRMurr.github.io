@@ -10,10 +10,11 @@ layout: PostLayout
 
 <TOCInline toc={props.toc} asDisclosure />
 
-I unapologetically shill for Rust any chance I get. I annoy my coworkers any chance I get to say how things would be better if we just used Rust. It's basically a meme at this point so no one actually listens to me (rightfully so).
+I unapologetically shill Rust every chance I get, annoying my coworkers by insisting that everything would be better if we just used Rust. At this point, it has become a bit of a meme, so no one really listens to me (rightfully so).
 
-So to finally stop the meme I figured I would start researching ways we could actually incorporate Rust into our systems. Ideally we would make a new service in Rust, but we aren't big on microservices (yet). So the best path would be to call rust directly from node.
-Since Node is written in C++ it has ways to call out to native code via [addons](https://nodejs.org/api/addons.html), the library [napi-rs](https://napi.rs/) helps with the boilerplate of exposing rust code as a node addon.
+To finally put an end to the meme, I decided to research ways we could incorporate Rust into our systems. Ideally, we would create a new service in Rust, but since we are not yet big on microservices, the best approach would be to call Rust directly from our Node monolith.
+
+Since Node is written in C++, it provides ways to call native code via [addons](https://nodejs.org/api/addons.html). The [napi-rs](https://napi.rs/) library helps with the boilerplate of exposing Rust code as a Node addon.
 
 Napi-rs along with generating the node addon will also generate typescript type definitions and has a nice CLI to more easily make addons for all popular systems/architectures.
 
@@ -24,15 +25,15 @@ I'm going to experiment with napi in the codebase from the [build a db in rust s
 Most of the following is taken form the [napi getting started docs](https://napi.rs/docs/introduction/getting-started)
 
 You first need to install the napi CLI, which can be done with your favorite node package manager of choice.
-While I could use npm/yarn/pnpm, I like use nix flakes for any CLI tool, so I added the following to my project's flake file
+While I could use npm/yarn/pnpm, I like use nix flakes, so I added the following to my project's flake file
 
 ```nix:flake.nix
   buildInputs = with pkgs; [
      napi-rs-cli
-  ]'
+  ];
 ```
 
-The CLI will generate a rust crate with the right build scripts to build the node addon, the needed node boilerplate to load the addon with type definitions, and some GitHub actions to build and publish the npm packages.
+The CLI generates a Rust crate with the appropriate build scripts to build the node addon, along with the necessary node boilerplate to load the addon with type definitions. Additionally, it includes some GitHub actions to build and publish the npm packages.
 
 Run the CLI with
 
@@ -40,11 +41,12 @@ Run the CLI with
 napi new
 ```
 
-you will get an interactive prompt to give a package name and folder path (useful if you use cargo workspaces). The docs recommend prefixing the package name with a [npm scope](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages/) since napi will publish multiple packages for different architectures.
+You will get an interactive prompt to give a package name and folder path (useful if you use cargo workspaces). The docs recommend prefixing the package name with a [npm scope](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages/) since napi will publish multiple packages for different architectures.
 
 The generated rust will look like
 
 ```rust:src/lib.rs
+// imports excluded
 #[napi]
 pub fn sum(a: i32, b: i32) -> i32 {
   a + b
@@ -332,14 +334,20 @@ test('parse error', (t) => {
 
 In the success case we get an array of records, in the failure case a JS error is thrown.
 
+## async support
+
+My db does not have any async code yet so lets play with a dummy example.
+
+TODO
+
 ## napi limitations
 
 One of the main issues with napi (or any rust FFI) is that some “rustisms” don't transfer well to JS/TS.
-For example JS uses exceptions and not Result so any napi function returning a result will throw an error in node. Similar issue for option which just becomes `undefined | T`. Would be cool if napi had a feature flag to make rust results be exposed as a https://github.com/supermacro/neverthrow result or a similar lib, but this would probably be a pretty heavy lift.
+For example JS uses exceptions and not Result so any napi function returning a result will throw an error in node. Similar issue for option which just becomes `undefined | T`. Would be cool if napi had a feature flag to make rust results be exposed as a https://github.com/supermacro/neverthrow result or a similar lib.
 
 The other main issue is there is overhead involved when passing large/complex type between node and rust. Rust needs to serialize/deserialize the JS types into a format it can use. There are workarounds like using buffers/typed arrays but that requires some manual work on both ends to manually serialize/deserialize the objects. In the [napi v3](https://github.com/napi-rs/napi-rs/issues/1493) goals they plan on adding ways to make working around this simpler.
 
-Lastly there is currently only [experimental JS generator support](https://docs.rs/napi/latest/napi/iterator/trait.Generator.html) (with no docs on it that I can find), and no support for async generators/node streams. While you could manually add JS code to support these would be much nicer if napi had native support for these. It would make supporting things like DB clients much nicer. Stream support is planned for v3, so hopefully the others will follow.
+Lastly there is currently only [experimental JS generator support](https://docs.rs/napi/latest/napi/iterator/trait.Generator.html) (with no docs on it that I can find), and no support for async generators/node streams. While you could manually add JS code to support these would be much nicer if napi did it for you. Stream support is planned for v3, so hopefully the others will follow.
 
 ## Wrap up
 
