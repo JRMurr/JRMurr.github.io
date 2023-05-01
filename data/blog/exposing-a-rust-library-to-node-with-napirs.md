@@ -178,7 +178,7 @@ One thing you'll notice is the casing of `basic_query` in rust was changed to `b
 
 ### Allowed values
 
-When exposing a function with the napi macro you are limited into what types are supported in the arguments/returns types. The function doc page lists then [here](https://napi.rs/docs/concepts/function#arguments). The TLDR is most "primitive" rust types are supported and any struct you add the `#[napi]` macro too. This could cause issues with third party libraries, so you may need to make your own wrapper types to pass them between rust and node.
+When exposing a function with the napi macro you are limited into what types are supported in the arguments/returns types. The function doc page lists then [here](https://napi.rs/docs/concepts/function#arguments). The TLDR is most "primitive" rust types are supported and any struct you add the `#[napi]` macro too. This could cause issues with third party libraries, so you probably will need to make your own wrapper types to pass them between rust and node.
 
 ### Exposing Classes
 
@@ -403,4 +403,4 @@ Lastly there is currently only [experimental JS generator support](https://docs.
 ## Wrap up
 
 Overall napi is very useable and with my limited use of cross language FFI tools, it has had the nicest user experience.
-While it has limitations/some issues overall nothing major is in your way from exposing very useable and performant code.
+While it has limitations/some issues overall nothing major is in your way from exposing very useable and performant code if you put in a little extra work.
