@@ -15,7 +15,7 @@ While I have used Linux on my personal desktop and home server in the past, I ne
 It was so hard to remember what I did to my system to get it to work the way I wanted.
 This led to me keeping my systems very basic and eventually just using windows + docker for everything.
 While that setup worked fine, it was hard to customize things... I wanted to rice out my config like everyone on [r/unixporn](https://www.reddit.com/r/unixporn/)
-
+e
 When I found NixOS it was like a lightbulb went off. Now I can feel free to change my config as I please,
 not be scared if I break something, and be able to reproduce my system if I need to reinstall or got a new machine.
 
@@ -26,7 +26,42 @@ A big point of confusion when using Nix is the difference between Nix, NixPkgs, 
 For a high level TLDR, [NixOS](https://NixOS.org/) is a linux distro built on top of [NixPkgs](https://github.com/NixOS/nixpkgs).
 NixPkgs uses the [Nix language](https://nix.dev/tutorials/first-steps/nix-language) to define how to build packages.
 
-There is more nuance then that but it will be good enough to get started and for googling the right things.
+There is more nuance than that, but it will be good enough to get started and for googling the right things.
+
+### Quick NixLang overview
+
+For people new to nix I will go over the basics so the NixOS examples aren't completely foreign, if you know a little nix or other functional langs you can probably skip this part.
+
+I like this quote from [zero to nix](https://zero-to-nix.com/concepts/nix-language) to describe the language
+
+> Nix is a pure, functional, lazy, declarative, and reproducible programming language.
+
+NixLang is a lot like Haskell in that it is pure, functional, and lazy.
+
+This example should give a decent vibe of what programming in nix
+
+```nix
+(let foo = x: y: x; in foo "a" (throw "sad"))
+# evals to "a"
+```
+
+That example defines a function `(x: y: x;)` which takes two arguments and returns the first, and binds it to the variable `foo` with `let foo =...; in`. This means the variable `foo` is only in scope after the `in`. Finally, we call foo with `foo "a" (throw "sad")`. This resolves to "a". Notice the error is not thrown becuase nix is lazy, that means if we never "need" to use a variable or expression, it will never be evaluated.
+
+If we swap the order of the arguments to the function like `foo (throw "sad") "b"`, we will get
+
+```
+error:
+       … while calling the 'throw' builtin
+
+         at «string»:1:29:
+
+            1| (let foo = x: y: x; in foo (throw "sad") "b")
+             |                             ^
+
+       error: sad
+```
+
+TODO: with and attrsets (nesting vs object notation)
 
 ### A Basic Module
 
