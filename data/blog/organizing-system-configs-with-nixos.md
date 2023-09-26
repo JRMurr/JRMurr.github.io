@@ -354,9 +354,114 @@ When you reference a folder in nix import, nix will read from the `default.nix` 
 
 So this file does some "core" options like hostname, timezone, enabling some of my custom options (in the `myOptions` section), and it imports the other files in this folder and from `common`
 
+### Managing complex services
+
+Where NixOS really shines is how you manage services that need a lot of configuration like Grafana or Prometheus.
+People have either done a lot of ground work for you and exposed a simple interface to get something spun up and if not its not too hard to make your own abstraction.
+
+For example here is my config to set up Grafana
+
+```nix
+{ config, ... }:
+let
+  myDomain = config.myCaddy.domain;
+  grafanaDomain = "grafana.${myDomain}";
+  port = 3030;
+in {
+  services.grafana = {
+    enable = true;
+    settings = {
+      server = {
+        http_addr = "0.0.0.0";
+        http_port = port;
+        domain = grafanaDomain;
+      };
+    };
+    provision.enable = true;
+  };
+  myCaddy.reverseProxies."grafana".upstream = ":${builtins.toString port}";
+}
+```
+
+This file is almost like a docker compose where you set some env vars for ports and listening addresses, but i have the benfit of reading from other nixos options to set variables.
+
+For example at the top I read in `myDomain = config.myCaddy.domain;`, this is an option I set [here](https://github.com/JRMurr/NixOsConfig/blob/main/hosts/thicc-server/caddy/options.nix#L51) that is just a variable holding the domain for my home lab. This way the Grafana domain will change automatically if i decide to change my domain (unlikely but DRY, so it makes me feel good).
+
+I also use `myCaddy.reverseProxies."grafana".upstream` which is another custom option of mine to generate a reverse proxy config in caddy.
+
+To me this is magic, one file has all the config needed to spin up Grafana and set the necessary caddy options for me. If I decide to stop using Grafana, I can delete this file, and It's as if it never existed with no dangling reverse proxies going nowhere.
+
+For some slightly more involved config, see my [promethus config](https://github.com/JRMurr/NixOsConfig/blob/main/hosts/thicc-server/monitoring/prometheus.nix#L4), it references some Grafana options to auto register data sources for me.
+
+### Managing secrets
+
+When configuring services you will eventually need to manage secrets somehow. Some services will need an api key or password to function and leaving that in plain text in git or the nix store is a no-no. Up until recently I didn't really care, I didn't configure too many services that needed it, so I would either not care or use some hacky workaround.
+
+# TODO: more links/info. add link to agenix tut
+
+Now I use [agenix](https://github.com/ryantm/agenix) to encrypt my secrets. At a high level agenix is a wrapper around age which uses ssh keys to encrypt and decrypt files. The nice part is you can specify multiple keys to use as encryption and decryption. So for example I can list my user ssh key and the root ssh key for my server. So when adding/editing secrets I just need my private ssh key to decrypt, then using my public keys I can encrypt the data.
+
+agenix add NixOS options like
+
+```nix
+{
+  # register the secret
+  age.secrets.caddy-cloudflare = {
+    file = "${inputs.secrets}/secrets/caddy-cloudflare.age"; # path to encrpyted secret file
+    # let the caddy user read the secret
+    owner = config.services.caddy.user;
+    group = config.services.caddy.group;
+  };
+
+  systemd.services.caddy.serviceConfig = {
+    # read the secret
+    EnvironmentFile = config.age.secrets.caddy-cloudflare.path;
+  };
+}
+```
+
+The first option will tell agenix to decrypt the secret file when building the system config, and it will put the decrypted file at a path only readable by root (or in this case the caddy user since I set those options).
+
+Then you need to use the file, most services in NixOS will have some option to read secrets set at a path, so in this case `systemd.services.caddy.serviceConfig.EnvironmentFile` will have systemd read the path specified on startup.
+
+## Managing Dotfiles
+
+Everything I showed is dope for complex services you would run on a server, but what about dotfiles like my fish, git, and i3 config?
+
+This is where [Home Manager](https://github.com/nix-community/home-manager) comes in. Home Manger gives you the NixOS module system for things that are configured in your user's home directory.
+
+For example this
+
+```nix
+{
+  home-manager.users.jr = {
+    programs.kitty = {
+      enable = true;
+      shellIntegration.enableFishIntegration = true;
+      settings = {
+        font_family = "FiraCode Nerd Font";
+        bold_font = "auto";
+        italic_font = "auto";
+        bold_italic_font = "auto";
+        enable_audio_bell = false;
+        scrollback_lines = -1;
+        tab_bar_edge = "top";
+        allow_remote_control = "yes";
+        shell_integration = "enabled";
+        macos_option_as_alt = "yes";
+        shell = "fish";
+      };
+      theme = "Dracula";
+    };
+  };
+}
+
+```
+
+will install and configure my terminal [kitty](https://sw.kovidgoyal.net/kitty/) for the user `jr`.
+Personally I found Home Manager to be much more useful than "normal" NixOS at first, I had an annoying way of managing my dot files across machines and Home Manager simplified it greatly. Also, the [option list](https://nix-community.github.io/home-manager/options.html) is great to browse to find new tools to use.
+
 # TODO:
 
-- Show grafana config file
-- B/c of that mention the custom caddy option
-- Show caddy config stuff
-- show off homemanager/agenix somehow
+- explain HM for macos and nixos
+- wrap up

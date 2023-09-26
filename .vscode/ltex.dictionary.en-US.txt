@@ -65,3 +65,6 @@ Async
 agenix
 NixLang
 dicts
+hacky
+systemd read
+dotfiles
