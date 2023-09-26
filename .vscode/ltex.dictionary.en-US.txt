@@ -64,3 +64,4 @@ async
 Async
 agenix
 NixLang
+dicts

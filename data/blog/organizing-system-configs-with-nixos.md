@@ -61,7 +61,41 @@ error:
        error: sad
 ```
 
-TODO: with and attrsets (nesting vs object notation)
+The laziness helps us right very declarative code, describe what you want and if you don't reference something, no worries, it won't affect performance.
+
+One of my favorite featurs of the nix language is how you can use `attrsets` (objects, hash maps, dicts, etc.). You can create one like
+
+```nix
+let foo = {key1="bar"; key2= {nested1 = 1; nested2=2;};};
+in
+foo.key2.nested1
+# resolves to 1
+```
+
+at first, they look like normal objects from something like python or JS but my favorite feature of them is the syntax sugar for dealing with nested `attrsets`
+
+```nix
+let foo = {
+  key1="bar";
+  key2.nested1 = 1;
+  key2.nested2 = 2;
+}; in
+foo.key2.nested1
+# resolves to 1
+```
+
+That snippet creates the same `attrset` as the example above but lets u "path notation" to create the nested object.
+While a basic syntax sugar it makes it very easy to override 1 nested option when merging things together. Without it nixos would be a big PITA to manage IMO.
+
+The last language feature I'll cover is the `with` block.
+
+```nix
+(with { a = 1; b = 2; };
+  a + b)
+# evals to 3
+```
+
+The with block will put all of an `attrsets` key value pairs as variable in scope. This makes it easier to access library functions with something like `with builtins` or `with lib`, so you don't need to prefix everything.
 
 ### A Basic Module
 
