@@ -513,4 +513,4 @@ One thing to note when sharing config cross-platform is certain programs/options
 
 NixOS + Home Manager feels like something from the future (even though nix is like 20 years old....). The freedom you have to change and experiment is amazing. I didn't even go into some other awesome features like system rollback, distributed builds, and making your own configuration options.
 
-If you haven't given NixOS a shot you're missing out!
+If you want to give NixOS a shot I think [my config](https://github.com/JRMurr/NixOsConfig/tree/main) is hopefully easy to follow. Leave a comment if you want any help!
