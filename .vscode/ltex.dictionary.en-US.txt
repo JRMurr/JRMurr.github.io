@@ -68,3 +68,5 @@ dicts
 hacky
 systemd read
 dotfiles
+init
+Dotfiles

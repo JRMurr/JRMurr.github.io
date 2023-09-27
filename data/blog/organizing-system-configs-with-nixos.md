@@ -424,7 +424,7 @@ The first option will tell agenix to decrypt the secret file when building the s
 
 Then you need to use the file, most services in NixOS will have some option to read secrets set at a path, so in this case `systemd.services.caddy.serviceConfig.EnvironmentFile` will have systemd read the path specified on startup.
 
-## Managing Dotfiles
+## Managing Dotfiles with Home Manager
 
 Everything I showed is dope for complex services you would run on a server, but what about dotfiles like my fish, git, and i3 config?
 
@@ -459,9 +459,57 @@ For example this
 ```
 
 will install and configure my terminal [kitty](https://sw.kovidgoyal.net/kitty/) for the user `jr`.
-Personally I found Home Manager to be much more useful than "normal" NixOS at first, I had an annoying way of managing my dot files across machines and Home Manager simplified it greatly. Also, the [option list](https://nix-community.github.io/home-manager/options.html) is great to browse to find new tools to use.
+Personally I found Home Manager to be much more useful than "normal" NixOS at first, I had an annoying way of managing my dot files across machines and Home Manager simplified it greatly. It also works for macOS, so you can share cross-platform config easily.
 
-# TODO:
+I put most of my Home Manager config into a separate [home manager folder/module](https://github.com/JRMurr/NixOsConfig/tree/main/common/homemanager), I then don't reference the `home-manager.users.<username>` prefix in any of those files. So for example in the kitty config above I only export ` programs.kitty = { ... }` and not `home-manager.users.jr.programs.kitty = {...}`. This lets me share the same home manager config for multiple NixOS users (if I wanted) and standalone home manager on macOS.
 
-- explain HM for macos and nixos
-- wrap up
+For example, my NixOS user has something like
+
+```nix
+{
+home-manager.users.jr = (import ./hm.nix {});
+}
+```
+
+this will add all the options in `jr-hm.nix` under `home-manager.users.jr`
+
+and the `hm.nix` file will import my home manager module like so
+
+```nix:hm.nix
+{ ... }: {
+  imports = [ ../../homemanager ];
+  # Everything in this file will be under home-manager.users.<name>
+  # https://rycee.gitlab.io/home-manager/options.html
+
+  xdg.enable = true;
+
+  # https://nix-community.github.io/home-manager/release-notes.html#sec-release-22.11-highlights
+  home.stateVersion = "18.09";
+}
+```
+
+To see the real example see [here](https://github.com/JRMurr/NixOsConfig/blob/main/common/users/jr.nix)
+
+### Home Manager on Mac
+
+For macOS once you have nix installed you can follow [this guide](https://nix-community.github.io/home-manager/index.html#ch-nix-flakes) to enable flakes and do some home manager init if you don't have a config already.
+
+For my case since I already had my nixos flake, i just needed to add a new flake output `homeConfiguration.<macOSUserName>`, see [here](https://github.com/JRMurr/NixOsConfig/blob/556f48bfa290185b595b71c4a8d2124efd0d851f/flake.nix#L170) for my setup.
+
+Then you can run `home-manager switch --flake <pathToFlake>#<macOSUserName>` to install/update your config.
+
+One thing to note when sharing config cross-platform is certain programs/options might not work on macOS, to gate that in your config you can use `pkgs.stdenv.isDarwin` which will be true on macOS and false elsewhere. The `lib.mkIf` function will let you conditionally add settings based on a condition. So for example to disable i3 on macOS you could do
+
+```nix:i3.nix
+{pkgs,...}: {
+  config = lib.mkIf !pkgs.stdenv.isDarwin {
+    xsession.windowManager.i3 = { enable =true; ...}
+  };
+}
+```
+
+## Wrap up
+
+NixOS + Home Manager feels like something from the future (even though nix is like 20 years old....). The freedom you have to change and experiment is amazing. I didn't even go into some other awesome features like system rollback, distributed builds, and making your own configuration options.
+
+If you haven't given NixOS a shot you're missing out!
