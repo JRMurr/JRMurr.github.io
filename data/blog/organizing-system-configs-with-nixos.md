@@ -1,6 +1,6 @@
 ---
 title: Organizing system configs with NixOS
-date: 2023-09-03T16:11:37.626Z
+date: 2023-10-06T17:31:00.837Z
 tags: ['NixOS', 'nix', 'guide', 'dotfiles']
 draft: false
 summary: How I organize and manage my system and user configs with NixOS and homemanager
@@ -397,8 +397,6 @@ For some slightly more involved config, see my [Prometheus config](https://githu
 
 When configuring services you will eventually need to manage secrets somehow. Some services will need an API key or password to function and leaving that in plain text in git or the nix store is a no-no. Up until recently I didn't really care, I didn't configure too many services that needed it, so I would either not care or use some hacky workaround.
 
-# TODO: more links/info. add link to agenix tut
-
 Now I use [agenix](https://github.com/ryantm/agenix) to encrypt my secrets. At a high level agenix is a wrapper around age which uses ssh keys to encrypt and decrypt files. The nice part is you can specify multiple keys to use as encryption and decryption. So for example I can list my user ssh key and the root ssh key for my server. So when adding/editing secrets I just need my private ssh key to decrypt, then using my public keys I can encrypt the data.
 
 agenix adds NixOS options like
@@ -423,6 +421,104 @@ agenix adds NixOS options like
 The first option will tell agenix to decrypt the secret file when building the system config, and it will put the decrypted file at a path only readable by root (or in this case the caddy user since I set those options).
 
 Then you need to use the file, most services in NixOS will have some option to read secrets set at a path, so in this case `systemd.services.caddy.serviceConfig.EnvironmentFile` will have systemd read the path specified on startup.
+
+#### The secret repo
+
+In my nix config I keep my secrets in a separate private repo, It's not strictly necessary since the age encrypted files will exist in the nix store anyway but gives me a little piece of mind just in case I mess up somehow.
+
+That repo looks like this
+
+```shell
+❯ exa --tree --level 2
+.
+├── flake.lock
+├── flake.nix
+└── secrets
+   ├── attic-admin-token.age
+   ├── attic-creds.age
+    ...
+   └── secrets.nix
+```
+
+where the flake is
+
+```nix:flake.nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+    agenix.url = "github:ryantm/agenix";
+  };
+
+  outputs = { self, nixpkgs, flake-utils, ... }@inputs:
+    let overlays = [ inputs.agenix.overlays.default ];
+    in flake-utils.lib.eachDefaultSystem (system:
+      let pkgs = import nixpkgs { inherit system overlays; };
+      in {
+        devShells = {
+          default = pkgs.mkShell { buildInputs = with pkgs; [ agenix ]; };
+        };
+        secrets = ./secrets;
+      });
+}
+```
+
+So TLDR just exposes a flake output of `secrets` which is a directory containing all my age encrypted files. This lets me reference the encrypted files like `"${inputs.secrets}/secrets/caddy-cloudflare.age";`
+
+This is the main file that does the magic for what keys are valid for each secret
+
+```nix:secrets.nix
+let
+  # all public keys in this file
+  githubKeys = [
+    # https://github.com/jrmurr.keys
+    ...
+  ];
+  # ssh-keyscan <ip> or sudo cat /etc/ssh/ssh_host_ed25519_key.pub for root keys
+  linux-desktop = {
+    root = "ssh-ed25519 ...";
+    user = "ssh-ed25519 ...";
+  };
+
+  thicc-server = {
+    root = "ssh-ed25519 ...";
+    user = "ssh-ed25519 ..";
+  };
+
+  framework = {
+    root = "ssh-ed25519 ...";
+    user = "ssh-ed25519 ...";
+  };
+
+  hosts = [ linux-desktop thicc-server framework ];
+
+  getUser = host: host.user;
+  getRoot = host: host.root;
+  getAllKeysForHost = host: [ (getUser host) (getRoot host) ];
+
+  knownUsers = (builtins.map getUser hosts);
+  users = githubKeys ++ knownUsers;
+  systems = (builtins.map getRoot hosts);
+  allKeys = users ++ systems;
+
+  serverSecretKeys = knownUsers ++ [
+    (getRoot thicc-server)
+  ]; # allow all user keys to modify the thicc server secrets
+in {
+  "jr-pass.age".publicKeys = allKeys;
+  "mopidy-spotify.age".publicKeys = allKeys;
+
+  "freshrss-user-pass.age".publicKeys = serverSecretKeys;
+  "caddy-cloudflare.age".publicKeys = serverSecretKeys;
+  # other stuff ...
+}
+```
+
+so in the let block I define all my systems with their user keys and root system keys. Then some helper functions for getting a key I want for each host.
+Finally, I make a list of `allKeys` so every one of my user and root keys and encrypt/decrypt some common secrets like my user passsord and some api keys.
+The other list is `serverSecretKeys` which is the root key for my server (which has the most secrets) and all user keys. This lets me modify the secret on all my system, but the only root account to encrypt/decrypt is my server.
+
+When I want to add a new secret I add a new file name in the attrset at the bottom of the file with the list of keys which are valid to encrypt/decrypt and run `agenix -e <filename>`, once my editor closes the file will be created.
 
 ## Managing Dotfiles with Home Manager
 
