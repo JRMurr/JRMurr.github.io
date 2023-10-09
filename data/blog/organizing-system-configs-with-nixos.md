@@ -1,6 +1,6 @@
 ---
 title: Organizing system configs with NixOS
-date: 2023-10-06T17:31:00.837Z
+date: 2023-10-09T07:14:19.315Z
 tags: ['NixOS', 'nix', 'guide', 'dotfiles']
 draft: false
 summary: How I organize and manage my system and user configs with NixOS and homemanager
@@ -18,6 +18,12 @@ While that setup worked fine, it was hard to customize things... I wanted to ric
 
 When I found NixOS it was like a lightbulb went off. Now I can feel free to change my config as I please,
 not be scared if I break something, and be able to reproduce my system if I need to reinstall or got a new machine.
+
+This post will be going over the "vibe" of using NixOS, I will explain how I set up my NixOS config and explain things in broad strokes as I go.
+I will link out to other posts/code to go into greater detail. I may get some things wrong as I explain so if you catch something please comment!
+
+My hope is for people who don't know NixOS this will get you to give it a try.
+If you are using NixOS but feel lost, give you a path forward for feeling more comfortable using it.
 
 ## What is NixOS
 
@@ -41,7 +47,10 @@ NixLang is a lot like Haskell in that it is pure, functional, and lazy.
 This example should give a decent vibe of what programming in nix is like
 
 ```nix
-(let foo = x: y: x; in foo "a" (throw "sad"))
+let
+  foo = x: y: x;
+in
+  foo "a" (throw "sad")
 # evals to "a"
 ```
 
@@ -66,9 +75,16 @@ The laziness helps us right very declarative code, describe what you want and if
 One of my favorite features of the nix language is how you can use `attrsets` (objects, hash maps, dicts, etc.). You can create one like
 
 ```nix
-let foo = {key1="bar"; key2= {nested1 = 1; nested2=2;};};
+let
+  foo = {
+    key1 = "bar";
+    key2 = {
+      nested1 = 1;
+      nested2 = 2;
+    };
+  };
 in
-foo.key2.nested1
+  foo.key2.nested1
 # resolves to 1
 ```
 
@@ -76,11 +92,12 @@ at first, they look like normal objects from something like python or JS but my 
 
 ```nix
 let foo = {
-  key1="bar";
+  key1 = "bar";
   key2.nested1 = 1;
   key2.nested2 = 2;
-}; in
-foo.key2.nested1
+};
+in
+  foo.key2.nested1
 # resolves to 1
 ```
 
@@ -90,12 +107,12 @@ While a basic syntax sugar it makes it very easy to override 1 nested option whe
 The last language feature I'll cover is the `with` block.
 
 ```nix
-(with { a = 1; b = 2; };
-  a + b)
+with { a = 1; b = 2; };
+  a + b
 # evals to 3
 ```
 
-The with block will put all of an `attrsets` key value pairs as variable in scope. This makes it easier to access library functions with something like `with builtins` or `with lib`, so you don't need to prefix everything.
+The with block will put all of an `attrset`'s key value pairs as variable in scope. This makes it easier to access library functions with something like `with builtins` or `with lib`, so you don't need to prefix everything.
 
 ### A Basic Module
 
@@ -263,12 +280,11 @@ The `flake.nix` file is the entry point for everything, it roughly looks like th
 ```
 
 I trimmed this file down to just the most important bit of the `nixosConfigurations` section in the `outputs`.
-That section is a mapping of `hostname => nixosConfigOptions`, so the `framework` key is for my laptop, `thicc-server` is my server, and so on
+That section is a mapping of `hostname => nixosConfigOptions`, so the `framework` key is for my laptop, `thicc-server` is my server, and so on.
 The `mkSystem` function will add some default modules for setting up [Home Manager](https://github.com/nix-community/home-manager) and [agenix](https://github.com/ryantm/agenix) (will explain those later), and adds in the specified modules for that host.
 
 You may have noticed in the list of modules some elements are file paths like `./hosts/thicc-server`, some are just variables like `inputs.nixos-hardware.nixosModules.framework`, and some are inline functions like `({ config, pkgs, ... }: { services.vscode-server.enable = true; })`.
 Each is functionally the same, they all will turn into a module function like I showed at the beginning of this post.
-I personally like to put everything into files/folders but when importing other 3rd party modules like home manager and adding options exposed by them, it's sometimes easier to add it inline at the flake
 
 ## Diving into my Server Config
 
@@ -342,13 +358,7 @@ When you reference a folder in nix import, nix will read from the `default.nix` 
   };
   virtualisation.docker.enable = true;
 
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "21.11"; # Did you read the comment?
+  system.stateVersion = "21.11";
 }
 ```
 
@@ -357,7 +367,8 @@ So this file does some "core" options like hostname, timezone, enabling some of 
 ### Managing complex services
 
 Where NixOS really shines is how you manage services that need a lot of configuration like Grafana or Prometheus.
-People have either done a lot of groundwork for you and exposed a simple interface to get something spun up and if not It's not too hard to make your own abstraction.
+People have either done a lot of groundwork for you and exposed a simple interface to get something spun up.
+If not, it's easy to make your own abstraction.
 
 For example here is my config to set up Grafana
 
@@ -387,17 +398,17 @@ This file is almost like a docker compose where you set some env vars for ports 
 
 For example at the top I read in `myDomain = config.myCaddy.domain;`, this is an option I set [here](https://github.com/JRMurr/NixOsConfig/blob/main/hosts/thicc-server/caddy/options.nix#L51) that is just a variable holding the domain for my home lab. This way the Grafana domain will change automatically if I decide to change my domain (unlikely but DRY, so it makes me feel good).
 
-I also use `myCaddy.reverseProxies."grafana".upstream` which is another custom option of mine to generate a reverse proxy config in caddy.
+I also use `myCaddy.reverseProxies."grafana".upstream` which is another custom option of mine to generate a reverse proxy config in caddy. This will make a URL for Grafana at `https://grafana.<mydomain>`.
 
-To me this is magic, one file has all the config needed to spin up Grafana and set the necessary caddy options for me. If I decide to stop using Grafana, I can delete this file, and It's as if it never existed with no dangling reverse proxies going nowhere.
+To me this is magic, one file has all the config needed to spin up Grafana and set the necessary caddy options for me. If I decide to stop using Grafana, I can delete this file, and It's as if it never existed with no dangling reverse proxies going to nowhere.
 
 For some slightly more involved config, see my [Prometheus config](https://github.com/JRMurr/NixOsConfig/blob/main/hosts/thicc-server/monitoring/prometheus.nix#L4), it references some Grafana options to auto register data sources for me.
 
-### Managing secrets
+## Managing secrets
 
-When configuring services you will eventually need to manage secrets somehow. Some services will need an API key or password to function and leaving that in plain text in git or the nix store is a no-no. Up until recently I didn't really care, I didn't configure too many services that needed it, so I would either not care or use some hacky workaround.
+When configuring services you will eventually need to manage secrets somehow. Some services will need an API key or password to function and leaving that in plain text in git or the nix store is a no-no (since they can be read easily). Up until recently I didn't really care, I didn't configure too many services that needed it, so I would either not care or use some hacky workaround.
 
-Now I use [agenix](https://github.com/ryantm/agenix) to encrypt my secrets. At a high level agenix is a wrapper around age which uses ssh keys to encrypt and decrypt files. The nice part is you can specify multiple keys to use as encryption and decryption. So for example I can list my user ssh key and the root ssh key for my server. So when adding/editing secrets I just need my private ssh key to decrypt, then using my public keys I can encrypt the data.
+Now I use [agenix](https://github.com/ryantm/agenix) to encrypt my secrets. At a high level agenix is a wrapper around [age](https://github.com/FiloSottile/age) which uses ssh keys to encrypt and decrypt files. The nice part is you can specify multiple keys to use as encryption and decryption. So for example I can list my user ssh key and the root ssh key for my server. So when adding/editing secrets I just need my private ssh key to decrypt, then using my public keys I can encrypt the updated secret.
 
 agenix adds NixOS options like
 
@@ -418,13 +429,13 @@ agenix adds NixOS options like
 }
 ```
 
-The first option will tell agenix to decrypt the secret file when building the system config, and it will put the decrypted file at a path only readable by root (or in this case the caddy user since I set those options).
+The first option will tell agenix to decrypt the secret file `caddy-cloudflare.age` when building the system config, and it will put the decrypted file at a path only readable by root (or in this case the caddy user since I set those options).
 
 Then you need to use the file, most services in NixOS will have some option to read secrets set at a path, so in this case `systemd.services.caddy.serviceConfig.EnvironmentFile` will have systemd read the path specified on startup.
 
-#### The secret repo
+### The Secret Repo
 
-In my nix config I keep my secrets in a separate private repo, It's not strictly necessary since the age encrypted files will exist in the nix store anyway but gives me a little piece of mind just in case I mess up somehow.
+In my nix config I keep my secrets in a separate private repo, It's not necessary since the age encrypted files will exist in the nix store anyway but gives me a little piece of mind just in case I mess up somehow.
 
 That repo looks like this
 
@@ -463,7 +474,7 @@ where the flake is
 }
 ```
 
-So TLDR just exposes a flake output of `secrets` which is a directory containing all my age encrypted files. This lets me reference the encrypted files like `"${inputs.secrets}/secrets/caddy-cloudflare.age";`
+So TLDR just exposes a flake output of `secrets` which is a directory containing all my age encrypted files. This lets me reference the encrypted files like `"${inputs.secrets}/secrets/caddy-cloudflare.age";` in my main nix config repo.
 
 This is the main file that does the magic for what keys are valid for each secret
 
@@ -514,11 +525,12 @@ in {
 }
 ```
 
-so in the let block I define all my systems with their user keys and root system keys. Then some helper functions for getting a key I want for each host.
-Finally, I make a list of `allKeys` so every one of my user and root keys and encrypt/decrypt some common secrets like my user passsord and some api keys.
+so in the let block I define all my systems with their user keys and root system keys.
+Then some helper functions for getting a key I want from a host.
+Finally, I make a list of `allKeys` so every one of my user and root keys and encrypt/decrypt some common secrets like my user password and some API keys.
 The other list is `serverSecretKeys` which is the root key for my server (which has the most secrets) and all user keys. This lets me modify the secret on all my system, but the only root account to encrypt/decrypt is my server.
 
-When I want to add a new secret I add a new file name in the attrset at the bottom of the file with the list of keys which are valid to encrypt/decrypt and run `agenix -e <filename>`, once my editor closes the file will be created.
+When I want to add a new secret I add a new file name in the `attrset` at the bottom of the file with the list of keys which are valid to encrypt/decrypt and run `agenix -e <filename>`, once my editor closes the file will be created.
 
 ## Managing Dotfiles with Home Manager
 
@@ -551,7 +563,6 @@ For example this
     };
   };
 }
-
 ```
 
 When home manager is run (as a NixOS module or stand alone), it will install [kitty](https://sw.kovidgoyal.net/kitty/) if we don't have it, and generate the kitty config file at `~/.config/kitty/kitty.conf` (for the user `jr` in this example), and since I set `shellIntegration.enableFishIntegration`, it will add lines to my fish config to add kitty completions.
