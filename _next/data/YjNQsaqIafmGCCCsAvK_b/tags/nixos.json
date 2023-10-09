@@ -1,0 +1,1 @@
+{"pageProps":{"posts":[{"title":"Organizing system configs with NixOS","date":"2023-10-09T07:14:19.315Z","tags":["NixOS","nix","guide","dotfiles"],"draft":false,"summary":"How I organize and manage my system and user configs with NixOS and homemanager","images":[],"layout":"PostLayout","slug":"organizing-system-configs-with-nixos"}],"tag":"nixos"},"__N_SSG":true}

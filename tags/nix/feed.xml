@@ -7,9 +7,19 @@
       <language>en-us</language>
       <managingEditor> (John Murray)</managingEditor>
       <webMaster> (John Murray)</webMaster>
-      <lastBuildDate>Tue, 06 Sep 2022 23:57:55 GMT</lastBuildDate>
+      <lastBuildDate>Mon, 09 Oct 2023 07:14:19 GMT</lastBuildDate>
       <atom:link href="https://johns.codes/tags/nix/feed.xml" rel="self" type="application/rss+xml"/>
       
+  <item>
+    <guid>https://johns.codes/blog/organizing-system-configs-with-nixos</guid>
+    <title>Organizing system configs with NixOS</title>
+    <link>https://johns.codes/blog/organizing-system-configs-with-nixos</link>
+    <description>How I organize and manage my system and user configs with NixOS and homemanager</description>
+    <pubDate>Mon, 09 Oct 2023 07:14:19 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>NixOS</category><category>nix</category><category>guide</category><category>dotfiles</category>
+  </item>
+
   <item>
     <guid>https://johns.codes/blog/building-typescript-node-apps-with-nix</guid>
     <title>Building Typescript Node Apps With Nix</title>
