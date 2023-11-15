@@ -17,5 +17,12 @@
   "editor.quickSuggestions": {
     "strings": true
   },
-  "cSpell.enableFiletypes": ["!markdown"]
+  "cSpell.enableFiletypes": ["!markdown"],
+  "grammarly.files.include": ["**/readme.md", "**/README.md", "**/*.txt", "data/blog/**/*.md"],
+  "grammarly.selectors": [
+    {
+      "language": "markdown",
+      "scheme": "file"
+    }
+  ]
 }

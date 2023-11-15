@@ -12,16 +12,16 @@ layout: PostLayout
 
 ## Being a Nix Stan
 
-I recently accepted that I am obsessed with nix. Ask anyone with a remotely technical person with a pulse, and they can probably mention at least 10 times I've told them "but with nix X is way easier/a non issue" (same with rust, but that's for another day...).
+I recently accepted that I am obsessed with Nix. Ask any remotely technical person with a pulse, and they can probably mention at least 10 times I've told them "But with nix X is way easier/a nonissue" (same with rust, but that's for another day...).
 
-The issue is, I'm a bit of a poser. I've been using Nix on/off for about 2.5 years but only seriously for the last 10ish months.
-I've mostly just consumed existing NixOS modules, nix packages, setup basic nix-shells/flakes, and relatively simple nix builders. All of these uses of nix where pretty great, and it definitely made my life easier, but it only went so far to solve some of the challenges I come across in my personal projects/work.
+The issue is, that I am a bit of a poser. I've been using Nix on/off for about 2.5 years but only seriously for the last 10ish months.
+I've mostly just consumed existing NixOS modules, nix packages, setup basic nix-shells/flakes, and relatively simple Nix builders. All of these uses of Nix were pretty great, and it made my life easier, but it only went so far as to solve some of the challenges I come across in my projects/work.
 
-During my initial nix learning phase I came across `node2nix` but the codegen step made me think that node and nix just don't get along well, and I never looked further.
-My job primarily involves node web servers written in typescript. All I've done with nix so far at work is set up basic dev environments with node. While it did make our README(s) a little nicer, it does not really solve our issues in actually deploying our apps.
+During my initial nix learning phase, I came across `node2nix` but the codegen step made me think that node and nix just don't get along well, and I never looked further.
+My job primarily involves node web servers written in typescript. All I've done with Nix so far at work is set up basic dev environments with node. While it did make our README(s) a little nicer, it does not solve our issues in actually deploying our apps.
 Now that I got over the initial hump of adding nix to some of our processes, it's time to make it even better!
 
-If you are not familiar with nix, [this post](/blog/rust-enviorment-and-docker-build-with-nix-flakes) goes over the basics of nix and builds a basic rust app.
+If you are not familiar with Nix, [this post](/blog/rust-enviorment-and-docker-build-with-nix-flakes) goes over the basics of Nix and builds a basic Rust app.
 
 ## The APP
 
@@ -78,22 +78,22 @@ I also added a strict tsconfig that outputs to `./dist` and a package.json that 
 }
 ```
 
-I made a simple `flake.nix` to set up node then ran
+I made a simple `flake.nix` to set up Node then ran
 
 ```sh
 $ npm run build
 $ npm run start
 ```
 
-The sever is up and is responding.
+The server is up and is responding.
 
 ## Nix Builds
 
-Like usual with nix I first try to see if other people have figured this out already, looking at the [nixpkgs JS docs](https://nixos.org/manual/nixpkgs/stable/#language-javascript), it mentions a few builders like `mkYarnPackage`, [node2nix](https://github.com/svanderburg/node2nix), [npmlock2nix](https://github.com/nix-community/npmlock2nix), and [nix-npm-buildpackage](https://github.com/serokell/nix-npm-buildpackage). These all seemed fine but I couldnt find any good typescript example, or the docs were a little lacking to get started. So I figured why not just do it the dumb way to start and do it manually, what's the worst that can happen?
+Like usual with nix I first try to see if other people have figured this out already, looking at the [nixpkgs JS docs](https://nixos.org/manual/nixpkgs/stable/#language-javascript), it mentions a few builders like `mkYarnPackage`, [node2nix](https://github.com/svanderburg/node2nix), [npmlock2nix](https://github.com/nix-community/npmlock2nix), and [nix-npm-buildpackage](https://github.com/serokell/nix-npm-buildpackage). These all seemed fine, but I couldn't find any good typescript examples, or the docs were a little lacking to get started. So I figured why not just do it the dumb way to start and do it manually, what's the worst that can happen?
 
 ### The Standard Environment
 
-[stdenv.mkDerivation](https://nixos.org/manual/nixpkgs/stable/#sec-using-stdenv) is what most "high level" builders wrap. It provides you a sandbox environment with some common programs like `coreutils`, `grep`, `awk`, `make`, etc., to build a program. It is very versatile and surprisingly easy to use once you get comfortable with its ideas. I was hopeful I could throw something together, so to start I just focused on the `buildPhase` and a very basic `installPhase` to verify everything was built, I would deal with running it later.
+[stdenv.mkDerivation](https://nixos.org/manual/nixpkgs/stable/#sec-using-stdenv) is what most "high-level" builders wrap. It provides you with a sandbox environment with some common programs like `coreutils`, `grep`, `awk`, `make`, etc., to build a program. It is very versatile and surprisingly easy to use once you get comfortable with its ideas. I was hopeful I could throw something together, so to start I just focused on the `buildPhase` and a very basic `installPhase` to verify everything was built, I would deal with running it later.
 
 ```nix:flake.nix
 {
@@ -170,7 +170,7 @@ The error `getaddrinfo EAI_AGAIN registry.npmjs.org` is a failure to connect to 
 
 ### node2nix
 
-Of all the builders I've seen so far [node2nix](https://github.com/svanderburg/node2nix) seemed like the most mature. It's actually used in the [official nixpkgs repo](https://github.com/NixOS/nixpkgs/tree/master/pkgs/development/node-packages). At a high level `node2nix` will parse your `package.json` or `package-lock.json` and do code-gen to give you nix files that use [fetchers](https://ryantm.github.io/nixpkgs/builders/fetchers/) to download all `node_modules` and build your node app.
+Of all the builders I've seen so far [node2nix](https://github.com/svanderburg/node2nix) seemed like the most mature. It's used in the [official nixpkgs repo](https://github.com/NixOS/nixpkgs/tree/master/pkgs/development/node-packages). At a high level `node2nix` will parse your `package.json` or `package-lock.json` and do code-gen to give you nix files that use [fetchers](https://ryantm.github.io/nixpkgs/builders/fetchers/) to download all `node_modules` and build your node app.
 
 You can install `node2nix` from `nixpkgs` as `pkgs.node2nix`. To run it I have this script
 
@@ -273,8 +273,8 @@ To verify the app worked you can run `./result/bin/example-ts-nix`.
 
 While at first this looks like a lot It's pretty straightforward. `node2nixOutput = import ./nix { inherit pkgs nodejs system; };` calls the generated `default.nix` which exposes many outputs for building. In our case we only use `nodeDeps = node2nixOutput.nodeDependencies;`.
 
-The `buildPhase` just symlinks the generated `nodeDependencies` and builds the app. The `installPhase` copies the built output into the final derivation. If your familiar with docker files this is sorta like having a build layer than a final layer to copy the outputs to.
-One thing nix does for you is patch shebangs to reference the `buildInputs` of the derivation, in this case if you run
+The `buildPhase` just symlinks the generated `nodeDependencies` and builds the app. The `installPhase` copies the built output into the final derivation. If you are familiar with docker files this is sorta like having a build layer than a final layer to copy the outputs to.
+One thing nix does for you is patch shebangs to reference the `buildInputs` of the derivation, in this case, if you run
 
 ```sh
 $ cat ./result/bin/example-ts-nix
@@ -287,7 +287,7 @@ It changed `#!/usr/bin/env node` to `#!/nix/store/6cdccplrjwga5rd3b2s7xb8zd25hns
 
 **node2nix Pros**
 
-- Simple to follow build process
+- Simple to follow the build process
 - Somewhat easy to customize
 - Has support for custom registries/private git repos
 
@@ -295,13 +295,13 @@ It changed `#!/usr/bin/env node` to `#!/nix/store/6cdccplrjwga5rd3b2s7xb8zd25hns
 
 - Having to re-run `node2nix` on package.json changes is annoying
 - The generated outputs seem to re-build too often, see [here](https://github.com/svanderburg/node2nix/issues/301)
-- With the current setup the final build is still using the development `node_modules` which is wasteful
+- With the current setup, the final build is still using the development `node_modules` which is wasteful
 
-Overall I think `node2nix` is a good start for most node apps. Since its all mostly code-gen It's easy to follow what's going on. I've come across [this template](https://github.com/MatrixAI/TypeScript-Demo-Lib-Native) which seems to have figured out to work around some cons listed, but I have not tried it yet so your mileage may vary.
+Overall I think `node2nix` is a good start for most node apps. Since it's all mostly code-gen It's easy to follow what's going on. I've come across [this template](https://github.com/MatrixAI/TypeScript-Demo-Lib-Native) which seems to have figured out to work around some cons listed, but I have not tried it yet so your mileage may vary.
 
 ### dream2nix
 
-[dream2nix](https://github.com/nix-community/dream2nix) says its "A framework for automated nix packaging" by mostly standardizing the many "2nix" tools. The [docs](https://nix-community.github.io/dream2nix/) list Rust, Haskell, Python, and Node builders.
+[dream2nix](https://github.com/nix-community/dream2nix) says it's "A framework for automated nix packaging" by mostly standardizing the many "2nix" tools. The [docs](https://nix-community.github.io/dream2nix/) list Rust, Haskell, Python, and Node builders.
 For whatever reason I have been skeptical of dream2nix. It looked "too good to be true" so I never really gave it a fair shake. Better late than never, let's try it
 
 ```nix:flake.nix
@@ -328,7 +328,7 @@ For whatever reason I have been skeptical of dream2nix. It looked "too good to b
 }
 ```
 
-The core idea of dream2nix is that it will find you package.json/package-lock.json to figure out what node deps you need and how to build `npm run build` or w/e else. You can customize it but for most apps this should "just work".
+The core idea of dream2nix is that it will find you package.json/package-lock.json to figure out what node deps you need and how to build `npm run build` or w/e else. You can customize it but for most apps, this should "just work".
 
 Running `nix flake show` returns
 
