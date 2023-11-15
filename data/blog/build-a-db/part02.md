@@ -13,7 +13,7 @@ layout: PostLayout
 
 # Feedback from part 1
 
-I got some very nice feedback from the [first part of this series](/blog/build-a-db/part01). The main suggestions where to use some different parsing libraries like [chumsky](https://docs.rs/chumsky/latest/chumsky/) or use an existing SQL parser like [sqlparser-rs](https://github.com/sqlparser-rs/sqlparser-rs).
+I got some very nice feedback from the [first part of this series](/blog/build-a-db/part01). The main suggestions were to use some different parsing libraries like [chumsky](https://docs.rs/chumsky/latest/chumsky/) or use an existing SQL parser like [sqlparser-rs](https://github.com/sqlparser-rs/sqlparser-rs).
 
 `chumsky` looks like it handles a lot of the error handling logic I had to do myself while still being defined in rust (no extra language). If I had known of this before I would have used it. Might switch to it later on if our grammar gets more involved. Thanks [@hjvt@hachyderm.io](https://hachyderm.io/@hjvt/109620348134117972) for the recommendation!
 
@@ -38,7 +38,7 @@ sql_jr_parser = { path = "../sql_jr_parser" }
 thiserror = {workspace = true}
 ```
 
-Since we will need to operate on tables, lets start by defining our table type. For now, we will only deal with in memory execution. Soon enough we can handle reading from disk.
+Since we will need to operate on tables, let's start by defining our table type. For now, we will only deal with in memory execution. Soon enough we can handle reading from disk.
 
 ```rust:table.rs
 use std::collections::{BTreeMap, HashMap};
@@ -68,7 +68,7 @@ The `Table` struct is basically just a wrapper around Rust's [Btree](https://doc
 
 ### What is a B-Tree?
 
-A [B-Tree](https://en.wikipedia.org/wiki/B-tree) is a generalized Binary Search Tree (BST). BSTs are great in theory but in practice they kinda suck for cache locality, nodes only store 1 piece of data, has the potential to be unbalanced, and requires a heap allocation for each insertion. In "current year" CPUs are insanely fast, so we need data structures that are better for reducing memory access.
+A [B-Tree](https://en.wikipedia.org/wiki/B-tree) is a generalized Binary Search Tree (BST). BSTs are great in theory but in practice, they kinda suck for cache locality, nodes only store 1 piece of data, have the potential to be unbalanced, and require a heap allocation for each insertion. In "current year" CPUs are insanely fast, so we need data structures that are better for reducing memory access.
 
 _insert rant about why data oriented design is GOATED here_.
 
@@ -76,27 +76,27 @@ Alexis Beingessner in [Rust Collections Case Study: BTreeMap](https://cglab.ca/~
 
 > B-Trees take the idea of a BST, and say "lets put some arrays in there; computers love arrays". Rather than each node consisting of a single element with two children, B-Tree nodes have an array of elements with an array of children
 
-I won't go into too much detail on B-Tree implementation, since I'm just using rust's built in for now. If you're intersted here are some good resources on B-Trees.
+I won't go into too much detail on B-Tree implementation, since I'm just using rust's built-in for now. If you're interested here are some good resources on B-Trees.
 
 - [Rust Collections Case Study: BTreeMap](https://cglab.ca/~abeinges/blah/rust-btree-case)
 - [Wikipedia](https://en.wikipedia.org/wiki/B-tree)
-- [Open Datastructures](http://opendatastructures.org/ods-python/14_2_B_Trees.html)
+- [Open Data Structures](http://opendatastructures.org/ods-python/14_2_B_Trees.html)
 
 With that said, let's walk through a basic example
 
 ![B-Tree example](https://upload.wikimedia.org/wikipedia/commons/6/65/B-tree.svg)
 
-Here the internal node (the root) has 3 children. All keys $< 7$ are in the left child, keys $> 7$ and $<= 16$ are in the middle, and finally keys $> 16$ are in the right child.
+Here the internal node (the root) has 3 children. All keys $< 7$ are in the left child, keys $> 7$ and $<= 16$ are in the middle, and finally, keys $> 16$ are in the right child.
 
-You can customize the $B$ constant to have nodes store more/fewer keys and have more/fewer children. Average Lookup for a B-tree with $N$ keys is $\mathcal{O}(\log{_2}N)$ which is the same for a BST.
+You can customize the $B$ constant to have nodes store more/fewer keys and have more/fewer children. The average Lookup for a B-tree with $N$ keys is $\mathcal{O}(\log{_2}N)$ which is the same for a BST.
 
 ### Why B-Tree?
 
-Like a mentioned before B-Trees are great for cache locality. Also, you can make each node be the size of a memory/disk block. This way you can minimize reads by chunking up the data more efficiently.
+As I mentioned before B-Trees are great for cache locality. Also, you can make each node the size of a memory/disk block. This way you can minimize reads by chunking up the data more efficiently.
 
 ## Actually do stuff
 
-Nerd stuff aside, let's actually add actual logic for our table
+Nerd stuff aside, let's add actual logic for our table
 
 ```rust
 impl Table {
@@ -129,7 +129,7 @@ impl Table {
 }
 ```
 
-Here we create a table with the given column definitions (from the create table sql command). For insert, we get an ID for the new row which is just an ID sequence starting at 0 for the first row. We then insert the values into the B-TreeMap with that ID as the key and the row's values as a hash map of column name to a string of the value to insert.
+Here we create a table with the given column definitions (from the create table sql command). For insert, we get an ID for the new row which is just an ID sequence starting at 0 for the first row. We then insert the values into the B-TreeMap with that ID as the key and the row's values as a hash map of the column name to a string of the value to insert.
 
 Those two functions can handle creating tables (mostly) and inserting data, but how should we handle select? A simple first step is to re-use the [Iterator](https://doc.rust-lang.org/std/iter/trait.Iterator.html) on [BTreeMap](https://doc.rust-lang.org/std/collections/struct.BTreeMap.html#method.iter).
 
@@ -143,7 +143,7 @@ impl Table {
 
 This will give us an `Iterator` over `(row_id, row_values)`.
 
-Re-using the iterator from BTreeMap is fine, but I like how many Rust DB libraries have a `Row` trait/struct that gives you extra information. For example [SQLX](https://github.com/launchbadge/sqlx) has a [Row trait](https://docs.rs/sqlx/latest/sqlx/trait.Row.html) lets you get column info back for the query you ran, safe/unsafe conversions into rust types, and a few other helpers. So let's make our own `Row` struct and iterator, so we can add these features later on.
+Re-using the iterator from BTreeMap is fine, but I like how many Rust DB libraries have a `Row` trait/struct that gives you extra information. For example, [SQLX](https://github.com/launchbadge/sqlx) has a [Row trait](https://docs.rs/sqlx/latest/sqlx/trait.Row.html) that lets you get column info back for the query you ran, safe/unsafe conversions into rust types, and a few other helpers. So let's make our `Row` struct and iterator, so we can add these features later on.
 
 ```rust
 use std::{collections::HashMap, rc::Rc};
@@ -159,9 +159,9 @@ pub struct Row<'a> {
 }
 ```
 
-Here I made the decision that this `Row` struct will not own the data its showing. Therefore, it needs a reference to the data stored in the table. I also want to have the row have access to the `ColumnInfo` from the table. Since every row will be holding a reference to the same `ColumnInfo`, I went with an [RC](https://doc.rust-lang.org/std/rc/index.html) to avoid extra lifetime parameters on the row struct.
+Here I made the decision that this `Row` struct will not own the data it's showing. Therefore, it needs a reference to the data stored in the table. I also want to have the row have access to the `ColumnInfo` from the table. Since every row will be holding a reference to the same `ColumnInfo`, I went with an [RC](https://doc.rust-lang.org/std/rc/index.html) to avoid extra lifetime parameters on the row struct.
 
-Now we can make our own `Iterator` for table. We can just wrap the existing `Iterator` from `BTreeMap` and transform each response into our `Row` struct.
+Now we can implement `Iterator` for the table. We can just wrap the existing `Iterator` from `BTreeMap` and transform each response into our `Row` struct.
 
 ```rust
 /// Iterator of [`Row`]s from a table
@@ -308,14 +308,14 @@ impl Execution {
 
 Since we handled most of the logic in the `Table`/`Row` structs, the actual execution is mostly just wrapper around the `HashMap` of tables with some basic error handling.
 
-## Brining it all together
+## Bringing it all together
 
 With the `Execution` struct we can handle the parsed commands from our parser but right now we don't have it all hooked up.
 We need to unify the parser and execution into one.
 
-Ideally we would have some new crate for the full "pipeline" from parsing to execution (and probably more steps we will add later), but for now having this logic in the `Execution` crate feels fine.
+Ideally, we would have some new crate for the full "pipeline" from parsing to execution (and probably more steps we will add later), but for now having this logic in the `Execution` crate feels fine.
 
-First step is to combine the Error types from Parsing and Execution
+First, step is to combine the Error types from Parsing and Execution
 
 ```rust
 use miette::Diagnostic;
@@ -491,4 +491,4 @@ but I'll save that for the next post.
 
 ## Wrap up
 
-Having basic execution feels nice, but the real challenge will be actually filtering and projecting the data. We some extra clones and `unwraps`/`expects` we need to handle once we start moving away from this extremely simple happy path but so far the high level design feels good!
+Having basic execution feels nice, but the real challenge will be filtering and projecting the data. We have some extra clones and `unwraps`/`expects` we need to handle once we start moving away from this extremely simple happy path but so far the high level design feels good!

@@ -10,7 +10,7 @@ layout: PostLayout
 
 <TOCInline toc={props.toc} asDisclosure />
 
-I unapologetically shill Rust every chance I get, annoying my coworkers by insisting that everything would be better if we just used Rust. At this point, it has become a bit of a meme, so no one really listens to me (rightfully so).
+I unapologetically shill Rust every chance I get, annoying my coworkers by insisting that everything would be better if we just used Rust. At this point, it has become a bit of a meme, so no one listens to me (rightfully so).
 
 To finally put an end to the meme, I decided to research ways we could incorporate Rust into our systems. Ideally, we would create a new service in Rust, but since we are not yet big on microservices, the best approach would be to call Rust directly from our Node monolith.
 
@@ -20,23 +20,23 @@ Napi-rs along with generating the node addon will also generate typescript type 
 
 ## Why?
 
-BEACUSE I CAN.
+BECAUSE I CAN.
 
 For real though, there are several reasons why creating a native Rust addon for a Node app could be beneficial:
 
 - Native code can be much more performant than JavaScript for certain use cases (although the JIT does help a lot).
 - Compared to C++ addons, building and deploying with napi is much easier. However, I have limited experience managing C++ addons.
-- There are many [Rust libraries](https://lib.rs/) that would be nice to reuse in Node.
+- Many [Rust libraries](https://lib.rs/) would be nice to reuse in Node.
 - Subjectively, Rust is a great language to write in. It has been voted the most loved language for the last few years for a reason.
 
 ## Setting up napi
 
 I'm going to experiment with napi in the codebase from the [build a db in rust series](/blog/build-a-db/part01), branch with all the code [here](https://github.com/JRMurr/SQLJr/tree/napi-bindings/crates/sql_jr_node).
 
-Most of the following is taken form the [napi getting started docs](https://napi.rs/docs/introduction/getting-started)
+Most of the following is taken from the [napi getting started docs](https://napi.rs/docs/introduction/getting-started)
 
 You first need to install the napi CLI, which can be done with your favorite node package manager of choice.
-While I could use npm/yarn/pnpm, I like use nix flakes, so I added the following to my project's flake file
+While I could use npm/yarn/pnpm, I like to use nix flakes, so I added the following to my project's flake file
 
 ```nix:flake.nix
   buildInputs = with pkgs; [
@@ -64,7 +64,7 @@ pub fn sum(a: i32, b: i32) -> i32 {
 }
 ```
 
-A generated test file which uses the node addon looks like
+A generated test file that uses the node addon looks like
 
 ```javascript:__test__/index.spec.mjs
 import test from 'ava'
@@ -86,7 +86,7 @@ npm run build # builds the rust code into a node addon + add typescript definito
 npm run test # runs the sample js test file using the node addon
 ```
 
-After the build step you should see and `index.d.ts` file that looks like
+After the build step, you should see and `index.d.ts` file that looks like
 
 ```typescript
 /* tslint:disable */
@@ -169,8 +169,8 @@ pub fn basic_query() -> Vec<Vec<String>> {
 }
 ```
 
-The above code is very jank rust, but it will get the job done for explore for now.
-After running the build we can use it the test file like so
+The above code is very jank rust, but it will get the job done for exploring for now.
+After running the build we can use it in this test file
 
 ```javascript:__test__/index.spec.mjs
 import test from "ava";
@@ -189,16 +189,16 @@ One thing you'll notice is the casing of `basic_query` in rust was changed to `b
 
 ### Allowed values
 
-When exposing a function with the napi macro you are limited into what types are supported in the arguments/returns types. The function doc page lists then [here](https://napi.rs/docs/concepts/function#arguments). The TLDR is most "primitive" rust types are supported and any struct you add the `#[napi]` macro too. This could cause issues with third party libraries, so you probably will need to make your own wrapper types to pass them between rust and node.
+When exposing a function with the napi macro you are limited to what types are supported in the arguments/returns types. The function doc page lists them [here](https://napi.rs/docs/concepts/function#arguments). The TLDR is most "primitive" rust types are supported and any struct you add the `#[napi]` macro too. This could cause issues with third-party libraries, so you probably will need to make your own wrapper types to pass them between rust and node.
 
 ### Exposing Classes
 
-While the above works its obviously very restrictive and crappy rust, so let's expose a wrapper around `sql_jr_execution::Execution`, so the node side can run arbitrary queries + track state.
+While the above works it's very restrictive and crappy rust, so let's expose a wrapper around `sql_jr_execution::Execution`, so the node side can run arbitrary queries + track state.
 
 Like we did with functions you can add the `#[napi]` macro above structs to expose them as a JS class.
 While we could add that macro in the `sql_jr_execution` crate on the `Execution` struct itself I think it will be better to have a napi crate + explicit wrapper structs to keep the API of the node addon more stable. Also, as you will come to see there are some limitations on the exposed code that would be nice to not litter the rest of the code base with.
 
-So let's make a `NodeExec` struct like so
+So let's make a `NodeExec` struct like this
 
 ```rust:src/lib.rs
 #[napi(js_name = "Execution")]
@@ -219,7 +219,7 @@ impl NodeExec {
 
 This will expose a JS class called `Execution` with a constructor corresponding to the `new` function.
 
-Let's add a class method that will run a query return an array of records when it was a select query.
+Let's add a class method that will run a query and return an array of records when it was a select query.
 
 ```rust
 /// A List of rows returned by the query.
@@ -261,9 +261,9 @@ impl NodeExec {
 }
 ```
 
-First we need to manually set `ts_return_type = "Array<Record<string,string>>"` since we used a type alias in the function signatures. This is due to some limitations into how [proc macros in rust work](https://github.com/napi-rs/napi-rs/issues/1019#issuecomment-1009116165).
+First, we need to manually set `ts_return_type = "Array<Record<string,string>>"` since we used a type alias in the function signatures. This is due to some limitations in how [proc macros in rust work](https://github.com/napi-rs/napi-rs/issues/1019#issuecomment-1009116165).
 
-Second we needed to convert the returned Error from `parse_and_run` into a `napi::Error` with `.map_err(|e| Error::new(Status::GenericFailure, format!("{}", e)))`. This is not the best conversion since it would just stringify the execution error but it's not the end of the world.
+Second we needed to convert the returned Error from `parse_and_run` into a `napi::Error` with `.map_err(|e| Error::new(Status::GenericFailure, format!("{}", e)))`. This is not the best conversion since it would just stringify the execution error, but it's not the end of the world.
 
 The generated typescript looks like
 
@@ -347,11 +347,11 @@ test('parse error', (t) => {
 });
 ```
 
-In the success case we get an array of records, in the failure case a JS error is thrown.
+In the success case, we get an array of records, in the failure case a JS error is thrown.
 
 ## Async Support
 
-My db does not have any async code yet so lets play with a dummy example.
+My db does not have any async code yet so let's play with a dummy example.
 
 To enable async support you can enable the `tokio_rt` feature on the napi crate in the `Cargo.toml`
 
@@ -381,9 +381,9 @@ impl NodeExec {
 }
 ```
 
-One thing you will notice is that we needed to mark the function as `unsafe` since we take in `&mut self` in an `async` function. The issue is rust can not enforce its borrow checker rules across the boundary with node. In sync code this is not an issue since node is single threaded. However, in async contexts another async task could mutate the Execution struct while a different task using that struct is suspended.
+One thing you will notice is that we needed to mark the function as `unsafe` since we take in `&mut self` in an `async` function. The issue is rust can not enforce its borrow checker rules across the boundary with node. In sync code, this is not an issue since node is single-threaded. However, in async contexts, another async task could mutate the Execution struct while a different task using that struct is suspended.
 
-We can then test it like so
+We can then test it like this
 
 ```javascript
 test('async function', async (t) => {
@@ -405,13 +405,13 @@ test('async function', async (t) => {
 ## napi limitations
 
 One of the main issues with napi (or any rust FFI) is that some “rustisms” don't transfer well to JS/TS.
-For example JS uses exceptions and not Result so any napi function returning a result will throw an error in node. Similar issue for option which just becomes `undefined | T`. Would be cool if napi had a feature flag to make rust results be exposed as a https://github.com/supermacro/neverthrow result or a similar lib.
+For example, JS uses exceptions and not `Result` so any napi function returning a result will throw an error in node. Similar issue for `Option` which just becomes `undefined | T`. Would be cool if napi had a feature flag to make rust results be exposed as a https://github.com/supermacro/neverthrow result or a similar lib.
 
-The other main issue is there is overhead involved when passing large/complex type between node and rust. Rust needs to serialize/deserialize the JS types into a format it can use. There are workarounds like using buffers/typed arrays but that requires some manual work on both ends to manually serialize/deserialize the objects. In the [napi v3](https://github.com/napi-rs/napi-rs/issues/1493) goals they plan on adding ways to make working around this simpler.
+The other main issue is there is overhead involved when passing large/complex types between node and rust. Rust needs to serialize/deserialize the JS types into a format it can use. There are workarounds like using buffers/typed arrays but that requires some manual work on both ends to manually serialize/deserialize the objects. In the [napi v3](https://github.com/napi-rs/napi-rs/issues/1493) goals, they plan on adding ways to make working around this simpler.
 
-Lastly there is currently only [experimental JS generator support](https://docs.rs/napi/latest/napi/iterator/trait.Generator.html) (with no docs on it that I can find), and no support for async generators/node streams. While you could manually add JS code to support these would be much nicer if napi did it for you. Stream support is planned for v3, so hopefully the others will follow.
+Lastly, there is currently only [experimental JS generator support](https://docs.rs/napi/latest/napi/iterator/trait.Generator.html) (with no docs on it that I can find), and no support for async generators/node streams. While you could manually add JS code to support these would be much nicer if napi did it for you. Stream support is planned for v3, so hopefully the others will follow.
 
 ## Wrap up
 
-Overall napi is very useable and with my limited use of cross language FFI tools, it has had the nicest user experience.
+Overall napi is very useable and with my limited use of cross-language FFI tools, it has had the nicest user experience.
 While it has limitations/some issues overall nothing major is in your way from exposing very useable and performant code if you put in a little extra work.

@@ -12,16 +12,16 @@ layout: PostLayout
 <TOCInline toc={props.toc} asDisclosure />
 
 While I've used rust for a while and have had a few small projects in it, I felt like I was missing a truly "systems" project.
-So when I came across [this series](https://cstack.github.io/db_tutorial/) for making a simple DB in C, I figured why not try to make my own basic DB in rust.
+So when I came across [this series](https://cstack.github.io/db_tutorial/) for making a simple DB in C, I figured why not try to make my basic DB in rust.
 I will roughly follow the structure of that series at first, but I will most likely deviate and focus on what interests me more.
 
 This series will be mostly a dev log (I'm making this up as I go) but will try to do what I can to use it as tutorial content when possible.
-I will probably get things wrong, so please call me out in comments, on my [GitHub](https://github.com/JRMurr/JRMurr.github.io), or on my [socials](/about)
+I will probably get things wrong, so please call me out in comments, on my [GitHub](https://github.com/JRMurr/JRMurr.github.io), or my [socials](/about)
 
 I hate naming things, so I'll keep it basic, I will be calling my DB SQLJr
 
 If you wanna just jump to some code [this is the repo for it](https://github.com/JRMurr/SQLJr).
-It will be mostly the same with some minor tweaks here and there (and obviously more up to date).
+It will be mostly the same with some minor tweaks here and there (and more up-to-date).
 
 ## What am I Making
 
@@ -29,14 +29,14 @@ I plan on mostly focusing on building my own SQL (not following any spec) that w
 Since rust has many B-Tree libraries (One of the core data structures for how to store/search rows), I will try to focus more on good concurrency+transaction support instead of building my own B-tree/persistence logic.
 Also, many Rust based tools I used have excellent error messages, so I will try to have good/informative errors for all parts of the DB.
 
-I will probably end up on some side tangents from those core features, so I will follow what ever vibe I get.
+I will probably end up on some side tangents from those core features, so I will follow whatever vibe I get.
 
-In this post we will focus on getting the project setup and building a basic REPL (in a similar vein to [psql](https://www.postgresql.org/docs/current/app-psql.html)) + parser
+In this post, we will focus on getting the project setup and building a basic REPL (in a similar vein to [psql](https://www.postgresql.org/docs/current/app-psql.html)) + parser
 to make it easy to interact with the rest of the DB later on.
 
 ## Project setup
 
-I love [nix](https://nixos.org/), so I always start with that to get rust installed.
+I love [Nix](https://nixos.org/), so I always start with that to get rust installed.
 I recently made my own [nix flake templates](https://github.com/JRMurr/NixOsConfig/tree/main/templates) to make starting new projects easier.
 You can run
 
@@ -50,7 +50,7 @@ The template does not include a `Cargo.toml` so make one with `cargo init` or `c
 
 ### Cargo Workspaces
 
-While we could probably get away with having a `core`/`lib` crate then make an `application` crate for CLI/HTTP access to the DB,
+While we could probably get away with having a `core`/`lib` crate and then make an `application` crate for CLI/HTTP access to the DB,
 I would like to try to split up the crates across more logical boundaries. This helps out with compile times since rust can compile each crate in parallel.
 My current idea is a different crate for
 
@@ -58,7 +58,7 @@ My current idea is a different crate for
 - Parsing SQL
 - Query Execution
 
-Some things like defining the different commands/queries doesn't quite feel right in being in the parsing/execution crates so might make sense to add a crate just for shared types.
+Some things like defining the different commands/queries don't quite feel right in being in the parsing/execution crates so might make sense to add a crate just for shared types.
 
 To set up cargo workspaces make a `Cargo.toml` that looks like
 
@@ -85,10 +85,9 @@ This will tell cargo we are using workspaces. Once we start making crates I will
 While we could go right to execution or parsing and just develop with unit tests, I like having some form of interactivity as soon as possible.
 The unit test approach would definitely make sense if this was a "real" project, for personal stuff I'm fine being a bit in the wild west to make life easier.
 
-So to get to interactivity let's make a REPL. We can make a new crate by going in the `crates` directory and running `cargo new sql_jr_repl`.
-The [rustyline crate](https://github.com/kkawakam/rustyline) seems like it will cover the basics for a REPL, so we can add it with `cargo add rustyline` in the `sql_jr_repl` directory.
+So to get to interactivity let's make a REPL. We can make a new crate by going into the ` crates`` directory and running  `cargo new sql_jr_repl`. The [rustyline crate](https://github.com/kkawakam/rustyline) seems like it will cover the basics for a REPL, so we can add it with `cargo add rustyline`in the`sql_jr_repl` directory.
 
-We can basically copy the example with some small tweaks to get started
+We can copy the example with some small tweaks to get started
 
 ```rust:sql_jr_repl/main.rs
 use rustyline::error::ReadlineError;
@@ -125,8 +124,8 @@ fn main() -> Result<()> {
 }
 ```
 
-This will store the history in a local file (we can use the users home/XDG dirs to store it elsewhere later) and allow `CTRL-C` to "cancel" the current input and have `CTRL-D`/an error exit the REPL.
-Try it out with `cargo run`, it will just repeat lines you send with enter and run until you hit `CTRL-D`.
+This will store the history in a local file (we can use the user's home/XDG dirs to store it elsewhere later) and allow `CTRL-C` to "cancel" the current input and have `CTRL-D`/an error exit the REPL.
+Try it out with `cargo run`, it will just repeat the lines you send with enter and run until you hit `CTRL-D`.
 
 ## Parsing
 
@@ -178,11 +177,11 @@ SELECT col1, col2 FROM foo;
 ```
 
 To start we can make a new lib crate `sql_jr_parser`. We will add in nom, [nom_locate](https://github.com/fflorent/nom_locate), and [nom_supreme](https://github.com/Lucretiel/nom-supreme).
-`nom_locate` has a nice `LocatedSpan` type to easily track where in the source code a parser ran/threw an error on.
+`nom_locate` has a nice `LocatedSpan` type to easily track where in the source code a parser ran/threw an error.
 `nom_supreme` is a nom utility lib, we will use it mostly for postfix calls on parsers to make the code a little easier to read and [error tree](https://docs.rs/nom-supreme/latest/nom_supreme/error/type.ErrorTree.html)
 to help with error formatting
 
-To be completely honest we probably could get by without `nom_locate` and just use `nom_supreme` but if its good enough for [Amos](https://fasterthanli.me/series/advent-of-code-2022/part-11#nice-parser-errors) its good enough for me
+To be completely honest we probably could get by without `nom_locate` and just use `nom_supreme` but if it's good enough for [Amos](https://fasterthanli.me/series/advent-of-code-2022/part-11#nice-parser-errors) it's good enough for me
 
 ### Actual parsing
 
@@ -190,7 +189,7 @@ To be completely honest we probably could get by without `nom_locate` and just u
 nom requires ALOT of imports so will be ignoring most of them in the code snippets
 </Note>
 
-First we need to define some type aliases
+First, we need to define some type aliases
 
 ```rust
 // Use nom_locate's LocatedSpan as a wrapper around a string input
@@ -444,7 +443,7 @@ mod tests {
 }
 ```
 
-Now that we have commands parsing we can add it to our REPL. First we need to add our parser crate to our `Cargo.toml` in the REPL crate
+Now that we have command parsing we can add it to our REPL. First, we need to add our parser crate to our `Cargo.toml` in the REPL crate
 
 ```toml:sql_jr_repl/Cargo.toml
 ...
@@ -478,7 +477,7 @@ However, when we get an error we just get a debug out, gross... let's fix that.
 
 ### Parser Errors
 
-Errors can be a giant rabbit hole to keep improving. For now as long as we show a span in the source tree and highlight the sad spots I'll be happy.
+Errors can be a giant rabbit hole to keep improving. For now, as long as we show a span in the source tree and highlight the sad spots I'll be happy.
 
 I will be using [miette](https://github.com/zkat/miette) to format/display errors. It can hook into source errors very easily and can show help, context, and much more.
 
@@ -556,7 +555,7 @@ span: miette::SourceSpan,
 kind: BaseErrorKind<&'b str, Box<dyn std::error::Error + Send + Sync + 'static>>,
 ```
 
-which tell miette to mark the provided span (the location in the source code) with the error display from `kind`.
+which tells miette to mark the provided span (the location in the source code) with the error display from `kind`.
 
 Here we use the [error tree](https://docs.rs/nom-supreme/latest/nom_supreme/error/type.ErrorTree.html) type to specify the parsing error.
 
@@ -564,9 +563,9 @@ The error tree type will make it easier to handle errors on "alts" (like our roo
 nom would fail in the select parser but still try the other ones, so it would not know what parser errors to show.
 That issue can be fixed slightly with [cut](https://docs.rs/nom/latest/nom/combinator/fn.cut.html) to not try other branches in the alt if we know for sure we are in a select/insert/create/etc.
 
-However, cases like parsing `I like rust` are tough, all the parsers would fail without being cut, so what can we show? Ideally we would say something like `expected select|create|insert, got ....` which the error tree type will help with (though not now).
+However, cases like parsing `I like rust` are tough, all the parsers would fail without being cut, so what can we show? Ideally, we would say something like `expected select|create|insert, got ....` which the error tree type will help with (though not now).
 
-To get these errors we first need to update `ParseResult` to use the error tree type as it's error type.
+To get these errors we first need to update `ParseResult` to use the error tree type as its error type.
 
 ```rust
 // Alias for later
