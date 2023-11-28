@@ -73,9 +73,10 @@ Now with this setup, we have a "base" file set of `[ ./Makefile ./src ]` then wi
 Recently I started messing around with the language [Roc](https://www.roc-lang.org/). If you haven't heard about it is a new functional language that's heavily inspired by Elm.
 It is fast but also very nice to use (though many rough edges since it is pre-0.1.0).
 
-One of its interesting ideas is that Roc needs your app to "bring its own platform".
-A [platform](https://www.roc-lang.org/platforms) would be written in something like rust, zig, c, etc.
-The platform provides roc APIs for things like managing memory, making network requests, printing to stdout, and other IO-like action.
+One of its interesting ideas is that Roc needs your app to pick what [platform](https://www.roc-lang.org/platforms) to run on.
+A platform would be written in something like rust, zig, c, etc.
+The platform provides roc APIs for things like managing memory, making network requests, printing to stdout, and other IO-like actions.
+Right now the two most widely used are a [cli platform](https://github.com/roc-lang/basic-cli) and [webserver platform](https://github.com/roc-lang/basic-webserver)
 
 This is really neat but brings an issue for developing a platform along with the roc code needed to define the platform API.
 You need to compile the "platform code" (ie rust + some c), do w/e linking is needed for that, then distribute that with the roc source code.
