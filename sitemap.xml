@@ -9,6 +9,10 @@
   </url>
 
   <url>
+    <loc>https://johns.codes/blog/efficient-nix-derivations-with-file-sets</loc>
+  </url>
+
+  <url>
     <loc>https://johns.codes/blog/exposing-a-rust-library-to-node-with-napirs</loc>
   </url>
 
@@ -66,6 +70,10 @@
 
   <url>
     <loc>https://johns.codes/tags/nix</loc>
+  </url>
+
+  <url>
+    <loc>https://johns.codes/tags/nix-pkgs</loc>
   </url>
 
   <url>
