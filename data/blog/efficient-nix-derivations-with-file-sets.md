@@ -44,7 +44,7 @@ Now with 23.11 we have [filesets](https://www.tweag.io/blog/2023-11-28-file-sets
 
 ## What are file sets
 
-I would recommend checking out the [docs](https://www.tweag.io/blog/2023-11-28-file-sets/) or [official tutorial](<(https://nix.dev/tutorials/file-sets)>), but for a TLDR, you can do the following
+I would recommend checking out the [docs](https://nixos.org/manual/nixpkgs/unstable/#sec-functions-library-fileset) or [official tutorial](https://nix.dev/tutorials/file-sets), but for a TLDR, you can do the following
 
 ```nix
 let
