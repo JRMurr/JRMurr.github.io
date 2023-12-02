@@ -1,7 +1,7 @@
 ---
 title: Efficient Nix Derivations with File Sets
 
-date: 2023-11-28T02:00:53.711Z
+date: 2023-12-02T21:22:44.113Z
 
 tags: ['nix', 'nix-pkgs']
 
