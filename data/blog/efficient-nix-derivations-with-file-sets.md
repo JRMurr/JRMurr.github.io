@@ -14,6 +14,8 @@ images: []
 layout: PostLayout
 ---
 
+<TOCInline toc={props.toc} asDisclosure />
+
 If you are using Nix to build your own packages you will eventually come across something like
 
 ```nix
@@ -35,17 +37,14 @@ So if you have a readme file in this folder, changing that will cause this deriv
 
 The build only really cares about `main.c` in this case so what can we do to fix this?
 
-TODO: link out to docs at least for old ways? Or maybe just tweag blog
-
 Back in the dark dark times of pre-Nixos 23.11, there were ways to do this kind of filtering but IMO they were kinda confusing and
 I never quite got it to work right so I just stuck with `src = ./.`
 
-Now with 23.11 we have [filesets](https://nix.dev/tutorials/file-sets), which makes filtering and adding files much simpler.
+Now with 23.11 we have [filesets](https://www.tweag.io/blog/2023-11-28-file-sets/), which makes filtering and adding files much simpler.
 
 ## What are file sets
 
-TODO: links + make sure example works
-I would recommend checking out the docs or official tutorial, but for a TLDR, you can do the following
+I would recommend checking out the [docs](https://www.tweag.io/blog/2023-11-28-file-sets/) or [official tutorial](<(https://nix.dev/tutorials/file-sets)>), but for a TLDR, you can do the following
 
 ```nix
 let
@@ -70,8 +69,8 @@ Now with this setup, we have a "base" file set of `[ ./Makefile ./src ]` then wi
 
 ## A Real Example
 
-Recently I started messing around with the language [Roc](https://www.roc-lang.org/). If you haven't heard about it is a new functional language that's heavily inspired by Elm.
-It is fast but also very nice to use (though many rough edges since it is pre-0.1.0).
+Recently I started messing around with the language [Roc](https://www.roc-lang.org/). If you haven't heard of it, Roc is a new functional language heavily inspired by Elm.
+It's fast but also very nice to use (though many rough edges since it's pre-0.1.0).
 
 One of its interesting ideas is that Roc needs your app to pick what [platform](https://www.roc-lang.org/platforms) to run on.
 A platform would be written in something like rust, zig, c, etc.
@@ -147,9 +146,7 @@ To see the real code, look at my [roc2nix repo](https://github.com/JRMurr/roc2ni
 </Note>
 First let's define a helper file for filtering files based on their extension
 
-TODO: name this file languageFilters.nix
-
-```nix
+```nix:languageFilters.nix
 {lib}:
 
 # Note i generally don't like doing `with` at the top of a file
@@ -185,34 +182,32 @@ in
 
 Now with that helper, we can do
 
-TODO: name this buildRustPlatform.nix
-
-```nix
+```nix:buildRustPlatform.nix
 let
-fs = lib.fileset;
-languageFilters = import ./languageFilters.nix {inherit lib;};
+  fs = lib.fileset;
+  languageFilters = import ./languageFilters.nix {inherit lib;};
 
-baseDir = ./.;
+  baseDir = ./.;
 
 
-compiledC = mkDerivation {
-    src = fs.toSource {
+  compiledC = mkDerivation {
+      src = fs.toSource {
+          root = baseDir;
+          fileset = languageFilters.cFilter baseDir;
+      };
+      # compile the c ...
+  };
+  rustBuiltLib = buildRustPackage {
+      src = fs.toSource {
         root = baseDir;
-        fileset = languageFilters.cFilter baseDir;
-    };
-    # compile the c ...
-};
-rustBuiltLib = buildRustPackage {
-    src = fs.toSource {
+        fileset = languageFilters.rustFilter baseDir;
+      };
+      # build the rust
+  };
+  rocCode = fs.toSource {
       root = baseDir;
-      fileset = languageFilters.rustFilter baseDir;
-    };
-    # build the rust
-};
-rocCode = fs.toSource {
-    root = baseDir;
-    fileset = languageFilters.rocFilter baseDir;
-};
+      fileset = languageFilters.rocFilter baseDir;
+  };
 in
 llvmPkgs.stdenv.mkDerivation rec {
   name = "${pname}-${version}";
@@ -237,13 +232,14 @@ llvmPkgs.stdenv.mkDerivation rec {
 Now this is about as good as you can get.
 The rust and c builds have no dependency on each other so you are free to modify the c without needing to rebuild the rust.
 
-If you only change the roc code, you won't need to do any build (other than linking but in this example that could also be pulled out..).
+If you only change the roc code, you won't need to do any build (other than linking but in this example that could also be pulled out....).
 
 ## Wrap up
 
-Huge shoutout to [Silvan Mosberger](https://github.com/infinisil) for bringing file sets to the main Nix library.
+Huge shoutout to [Silvan Mosberger](https://github.com/infinisil) from [Tweag](https://www.tweag.io/) for bringing file sets to the main Nix library.
+He was sponsored through my current employer [Antithesis](https://antithesis.com/) to develop this feature!
 
-I hope this will help make it easy to make efficient derivations and `*2nix` builders like `roc2nix` be as efficient as if you rolled it yourself.
+I hope filesets make more people take a stab at making their own `*2nix` builders, or just make their own builds more efficent.
 
 I had a lot of fun working on [roc2nix](https://github.com/JRMurr/roc2nix/), it was my first time making a "real" nix library and I learned a lot along the way (not just file sets).
 If you are interested in learning more about it check out the repo or let me know in the comments and I might make a separate blog diving into that (and hopefully some blogs on roc itself).
