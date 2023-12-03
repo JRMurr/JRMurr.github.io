@@ -49,11 +49,11 @@
   </url>
 
   <url>
-    <loc>https://johns.codes/tags/database</loc>
+    <loc>https://johns.codes/tags/code</loc>
   </url>
 
   <url>
-    <loc>https://johns.codes/tags/code</loc>
+    <loc>https://johns.codes/tags/database</loc>
   </url>
 
   <url>
@@ -90,6 +90,10 @@
 
   <url>
     <loc>https://johns.codes/tags/repl</loc>
+  </url>
+
+  <url>
+    <loc>https://johns.codes/tags/roc</loc>
   </url>
 
   <url>

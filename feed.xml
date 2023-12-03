@@ -17,7 +17,7 @@
     <description>Using nix&#39;s new file set API to make efficient derivations</description>
     <pubDate>Sat, 02 Dec 2023 21:22:44 GMT</pubDate>
     <author> (John Murray)</author>
-    <category>nix</category><category>nix-pkgs</category>
+    <category>nix</category><category>nix-pkgs</category><category>roc</category>
   </item>
 
   <item>

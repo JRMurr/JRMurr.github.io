@@ -8,7 +8,7 @@
       <managingEditor> (John Murray)</managingEditor>
       <webMaster> (John Murray)</webMaster>
       <lastBuildDate>Sat, 02 Dec 2023 21:22:44 GMT</lastBuildDate>
-      <atom:link href="https://johns.codes/tags/nix-pkgs/feed.xml" rel="self" type="application/rss+xml"/>
+      <atom:link href="https://johns.codes/tags/roc/feed.xml" rel="self" type="application/rss+xml"/>
       
   <item>
     <guid>https://johns.codes/blog/efficient-nix-derivations-with-file-sets</guid>
