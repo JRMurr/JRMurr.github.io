@@ -79,7 +79,7 @@ Right now the two most widely used are a [cli platform](https://github.com/roc-l
 
 This is really neat but brings an issue for developing a platform along with the roc code needed to define the platform API.
 You need to compile the "platform code" (ie rust + some c), do w/e linking is needed for that, then distribute that with the roc source code.
-The roc cli will do this for you when developing but it doesn't work as nicely for a build with nix.
+The roc cli will do this for you when developing but it doesn't work as nicely tp compile just the platform with nix.
 
 For example, [this](https://github.com/roc-lang/roc/tree/main/examples/platform-switching/rust-platform) is one of the sample platforms
 
