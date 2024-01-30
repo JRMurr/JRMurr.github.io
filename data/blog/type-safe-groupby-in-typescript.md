@@ -322,9 +322,8 @@ While this is not perfect this mostly works
 ```ts twoslash
 function groupByFunc<
   RetType extends PropertyKey,
-  T, // no longer need any requirements on T since the grouper can do w/e it wants
-  Func extends (arg: T) => RetType
->(arr: T[], mapper: Func): Record<RetType, T[]> {
+  T // no longer need any requirements on T since the grouper can do w/e it wants
+>(arr: T[], mapper: (arg: T) => RetType): Record<RetType, T[]> {
   return arr.reduce((accumulator, val) => {
     const groupedKey = mapper(val);
     if (!accumulator[groupedKey]) {
@@ -339,4 +338,6 @@ const test = groupByFunc([6.1, 4.2, 6.3], Math.floor);
 // test = Record<PropertyKey, Foo[]>
 ```
 
-This works by only letting you pass in functions that return `PropertyKey`, but typescript does not seem to narrow the types. In this case `test` should be `Record<number, Foo[]>` since TS _should_ infer the return type of the grouping function. If you know how to improve this function to make the return type narrow properly feel free to leave an issue/pr on my [blog's GitHub](https://github.com/JRMurr/JRMurr.github.io)!
+This works by only letting you pass in functions that return `PropertyKey`, and typescript even narrows the types. In this case `test` is `Record<number, Foo[]>` since TS infers the return type of the grouping function.
+
+If you know how to improve this function further feel free to leave an issue/pr on my [blog's GitHub](https://github.com/JRMurr/JRMurr.github.io)!
