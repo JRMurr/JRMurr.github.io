@@ -1,5 +1,10 @@
 .direnv
 .nix-node
+
+#velite generated files
+.velite
+
+
 # dependencies
 /node_modules
 /.pnp

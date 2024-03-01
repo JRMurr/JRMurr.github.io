@@ -10,12 +10,13 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-        nodeVerion = pkgs.nodejs-16_x;
-      in with pkgs; {
+        nodeVerion = pkgs.nodejs_20;
+      in
+      {
         devShells = {
           # TODO: they are the same deps but nice to have seperate configs
-          default = mkShell { buildInputs = [ nodeVerion just ]; };
-          CI = mkShell { buildInputs = [ nodeVerion just ]; };
+          default = pkgs.mkShell { buildInputs = with pkgs; [ nodeVerion just ]; };
+          CI = pkgs.mkShell { buildInputs = with pkgs; [ nodeVerion just ]; };
         };
       });
 }
