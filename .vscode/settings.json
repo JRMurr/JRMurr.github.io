@@ -1,4 +1,6 @@
 {
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
   "nixEnvSelector.nixFile": "${workspaceRoot}/flake.nix",
   "prettier.semi": true,
   "editor.formatOnSave": true,
