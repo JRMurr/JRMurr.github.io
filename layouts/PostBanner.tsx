@@ -1,8 +1,8 @@
 import { ReactNode } from 'react'
 import Image from '@/components/Image'
 import Bleed from 'pliny/ui/Bleed'
-import { CoreContent } from 'pliny/utils/contentlayer'
-import type { Blog } from 'contentlayer/generated'
+import { CoreContent } from '@/utils/velite'
+import type { Blog } from 'velite/generated'
 import Comments from '@/components/Comments'
 import Link from '@/components/Link'
 import PageTitle from '@/components/PageTitle'
@@ -18,9 +18,9 @@ interface LayoutProps {
 }
 
 export default function PostMinimal({ content, next, prev, children }: LayoutProps) {
-  const { slug, title, images } = content
-  const displayImage =
-    images && images.length > 0 ? images[0] : 'https://picsum.photos/seed/picsum/800/400'
+  const { slug, title /*images*/ } = content // @migrate TODO: images?
+  // const displayImage =
+  //   images && images.length > 0 ? images[0] : 'https://picsum.photos/seed/picsum/800/400'
 
   return (
     <SectionContainer>
@@ -29,11 +29,11 @@ export default function PostMinimal({ content, next, prev, children }: LayoutPro
         <div>
           <div className="space-y-1 pb-10 text-center dark:border-gray-700">
             <div className="w-full">
-              <Bleed>
+              {/* <Bleed>
                 <div className="relative aspect-[2/1] w-full">
                   <Image src={displayImage} alt={title} fill className="object-cover" />
                 </div>
-              </Bleed>
+              </Bleed> */}
             </div>
             <div className="relative pt-10">
               <PageTitle>{title}</PageTitle>

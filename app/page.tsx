@@ -1,9 +1,10 @@
-import { sortPosts, allCoreContent } from 'pliny/utils/contentlayer'
-import { allBlogs } from 'contentlayer/generated'
+import { sortPosts, allCoreContent } from '@/utils/velite'
+// import { blogs } from 'velite/generated'
 import Main from './Main'
 
 export default async function Page() {
-  const sortedPosts = sortPosts(allBlogs)
+  // @MIGRATE TODO: get posts here
+  const sortedPosts = sortPosts([])
   const posts = allCoreContent(sortedPosts)
   return <Main posts={posts} />
 }

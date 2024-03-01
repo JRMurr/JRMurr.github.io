@@ -8,7 +8,7 @@
     "strict": false,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "composite": true,
+    // "composite": true, // MIGRATE TODO: disabled to get rid of errors in velite config, is this needed?
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "node",
@@ -21,7 +21,8 @@
       "@/data/*": ["data/*"],
       "@/layouts/*": ["layouts/*"],
       "@/css/*": ["css/*"],
-      "contentlayer/generated": ["./.contentlayer/generated"]
+      "@/utils/*": ["utils/*"],
+      "velite/generated": ["./.velite"]
     },
     "plugins": [
       {
@@ -37,8 +38,7 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.json",
-    ".contentlayer/generated",
-    ".contentlayer/generated/**/*.json",
+    ".velite",
     ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules"]

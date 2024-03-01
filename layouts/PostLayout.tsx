@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
-import { CoreContent } from 'pliny/utils/contentlayer'
-import type { Blog, Authors } from 'contentlayer/generated'
+import { CoreContent } from '@/utils/velite'
+import type { Blog, Author } from 'velite/generated'
 import Comments from '@/components/Comments'
 import Link from '@/components/Link'
 import PageTitle from '@/components/PageTitle'
@@ -23,14 +23,14 @@ const postDateTemplate: Intl.DateTimeFormatOptions = {
 
 interface LayoutProps {
   content: CoreContent<Blog>
-  authorDetails: CoreContent<Authors>[]
+  authorDetails: CoreContent<Author>[]
   next?: { path: string; title: string }
   prev?: { path: string; title: string }
   children: ReactNode
 }
 
 export default function PostLayout({ content, authorDetails, next, prev, children }: LayoutProps) {
-  const { filePath, path, slug, date, title, tags } = content
+  const { /*filePath, */ path, slug, date, title, tags } = content // @MIGRATE TODO: real file path?
   const basePath = path.split('/')[0]
 
   return (
@@ -98,7 +98,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                   Discuss on Twitter
                 </Link>
                 {` • `}
-                <Link href={editUrl(filePath)}>View on GitHub</Link>
+                {/* <Link href={editUrl(filePath)}>View on GitHub</Link> */}
               </div>
               {siteMetadata.comments && (
                 <div

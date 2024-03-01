@@ -50,3 +50,7 @@ yarn-error.log*
 
 # Contentlayer
 .contentlayer
+
+
+
+tsconfig.tsbuildinfo
