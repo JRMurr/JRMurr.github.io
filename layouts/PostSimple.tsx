@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { formatDate } from 'pliny/utils/formatDate'
 import { CoreContent } from '@/utils/velite'
-import type { Blog } from 'velite/generated'
+import type { Blog } from '@/velite/generated'
 import Comments from '@/components/Comments'
 import Link from '@/components/Link'
 import PageTitle from '@/components/PageTitle'

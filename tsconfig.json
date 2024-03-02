@@ -22,7 +22,7 @@
       "@/layouts/*": ["layouts/*"],
       "@/css/*": ["css/*"],
       "@/utils/*": ["utils/*"],
-      "velite/generated": ["./.velite"]
+      "@/velite/generated": ["./.velite"]
     },
     "plugins": [
       {

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { CoreContent } from '@/utils/velite'
-import type { Blog, Author } from 'velite/generated'
+import type { Blog, Author } from '@/velite/generated'
 import Comments from '@/components/Comments'
 import Link from '@/components/Link'
 import PageTitle from '@/components/PageTitle'

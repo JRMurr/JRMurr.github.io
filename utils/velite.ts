@@ -4,7 +4,7 @@
  * ============
  */
 
-import { authors } from 'velite/generated'
+import { authors } from '@/velite/generated'
 
 export type MDXDocument = {
   body: string

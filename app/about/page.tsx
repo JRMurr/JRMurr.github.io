@@ -1,4 +1,4 @@
-import { authors } from 'velite/generated'
+import { authors } from '@/velite/generated'
 import { MDXLayoutRenderer } from 'pliny/mdx-components'
 import AuthorLayout from '@/layouts/AuthorLayout'
 import { genPageMetadata } from 'app/seo'

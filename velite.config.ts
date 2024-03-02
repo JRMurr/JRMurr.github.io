@@ -5,6 +5,10 @@ import {
   remarkImgToJsx,
   extractTocHeadings,
 } from 'pliny/mdx-plugins/index.js'
+import { writeFileSync } from 'fs'
+
+import siteMetadata from './content/siteMetadata'
+import { allCoreContent, sortPosts } from './utils/velite'
 // https://github.com/zce/velite/tree/main/examples/nextjs
 
 // const getComputedFields = (doc: {}) => {
@@ -74,6 +78,21 @@ const authors = defineCollection({
   }),
 })
 
+type Blogs = z.infer<typeof blogs.schema>[]
+
+function createSearchIndex(blogs: Blogs) {
+  if (
+    siteMetadata?.search?.provider === 'kbar' &&
+    siteMetadata.search.kbarConfig.searchDocumentsPath
+  ) {
+    writeFileSync(
+      `public/${siteMetadata.search.kbarConfig.searchDocumentsPath}`,
+      JSON.stringify(allCoreContent(sortPosts(blogs)))
+    )
+    console.log('Local search index generated...')
+  }
+}
+
 const config = defineConfig({
   collections: {
     blogs,
@@ -81,6 +100,9 @@ const config = defineConfig({
     // others: {
     //   // other collection schema options
     // },
+  },
+  complete: async ({ blogs }) => {
+    createSearchIndex(blogs)
   },
 })
 
