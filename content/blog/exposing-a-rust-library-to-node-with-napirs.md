@@ -1,5 +1,6 @@
 ---
 title: Exposing a Rust Library to Node with Napi-rs
+slug: exposing-a-rust-library-to-node-with-napirs
 date: 2023-05-01T17:21:59.515Z
 tags: ['rust', 'node', 'typescript']
 draft: false

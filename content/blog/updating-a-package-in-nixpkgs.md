@@ -1,5 +1,6 @@
 ---
 title: Making a PR to Nixpkgs
+slug: updating-a-package-in-nixpkgs
 date: 2022-08-02T03:43:05.229Z
 tags: ['nix', 'rust']
 draft: false

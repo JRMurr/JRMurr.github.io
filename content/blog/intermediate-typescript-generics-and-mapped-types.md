@@ -1,5 +1,6 @@
 ---
 title: 'Intermediate Typescript: Generics and Mapped Types'
+slug: intermediate-typescript-generics-and-mapped-types
 date: '2022-01-31'
 tags: ['Typescript', 'code', 'types', 'guide']
 draft: false

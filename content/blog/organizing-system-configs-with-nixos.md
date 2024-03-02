@@ -1,5 +1,6 @@
 ---
 title: Organizing system configs with NixOS
+slug: organizing-system-configs-with-nixos
 date: 2023-10-09T07:14:19.315Z
 tags: ['NixOS', 'nix', 'guide', 'dotfiles']
 draft: false

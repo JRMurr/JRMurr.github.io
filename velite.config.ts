@@ -19,12 +19,12 @@ import { allCoreContent, sortPosts } from './utils/velite'
 
 export const blogs = defineCollection({
   name: 'Blog',
-  pattern: 'blog/**/*.mdx', // @MIGRATE TODO: md too?\
+  pattern: 'blog/**/*.md', // @MIGRATE TODO: mdx too?\
   schema: s
     .object({
       title: s.string().max(99), // Zod primitive type
       date: s.isodate(), // input Date-like string, output ISO Date string.
-      slug: s.slug('blog'), // validate format, unique in posts collection
+      slug: s.slug('blog'), // validate format, unique in blog collection
       summary: s.string(),
       tags: s.array(s.string()).default([]),
       authors: s.array(s.string()).default(['default']),
@@ -65,7 +65,7 @@ export const blogs = defineCollection({
 
 const authors = defineCollection({
   name: 'Author',
-  pattern: 'authors/**/*.mdx',
+  pattern: 'authors/**/*.md', // @MIGRATE TODO: mdx too?\
   schema: s.object({
     slug: s.slug('author'),
     name: s.string(),
@@ -101,8 +101,9 @@ const config = defineConfig({
     //   // other collection schema options
     // },
   },
-  complete: async ({ blogs }) => {
-    createSearchIndex(blogs)
+  complete: (collections) => {
+    // @MIGRATE TODO: might not need this, can probably just point at the blogs.json
+    createSearchIndex(collections.blogs)
   },
 })
 

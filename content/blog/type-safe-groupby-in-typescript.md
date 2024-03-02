@@ -1,5 +1,6 @@
 ---
 title: Type Safe GroupBy In TypeScript
+slug: type-safe-groupby-in-typescript
 date: '2022-05-25'
 tags: ['typescript', 'types', 'code', 'guide']
 draft: false

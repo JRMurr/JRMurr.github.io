@@ -1,5 +1,6 @@
 ---
 title: 'Intermediate Typescript: Literals and Unions'
+slug: intermediate-typescript
 date: '2022-01-25'
 tags: ['Typescript', 'code', 'types', 'guide']
 draft: false

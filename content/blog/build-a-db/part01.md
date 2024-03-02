@@ -1,6 +1,7 @@
 ---
 title: Building a Simple DB in Rust - Part 1 - Parsing
 seriesTitle: Part 1 - Parsing
+slug: build-a-db/part01
 date: 2023-01-02T05:19:22.985Z
 tags: ['rust', 'database', 'parsing']
 draft: false

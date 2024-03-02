@@ -1,5 +1,6 @@
 ---
 title: Rust Environment and Docker Build with Nix Flakes
+slug: rust-enviorment-and-docker-build-with-nix-flakes
 date: '2022-05-19'
 tags: ['rust', 'nix', 'docker']
 draft: false

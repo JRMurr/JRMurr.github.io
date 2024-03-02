@@ -1,6 +1,7 @@
 ---
 title: Building a Simple DB in Rust - Part 2 - Basic Execution
 seriesTitle: Part 2 - Basic Execution
+slug: build-a-db/part02
 date: 2023-01-23T14:01:22.231Z
 tags: ['rust', 'database']
 draft: false
