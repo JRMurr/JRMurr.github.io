@@ -5,12 +5,16 @@ import type { MDXComponents } from 'mdx/types'
 import Image from './Image'
 import CustomLink from './Link'
 import TableWrapper from './TableWrapper'
+import Note from './Note'
 
-export const components: MDXComponents = {
+export const components = {
   Image,
   TOCInline,
   a: CustomLink,
   pre: Pre,
   table: TableWrapper,
+  Note: Note,
   BlogNewsletterForm,
 }
+
+export default components

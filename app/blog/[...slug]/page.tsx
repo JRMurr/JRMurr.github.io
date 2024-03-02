@@ -2,7 +2,7 @@ import 'css/prism.css'
 import 'katex/dist/katex.css'
 
 import PageTitle from '@/components/PageTitle'
-import { components } from '@/components/MDXComponents'
+import { components } from '@/components/mdxComponents'
 import { MDXLayoutRenderer } from 'pliny/mdx-components'
 import { sortPosts, coreContent, allCoreContent, findAuthor } from '@/utils/velite'
 import { blogs } from '@/velite/generated'
@@ -13,6 +13,7 @@ import PostBanner from '@/layouts/PostBanner'
 import { Metadata } from 'next'
 import siteMetadata from '@/content/siteMetadata'
 import { notFound } from 'next/navigation'
+import { MDXContent } from '@/components/MdxContnet'
 
 const defaultLayout = 'PostLayout'
 const layouts = {
@@ -115,7 +116,8 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
-        <MDXLayoutRenderer code={post.body} components={components} toc={post.toc} />
+        {/* @MIGRATE TODO: toc={post.toc} */}
+        <MDXContent code={post.body} components={components} />
       </Layout>
     </>
   )

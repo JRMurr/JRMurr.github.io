@@ -2,10 +2,10 @@ import { ReactNode } from 'react'
 import { CoreContent } from '@/utils/velite'
 import type { Blog, Author } from '@/velite/generated'
 import Comments from '@/components/Comments'
-import Link from '@/components/Link'
+import Link from '@/components/mdxComponents/Link'
 import PageTitle from '@/components/PageTitle'
 import SectionContainer from '@/components/SectionContainer'
-import Image from '@/components/Image'
+import Image from '@/components/mdxComponents/Image'
 import Tag from '@/components/Tag'
 import siteMetadata from '@/content/siteMetadata'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
@@ -30,6 +30,7 @@ interface LayoutProps {
 }
 
 export default function PostLayout({ content, authorDetails, next, prev, children }: LayoutProps) {
+  console.log(content)
   const { /*filePath, */ path, slug, date, title, tags } = content // @MIGRATE TODO: real file path?
   const basePath = path.split('/')[0]
 

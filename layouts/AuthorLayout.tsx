@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import type { Author } from '@/velite/generated'
 import SocialIcon from '@/components/social-icons'
-import Image from '@/components/Image'
+import Image from '@/components/mdxComponents/Image'
 
 interface Props {
   children: ReactNode
