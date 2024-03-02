@@ -7,7 +7,7 @@ import { CoreContent } from '@/utils/velite'
 import type { Blog } from 'velite/generated'
 import Link from '@/components/Link'
 import Tag from '@/components/Tag'
-import siteMetadata from '@/data/siteMetadata'
+import siteMetadata from '@/content/siteMetadata'
 
 interface PaginationProps {
   totalPages: number

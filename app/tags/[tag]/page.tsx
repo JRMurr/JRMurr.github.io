@@ -1,6 +1,6 @@
 import { slug } from 'github-slugger'
 import { allCoreContent, sortPosts } from '@/utils/velite'
-import siteMetadata from '@/data/siteMetadata'
+import siteMetadata from '@/content/siteMetadata'
 import ListLayout from '@/layouts/ListLayoutWithTags'
 import { blogs } from 'velite/generated'
 import tagData from 'app/tag-data.json'
