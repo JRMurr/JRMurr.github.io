@@ -30,7 +30,6 @@ interface LayoutProps {
 }
 
 export default function PostLayout({ content, authorDetails, next, prev, children }: LayoutProps) {
-  console.log(content)
   const { /*filePath, */ path, slug, date, title, tags } = content // @MIGRATE TODO: real file path?
   const basePath = path.split('/')[0]
 

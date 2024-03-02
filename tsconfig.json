@@ -11,7 +11,7 @@
     // "composite": true, // MIGRATE TODO: disabled to get rid of errors in velite config, is this needed?
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -36,10 +36,11 @@
     "**/*.js",
     "**/*.mjs",
     "**/*.ts",
+    "**/*.mts",
     "**/*.tsx",
     "**/*.json",
     ".velite",
     ".next/types/**/*.ts"
-  ],
+, "velite.config.mts"  ],
   "exclude": ["node_modules"]
 }

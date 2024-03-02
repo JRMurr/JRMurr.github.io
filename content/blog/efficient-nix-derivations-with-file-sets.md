@@ -18,6 +18,10 @@ layout: PostLayout
 <TOCInline toc={props.toc} asDisclosure />
 
 If you are using Nix to build your own packages you will eventually come across something like
+```json
+{"test": true}
+```
+
 
 ```nix
 stdenv.mkDerivation {
