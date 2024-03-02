@@ -1,7 +1,7 @@
 import { authors } from '@/velite/generated'
-import { MDXLayoutRenderer } from 'pliny/mdx-components'
 import AuthorLayout from '@/layouts/AuthorLayout'
 import { genPageMetadata } from 'app/seo'
+import { MDXContent } from '@/components/MdxContnet'
 
 export const metadata = genPageMetadata({ title: 'About' })
 
@@ -15,7 +15,7 @@ export default function Page() {
   return (
     <>
       <AuthorLayout content={mainContent}>
-        <MDXLayoutRenderer code={body} />
+        <MDXContent code={body} />
       </AuthorLayout>
     </>
   )

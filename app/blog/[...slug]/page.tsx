@@ -3,7 +3,6 @@ import 'katex/dist/katex.css'
 
 import PageTitle from '@/components/PageTitle'
 import { components } from '@/components/mdxComponents'
-import { MDXLayoutRenderer } from 'pliny/mdx-components'
 import { sortPosts, coreContent, allCoreContent, findAuthor } from '@/utils/velite'
 import { blogs } from '@/velite/generated'
 import type { Author, Blog } from '@/velite/generated'
