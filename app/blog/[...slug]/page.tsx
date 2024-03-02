@@ -5,7 +5,7 @@ import PageTitle from '@/components/PageTitle'
 import { components } from '@/components/MDXComponents'
 import { MDXLayoutRenderer } from 'pliny/mdx-components'
 import { sortPosts, coreContent, allCoreContent, findAuthor } from '@/utils/velite'
-import { blogs, authors } from '@/velite/generated'
+import { blogs } from '@/velite/generated'
 import type { Author, Blog } from '@/velite/generated'
 import PostSimple from '@/layouts/PostSimple'
 import PostLayout from '@/layouts/PostLayout'
@@ -30,8 +30,7 @@ export async function generateMetadata({
   const post = blogs.find((p) => p.slug === slug)
   const authorList = post?.authors || ['default']
   const authorDetails = authorList.map((author) => {
-    const authorResults = authors.find((p) => p.slug === author)
-    return coreContent(authorResults)
+    return coreContent(findAuthor(author))
   })
   if (!post) {
     return

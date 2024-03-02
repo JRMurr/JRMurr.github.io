@@ -101,6 +101,10 @@ const config = defineConfig({
     //   // other collection schema options
     // },
   },
+  output: {
+    assets: 'public/static/gen',
+    clean: true,
+  },
   complete: (collections) => {
     // @MIGRATE TODO: might not need this, can probably just point at the blogs.json
     createSearchIndex(collections.blogs)

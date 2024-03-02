@@ -33,6 +33,9 @@ public/sitemap.xml
 # search
 /public/search.json
 
+# search
+/public/static/gen/*
+
 # misc
 .DS_Store
 
