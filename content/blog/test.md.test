@@ -10,7 +10,7 @@ layout: PostLayout
 ---
 
 
-```ts twoslash
+```twoslash export=main
 import _ from 'lodash';
 
 interface Foo {
@@ -19,7 +19,7 @@ interface Foo {
   object: Record<string, any>;
 }
 
-const vals: Foo[] = [
+export const vals: Foo[] = [
   { num: 1, someLiteral: 'a', object: { key: 'value' } },
   { num: 2, someLiteral: 'a', object: { key: 'diffValue' } },
   { num: 1, someLiteral: 'b', object: {} },
@@ -27,6 +27,9 @@ const vals: Foo[] = [
 ```
 
 ```ts twoslash
+// @include: main
+// ---cut---
+
 console.dir(_.groupBy(vals, 'num'));
 /*
 {

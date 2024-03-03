@@ -60,7 +60,7 @@ In this example, we use the same type `T` 3 times, as a `Nullable<T>`, a default
 
 Generics can help address a number of potential issues of types not "flowing" the way you want. A great example of this is a function modifying members of a union type. Recall the `ApiEvent` type from the last post
 
-```twoslash include main
+```twoslash export=main
 interface LoginEvent {
   type: 'login';
   user: string;
@@ -129,7 +129,7 @@ This does not lose generality if you had a list of `ApiEvents` you could still m
 
 Sometimes you may have a few wrapper types that hold the same types. This example is a little contrived, but I've run into this a few times before.
 
-```twoslash include wrapOne
+```twoslash export=wrapOne
 type ValidValue = string | number;
 
 interface WrapperOne {
@@ -175,7 +175,7 @@ Since the `value` field can be `string | number` there is nothing stopping a use
 
 Generics can be used to "lock" the value type in for all elements of the array.
 
-```twoslash include wrapTwo
+```twoslash export=wrapTwo
 type ValidValue = string | number;
 
 interface WrapperOne<T extends ValidValue> {

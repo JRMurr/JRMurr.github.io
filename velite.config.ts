@@ -24,6 +24,8 @@ import rehypeShiki from '@shikijs/rehype'
 import rehypeRaw from 'rehype-raw'
 import { nodeTypes } from '@mdx-js/mdx'
 import { transformerTwoslash } from '@shikijs/twoslash'
+import { remarkCodeTitles } from 'remarkPlugins/remarkCodeTitles'
+import { twoSlashInclude } from 'remarkPlugins/twoSlashInclude'
 
 // https://github.com/zce/velite/tree/main/examples/nextjs
 
@@ -35,7 +37,7 @@ import { transformerTwoslash } from '@shikijs/twoslash'
 
 export const blogs = defineCollection({
   name: 'Blog',
-  pattern: 'blog/**/test.md', // @MIGRATE TODO: mdx too?\
+  pattern: 'blog/**/*.md', // @MIGRATE TODO: mdx too?\
   schema: s
     .object({
       title: s.string().max(99), // Zod primitive type
@@ -109,51 +111,22 @@ type Blogs = z.infer<typeof blogs.schema>[]
 //   }
 // }
 
-export function remarkCodeTitles() {
-  return (tree: Parent & { lang?: string }) =>
-    visit(tree, 'code', (node: Parent & { lang?: string }, index, parent: Parent) => {
-      const nodeLang = node.lang || ''
-      let language = ''
-      let title = ''
-
-      if (nodeLang.includes(':')) {
-        language = nodeLang.slice(0, nodeLang.search(':'))
-        title = nodeLang.slice(nodeLang.search(':') + 1, nodeLang.length)
-      }
-
-      if (!title) {
-        return
-      }
-
-      const className = 'remark-code-title'
-
-      const titleNode = {
-        type: 'mdxJsxFlowElement',
-        name: 'div',
-        attributes: [{ type: 'mdxJsxAttribute', name: 'className', value: className }],
-        children: [{ type: 'text', value: title }],
-        data: { _xdmExplicitJsx: true },
-      }
-
-      parent.children.splice(index, 0, titleNode)
-      node.lang = language
-    })
-}
-
 const twoSlashErrHandler = (err, code, lang, options) => {
-  console.log('err, code, lang, options')
-  console.log(err, code, lang, options)
-  return
+  console.log('err, lang, options')
+  // console.log(err, lang, options)
+  throw err
 }
 
 const shikiErrorHandler = (err, code, lang) => {
   console.log('err, code, lang')
   console.log(err, code, lang)
+  throw err
 }
 
 const markdownOptions: MdxOptions = {
   gfm: true,
   remarkPlugins: [
+    twoSlashInclude,
     remarkCodeTitles,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // [remarkShikiTwoslash as any, { theme: 'dracula' }],
@@ -173,7 +146,7 @@ const markdownOptions: MdxOptions = {
           transformerTwoslash({
             explicitTrigger: true,
             onTwoslashError: twoSlashErrHandler,
-            onShikiError: shikiErrorHandler,
+            // onShikiError: shikiErrorHandler,
           }),
         ],
       },
