@@ -1,4 +1,4 @@
-import { NewsletterAPI } from 'pliny/newsletter'
+import { NewsletterAPI } from 'pliny/newsletter/index.js'
 import siteMetadata from '@/content/siteMetadata'
 
 const handler = NewsletterAPI({

@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { formatDate } from 'pliny/utils/formatDate'
+import { formatDate } from 'pliny/utils/formatDate.js'
 import { CoreContent } from '@/utils/velite'
 import type { Blog } from '@/velite/generated'
 import Comments from '@/components/Comments'
