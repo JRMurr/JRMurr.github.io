@@ -1,4 +1,5 @@
-import { Node, Parent, visit } from 'unist-util-visit/lib'
+import { Node, Parent } from 'unist-util-visit/lib'
+import flatMap from 'unist-util-flatmap'
 
 // @MIGRATE TODO: type visitor better
 
@@ -13,7 +14,7 @@ type CodeNode = Node & {
   value: string
 }
 
-const exportRe = /export\=([^ ]*)/
+const exportRe = /export=([^ ]*)/
 
 const replaceIncludesInCode = (_map: Map<string, string>, code: string) => {
   const includes = /\/\/ @include: (.*)$/gm
@@ -51,14 +52,13 @@ const replaceIncludesInCode = (_map: Map<string, string>, code: string) => {
 export function twoSlashInclude() {
   return (tree: Parent & { lang?: string }) => {
     parsingNewFile()
-    visit(tree, 'code', (node: CodeNode, index, parent: Parent) => {
+    flatMap(tree, (node: CodeNode) => {
       if (node.lang !== 'twoslash') {
         const meta = node.meta || ''
         if (node.lang === 'ts' && meta.includes('twoslash')) {
           node.value = replaceIncludesInCode(includes, node.value)
         }
-        // console.log(node.value)
-        return
+        return [node]
       }
       node.lang = 'ts'
       const meta = node.meta || ''
@@ -67,6 +67,7 @@ export function twoSlashInclude() {
         const exportName = exportMatch[1]
         includes.set(exportName, node.value)
       }
+      return []
     })
   }
 }

@@ -5,7 +5,7 @@ import { defineConfig, defineCollection, MdxOptions, s, z } from 'velite'
 //   // remarkImgToJsx,
 //   // extractTocHeadings,
 // } from 'pliny/mdx-plugins'
-// import remarkMath from 'remark-math'
+import remarkMath from 'remark-math'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeKatex from 'rehype-katex'
@@ -129,8 +129,7 @@ const markdownOptions: MdxOptions = {
     twoSlashInclude,
     remarkCodeTitles,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // [remarkShikiTwoslash as any, { theme: 'dracula' }],
-    // remarkMath,
+    remarkMath as any,
     // remarkImgToJsx // @MIGRATE TODO: do i need this?
   ],
   rehypePlugins: [
@@ -157,7 +156,7 @@ const markdownOptions: MdxOptions = {
     rehypeKatex,
     // [rehypeCitation, { path: path.join(root, 'data') }],
     // [rehypePrismPlus as any, { defaultLanguage: 'js', ignoreMissing: true }],
-    // rehypePresetMinify, // @MIGRATE TODO: dyanmic imports?
+    rehypePresetMinify, // @MIGRATE TODO: dyanmic imports?
   ],
 }
 

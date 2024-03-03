@@ -35,7 +35,7 @@ const vals: Foo[] = [
 
 ```ts twoslash
 // @include: main
-// ---cut---
+
 console.dir(_.groupBy(vals, 'num'));
 /*
 {
