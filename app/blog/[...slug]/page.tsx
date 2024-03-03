@@ -1,6 +1,6 @@
 import 'css/prism.css'
 import 'katex/dist/katex.css'
-import '@/css/twoslash.css'
+import '@shikijs/twoslash/style-rich.css'
 
 import PageTitle from '@/components/PageTitle'
 import { components } from '@/components/mdxComponents'

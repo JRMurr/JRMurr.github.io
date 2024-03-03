@@ -17,7 +17,7 @@ I would bet if you have a sizeable Javascript/Typescript codebase you most likel
 While Javascript has gotten more "batteries included" over the last few years, lodash still has many nice functions for manipulating arrays/objects.
 One such function is [groupBy](https://lodash.com/docs/4.17.15#groupBy). It groups a list by some predicate, in the simplest case it can just be a key in the objects of the array.
 
-```twoslash include main
+```ts twoslash include main
 import _ from 'lodash';
 
 interface Foo {

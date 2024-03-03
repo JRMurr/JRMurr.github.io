@@ -35,7 +35,7 @@ import { transformerTwoslash } from '@shikijs/twoslash'
 
 export const blogs = defineCollection({
   name: 'Blog',
-  pattern: 'blog/**/*.md', // @MIGRATE TODO: mdx too?\
+  pattern: 'blog/**/test.md', // @MIGRATE TODO: mdx too?\
   schema: s
     .object({
       title: s.string().max(99), // Zod primitive type
@@ -140,24 +140,49 @@ export function remarkCodeTitles() {
     })
 }
 
+const twoSlashErrHandler = (err, code, lang, options) => {
+  console.log('err, code, lang, options')
+  console.log(err, code, lang, options)
+  return
+}
+
+const shikiErrorHandler = (err, code, lang) => {
+  console.log('err, code, lang')
+  console.log(err, code, lang)
+}
+
 const markdownOptions: MdxOptions = {
   gfm: true,
   remarkPlugins: [
     remarkCodeTitles,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // [remarkShikiTwoslash as any, { theme: 'dracula' }],
-    // [rehypeShiki, { theme: 'nord' }],
     // remarkMath,
     // remarkImgToJsx // @MIGRATE TODO: do i need this?
   ],
   rehypePlugins: [
-    [rehypeRaw, { passThrough: nodeTypes }],
-    [rehypeShiki, { theme: 'dracula', transformers: [transformerTwoslash] }],
-    // rehypeSlug,
-    // // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // rehypeAutolinkHeadings as any,
-    // rehypeKatex,
-    // // [rehypeCitation, { path: path.join(root, 'data') }],
+    // [rehypeRaw, { passThrough: nodeTypes }],
+    [
+      rehypeShiki,
+      {
+        theme: 'dracula',
+        onError: (err) => {
+          console.log('err', err)
+        },
+        transformers: [
+          transformerTwoslash({
+            explicitTrigger: true,
+            onTwoslashError: twoSlashErrHandler,
+            onShikiError: shikiErrorHandler,
+          }),
+        ],
+      },
+    ],
+    rehypeSlug,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rehypeAutolinkHeadings as any,
+    rehypeKatex,
+    // [rehypeCitation, { path: path.join(root, 'data') }],
     // [rehypePrismPlus as any, { defaultLanguage: 'js', ignoreMissing: true }],
     // rehypePresetMinify, // @MIGRATE TODO: dyanmic imports?
   ],
