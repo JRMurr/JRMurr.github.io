@@ -10,7 +10,6 @@ import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeKatex from 'rehype-katex'
 // import rehypeCitation from 'rehype-citation'
-import rehypePrismPlus from 'rehype-prism-plus'
 import rehypePresetMinify from 'rehype-preset-minify'
 
 import { writeFileSync } from 'fs'
@@ -53,7 +52,7 @@ export const blogs = defineCollection({
     .object({
       title: s.string().max(99), // Zod primitive type
       date: s.isodate(), // input Date-like string, output ISO Date string.
-      slug: s.slug('blog'), // validate format, unique in blog collection
+      // slug: s.slug('blog'), // validate format, unique in blog collection
       summary: s.string(),
       tags: s.array(s.string()).default([]),
       authors: s.array(s.string()).default(['default']),
@@ -70,6 +69,8 @@ export const blogs = defineCollection({
     })
     // more additional fields (computed fields)
     .transform(({ tocRaw, ...data }) => {
+      // console.log(`path: ${data.path}\tslug:${slug(data.path)}`)
+
       const structuredData = {
         '@context': 'https://schema.org',
         '@type': 'BlogPosting',
@@ -79,16 +80,20 @@ export const blogs = defineCollection({
         description: data.summary,
         // image: data.images ? data.images[0] : siteMetadata.socialBanner,
         // url: `${siteMetadata.siteUrl}/${doc._raw.flattenedPath}`,
-        url: '@MIGRATE TODO:',
+        // url: '',
       }
       // const computedFields = getComputedFields(data)
+      const slug = data.path.replace('blog/', '')
+
+      // console.log({ path: data.path, slug })
+
       return {
         ...data,
+        slug,
         toc: tocRaw.map(addDepthToNestedList),
         // computedFields,
         structuredData,
-        permalink: `/blog/${data.slug}`,
-        // path: '@MIGRATE TODO:',
+        // permalink: `/blog/${data.slug}`,
       }
     }),
 })
@@ -156,15 +161,16 @@ const shikiErrorHandler = (err, code, lang) => {
 const markdownOptions: MdxOptions = {
   format: 'mdx',
   gfm: true,
+  removeComments: true,
   remarkPlugins: [
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // [remarkMath as any, { singleDollarTextMath: true }],
     twoSlashInclude,
     remarkCodeTitles,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    remarkMath as any,
     // remarkImgToJsx // @MIGRATE TODO: do i need this?
   ],
   rehypePlugins: [
-    // [rehypeRaw, { passThrough: nodeTypes }],
+    [rehypeRaw, { passThrough: nodeTypes }],
     [
       rehypeShiki,
       {

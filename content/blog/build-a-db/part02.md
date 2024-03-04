@@ -87,9 +87,9 @@ With that said, let's walk through a basic example
 
 ![B-Tree example](https://upload.wikimedia.org/wikipedia/commons/6/65/B-tree.svg)
 
-Here the internal node (the root) has 3 children. All keys $< 7$ are in the left child, keys $> 7$ and $<= 16$ are in the middle, and finally, keys $> 16$ are in the right child.
+Here the internal node (the root) has 3 children. All keys $ < 7 $ are in the left child, keys $ > 7 $ and $ <= 16 $ are in the middle, and finally, keys $ > 16 $ are in the right child.
 
-You can customize the $B$ constant to have nodes store more/fewer keys and have more/fewer children. The average Lookup for a B-tree with $N$ keys is $\mathcal{O}(\log{_2}N)$ which is the same for a BST.
+You can customize the $ B $ constant to have nodes store more/fewer keys and have more/fewer children. The average Lookup for a B-tree with $N$ keys is $ \mathcal{O}(\log{_2}N) $ which is the same for a BST.
 
 ### Why B-Tree?
 

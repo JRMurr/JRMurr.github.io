@@ -59,7 +59,7 @@
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.11",
     "typescript": "^5.3.3",
-    "velite": "git+ssh://git@github.com:JRMurr/velite#investigate-build"
+    "velite": "github:JRMurr/velite#investigate-build"
   },
   "resolutions": {
     "@opentelemetry/api": "1.4.1",

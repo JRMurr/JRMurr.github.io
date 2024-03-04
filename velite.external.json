@@ -1,4 +1,5 @@
 [
     "twoslash",
-    "rehype-preset-minify"
+    "rehype-preset-minify",
+    "remark-math"
 ]
