@@ -27,6 +27,7 @@ import { transformerTwoslash } from '@shikijs/twoslash'
 import { remarkCodeTitles } from 'remarkPlugins/remarkCodeTitles'
 import { twoSlashInclude } from 'remarkPlugins/twoSlashInclude'
 import { allCoreContent, sortPosts } from './utils/velite'
+import { slug } from 'github-slugger'
 
 // https://github.com/zce/velite/tree/main/examples/nextjs
 
@@ -122,6 +123,24 @@ function createSearchIndex(blogs: Blogs) {
   }
 }
 
+const isProduction = process.env.NODE_ENV === 'production'
+function createTagCount(blogs) {
+  const tagCount: Record<string, number> = {}
+  blogs.forEach((file) => {
+    if (file.tags && (!isProduction || file.draft !== true)) {
+      file.tags.forEach((tag) => {
+        const formattedTag = slug(tag)
+        if (formattedTag in tagCount) {
+          tagCount[formattedTag] += 1
+        } else {
+          tagCount[formattedTag] = 1
+        }
+      })
+    }
+  })
+  writeFileSync('./app/tag-data.json', JSON.stringify(tagCount))
+}
+
 const twoSlashErrHandler = (err, code, lang, options) => {
   console.log('err, lang, options')
   // console.log(err, lang, options)
@@ -139,7 +158,7 @@ const markdownOptions: MdxOptions = {
   gfm: true,
   remarkPlugins: [
     twoSlashInclude,
-    remarkCodeTitles, // @MIGRATE TODO: not working or syntax changed?
+    remarkCodeTitles,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     remarkMath as any,
     // remarkImgToJsx // @MIGRATE TODO: do i need this?
@@ -176,9 +195,6 @@ const config = defineConfig({
   collections: {
     blogs,
     authors,
-    // others: {
-    //   // other collection schema options
-    // },
   },
   // markdown: markdownOptions,
   mdx: markdownOptions,
@@ -189,6 +205,7 @@ const config = defineConfig({
   },
   complete: (collections) => {
     createSearchIndex(collections.blogs)
+    createTagCount(collections.blogs)
   },
 })
 

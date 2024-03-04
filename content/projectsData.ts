@@ -1,26 +1,23 @@
 interface Project {
-  title: string,
-  description: string,
-  href?: string,
-  imgSrc?: string,
+  title: string
+  description: string
+  href?: string
+  imgSrc?: string
 }
 
 const projectsData: Project[] = [
   {
-    title: 'A Search Engine',
-    description: `What if you could look up any information in the world? Webpages, images, videos
-    and more. Google has many features to help you find exactly what you're looking
-    for.`,
-    imgSrc: '/static/images/google.png',
-    href: 'https://www.google.com',
+    title: 'SqlJr',
+    description: `A toy database to learn more lower level rust.`,
+    imgSrc: '/static/images/db-icon.png',
+    href: '/blog/build-a-db/part01',
   },
   {
-    title: 'The Time Machine',
-    description: `Imagine being able to travel back in time or to the future. Simple turn the knob
-    to the desired date and press "Go". No more worrying about lost keys or
-    forgotten headphones with this simple yet affordable solution.`,
-    imgSrc: '/static/images/time-machine.jpg',
-    href: '/blog/the-time-machine',
+    title: 'ThiccBot',
+    description: `My custom discord bot I have re-made about 4 times now. 
+    Its been a great project to come back to when I get the urge to make a small new thing.`,
+    imgSrc: '/static/images/thiccBot.jpg',
+    href: 'https://github.com/JRMurr/ThiccBot',
   },
 ]
 

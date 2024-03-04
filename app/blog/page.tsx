@@ -3,7 +3,7 @@ import { allCoreContent, sortPosts } from '@/utils/velite'
 import { blogs } from '@/velite/generated'
 import { genPageMetadata } from 'app/seo'
 
-const POSTS_PER_PAGE = 5
+const POSTS_PER_PAGE = 10
 
 export const metadata = genPageMetadata({ title: 'Blog' })
 

@@ -1,4 +1,5 @@
 // import 'css/prism.css'
+import '@/css/code-title.css'
 import 'katex/dist/katex.css'
 import '@shikijs/twoslash/style-rich.css'
 
