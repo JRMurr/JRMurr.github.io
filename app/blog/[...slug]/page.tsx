@@ -5,7 +5,7 @@ import '@shikijs/twoslash/style-rich.css'
 import PageTitle from '@/components/PageTitle'
 import { components } from '@/components/mdxComponents'
 import { sortPosts, coreContent, allCoreContent, findAuthor } from '@/utils/velite'
-import { blogs } from '@/velite/generated'
+import { blogs, authors } from '@/velite/generated'
 import type { Author, Blog } from '@/velite/generated'
 import PostSimple from '@/layouts/PostSimple'
 import PostLayout from '@/layouts/PostLayout'
@@ -13,7 +13,7 @@ import PostBanner from '@/layouts/PostBanner'
 import { Metadata } from 'next'
 import siteMetadata from '@/content/siteMetadata'
 import { notFound } from 'next/navigation'
-import { MDXContent } from '@/components/MdxContnet'
+import { MDXContent } from '@/components/MDXContent'
 
 const defaultLayout = 'PostLayout'
 const layouts = {
@@ -31,7 +31,7 @@ export async function generateMetadata({
   const post = blogs.find((p) => p.slug === slug)
   const authorList = post?.authors || ['default']
   const authorDetails = authorList.map((author) => {
-    return coreContent(findAuthor(author))
+    return coreContent(findAuthor(authors, author))
   })
   if (!post) {
     return
@@ -39,7 +39,7 @@ export async function generateMetadata({
 
   const publishedAt = new Date(post.date).toISOString()
   const modifiedAt = new Date(post.lastmod || post.date).toISOString()
-  const authors = authorDetails.map((author) => author.name)
+  const authorsToshow = authorDetails.map((author) => author.name)
   const imageList = [siteMetadata.socialBanner]
   // @MIGRATE TODO: images?
   // if (post.images) {
@@ -64,7 +64,7 @@ export async function generateMetadata({
       modifiedTime: modifiedAt,
       url: './',
       images: ogImages,
-      authors: authors.length > 0 ? authors : [siteMetadata.author],
+      authors: authorsToshow.length > 0 ? authorsToshow : [siteMetadata.author],
     },
     twitter: {
       card: 'summary_large_image',
@@ -95,7 +95,7 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
   const post = blogs.find((p) => p.slug === slug) as Blog
   const authorList = post?.authors || ['default']
   const authorDetails = authorList.map((author) => {
-    const a = findAuthor(author)
+    const a = findAuthor(authors, author)
     return coreContent(a)
   })
   const mainContent = coreContent(post)
@@ -116,8 +116,7 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
-        {/* @MIGRATE TODO: toc={post.toc} */}
-        <MDXContent code={post.body} components={components} />
+        <MDXContent code={post.body} components={components} toc={post.toc} />
       </Layout>
     </>
   )

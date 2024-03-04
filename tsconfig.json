@@ -41,6 +41,6 @@
     "**/*.json",
     ".velite",
     ".next/types/**/*.ts"
-, "velite.config.mts"  ],
+, "velite.config.ts"  ],
   "exclude": ["node_modules"]
 }

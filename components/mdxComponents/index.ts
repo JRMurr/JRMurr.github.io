@@ -1,4 +1,4 @@
-import TOCInline from 'pliny/ui/TOCInline.js'
+import TOCInline from './TOCInline'
 // import BlogNewsletterForm from 'pliny/ui/BlogNewsletterForm'
 import Image from './Image'
 import CustomLink from './Link'

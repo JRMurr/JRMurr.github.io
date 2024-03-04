@@ -26,6 +26,7 @@ import { nodeTypes } from '@mdx-js/mdx'
 import { transformerTwoslash } from '@shikijs/twoslash'
 import { remarkCodeTitles } from 'remarkPlugins/remarkCodeTitles'
 import { twoSlashInclude } from 'remarkPlugins/twoSlashInclude'
+import { allCoreContent, sortPosts } from './utils/velite'
 
 // https://github.com/zce/velite/tree/main/examples/nextjs
 
@@ -34,6 +35,15 @@ import { twoSlashInclude } from 'remarkPlugins/twoSlashInclude'
 //     toc: '',
 //   }
 // }
+
+const addDepthToNestedList = <T extends { items: T[] }>(item: T): T & { depth: number } => {
+  const helper = ({ items, ...rest }: T, depth: number) => {
+    const children = items.map((c) => helper(c, depth + 1))
+    return { ...rest, depth, items: children }
+  }
+
+  return helper(item, 0)
+}
 
 export const blogs = defineCollection({
   name: 'Blog',
@@ -52,13 +62,13 @@ export const blogs = defineCollection({
       metadata: s.metadata(), // extract markdown reading-time, word-count, etc.
       // excerpt: s.excerpt(), // excerpt of markdown content
       body: s.mdx(), // transform markdown to html
-      toc: s.toc(),
+      tocRaw: s.toc(),
       draft: s.boolean().default(false),
       lastmod: s.isodate().optional(),
       path: s.path(),
     })
     // more additional fields (computed fields)
-    .transform((data) => {
+    .transform(({ tocRaw, ...data }) => {
       const structuredData = {
         '@context': 'https://schema.org',
         '@type': 'BlogPosting',
@@ -73,6 +83,7 @@ export const blogs = defineCollection({
       // const computedFields = getComputedFields(data)
       return {
         ...data,
+        toc: tocRaw.map(addDepthToNestedList),
         // computedFields,
         structuredData,
         permalink: `/blog/${data.slug}`,
@@ -98,18 +109,18 @@ const authors = defineCollection({
 
 type Blogs = z.infer<typeof blogs.schema>[]
 
-// function createSearchIndex(blogs: Blogs) {
-//   if (
-//     siteMetadata?.search?.provider === 'kbar' &&
-//     siteMetadata.search.kbarConfig.searchDocumentsPath
-//   ) {
-//     writeFileSync(
-//       `public/${siteMetadata.search.kbarConfig.searchDocumentsPath}`,
-//       JSON.stringify(allCoreContent(sortPosts(blogs)))
-//     )
-//     console.log('Local search index generated...')
-//   }
-// }
+function createSearchIndex(blogs: Blogs) {
+  if (
+    siteMetadata?.search?.provider === 'kbar' &&
+    siteMetadata.search.kbarConfig.searchDocumentsPath
+  ) {
+    writeFileSync(
+      `public/${siteMetadata.search.kbarConfig.searchDocumentsPath}`,
+      JSON.stringify(allCoreContent(sortPosts(blogs)))
+    )
+    console.log('Local search index generated...')
+  }
+}
 
 const twoSlashErrHandler = (err, code, lang, options) => {
   console.log('err, lang, options')
@@ -124,10 +135,11 @@ const shikiErrorHandler = (err, code, lang) => {
 }
 
 const markdownOptions: MdxOptions = {
+  format: 'mdx',
   gfm: true,
   remarkPlugins: [
     twoSlashInclude,
-    remarkCodeTitles,
+    remarkCodeTitles, // @MIGRATE TODO: not working or syntax changed?
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     remarkMath as any,
     // remarkImgToJsx // @MIGRATE TODO: do i need this?
@@ -176,8 +188,7 @@ const config = defineConfig({
     clean: true,
   },
   complete: (collections) => {
-    // @MIGRATE TODO: might not need this, can probably just point at the blogs.json
-    // createSearchIndex(collections.blogs)
+    createSearchIndex(collections.blogs)
   },
 })
 

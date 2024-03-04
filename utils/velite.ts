@@ -1,10 +1,8 @@
 /**
  * ============
- * Replacement fucntions for pliny/utils/contentlayer
+ * Replacement functions for pliny/utils/contentlayer
  * ============
  */
-
-import { authors } from '@/velite/generated'
 
 export type MDXDocument = {
   body: string
@@ -20,9 +18,8 @@ export function sortPosts<T extends { date: string }>(allBlogs: T[]) {
   return allBlogs.sort((a, b) => dateSortDesc(a.date, b.date))
 }
 
-const authorMap = new Map(authors.map((a) => [a.slug, a]))
-
-export function findAuthor(author: string) {
+export function findAuthor<T extends { slug: string }>(authors: T[], author: string) {
+  const authorMap = new Map(authors.map((a) => [a.slug, a]))
   const a = authorMap.get(author)
 
   if (!a) {

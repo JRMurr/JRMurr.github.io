@@ -1,7 +1,7 @@
 import { authors } from '@/velite/generated'
 import AuthorLayout from '@/layouts/AuthorLayout'
 import { genPageMetadata } from 'app/seo'
-import { MDXContent } from '@/components/MdxContnet'
+import { MDXContent } from '@/components/MDXContent'
 
 export const metadata = genPageMetadata({ title: 'About' })
 
