@@ -3,7 +3,7 @@
 
 #velite generated files
 .velite
-
+app/tag-data.json
 
 # dependencies
 /node_modules

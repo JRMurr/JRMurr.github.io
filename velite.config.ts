@@ -164,7 +164,7 @@ const markdownOptions: MdxOptions = {
   removeComments: true,
   remarkPlugins: [
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // [remarkMath as any, { singleDollarTextMath: true }],
+    [remarkMath as any, { singleDollarTextMath: true }],
     twoSlashInclude,
     remarkCodeTitles,
     // remarkImgToJsx // @MIGRATE TODO: do i need this?
