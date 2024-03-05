@@ -11,12 +11,14 @@
       let
         pkgs = import nixpkgs { inherit system; };
         nodeVerion = pkgs.nodejs_20;
+        commonDeps = with pkgs; [ nodeVerion just ];
+        myNix = import ./nix { inherit pkgs; nodejs = nodeVerion; };
       in
       {
         devShells = {
-          # TODO: they are the same deps but nice to have seperate configs
-          default = pkgs.mkShell { buildInputs = with pkgs; [ nodeVerion just ]; };
-          CI = pkgs.mkShell { buildInputs = with pkgs; [ nodeVerion just ]; };
+          default = pkgs.mkShell { buildInputs = commonDeps ++ (with pkgs; [ node2nix myNix.runNode2Nix ]); };
+          CI = pkgs.mkShell { buildInputs = commonDeps; };
         };
+        # packages = { };
       });
 }
