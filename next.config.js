@@ -63,6 +63,7 @@ module.exports = () => {
     withBundleAnalyzer,
   ]
   return plugins.reduce((acc, next) => next(acc), {
+    output: 'export',
     reactStrictMode: true,
     pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
     eslint: {

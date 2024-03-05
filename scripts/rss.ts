@@ -2,10 +2,10 @@ import { writeFileSync, mkdirSync } from 'fs'
 import path from 'path'
 import { slug } from 'github-slugger'
 import { escape } from 'pliny/utils/htmlEscaper.js'
-import siteMetadata from '../data/siteMetadata.js'
+import siteMetadata from '../content/siteMetadata.js'
 import tagData from '../app/tag-data.json' assert { type: 'json' }
-import { blogs } from '../.contentlayer/generated/index.mjs'
-import { sortPosts } from 'pliny/utils/contentlayer.js'
+import { blogs } from '../.velite/index.js'
+import { sortPosts } from '../utils/velite.js'
 
 const generateRssItem = (config, post) => `
   <item>
@@ -40,7 +40,7 @@ async function generateRSS(config, blogs, page = 'feed.xml') {
   // RSS for blog post
   if (publishPosts.length > 0) {
     const rss = generateRss(config, sortPosts(publishPosts))
-    writeFileSync(`./public/${page}`, rss)
+    writeFileSync(`./public/${page}`, rss) // @MIGRATE-TODO: run this before the build or put it in the out folder
   }
 
   if (publishPosts.length > 0) {
