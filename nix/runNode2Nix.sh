@@ -3,7 +3,8 @@
 SCRIPT_DIR=$(dirname "$0")
 ROOT_DIR_REL="$SCRIPT_DIR/../"
 ROOT_DIR=$(realpath "$ROOT_DIR_REL")
-echo "ROOT_DIR $ROOT_DIR"
+
+pushd $ROOT_DIR
 
 mkdir -p ${ROOT_DIR}/nix/node
 
@@ -12,8 +13,10 @@ mkdir -p ${ROOT_DIR}/nix/node
 # TODO: need to update package.nix somehow to do a fileSet filter to yeet nodeModules
 # maybe time to fork nod2nix????
 node2nix -18 --development \
-    --input ${ROOT_DIR}/package.json \
-    --lock ${ROOT_DIR}/package-lock.json \
-    --node-env ${ROOT_DIR}/nix/node/env.nix \
-    --composition ${ROOT_DIR}/nix/node/default.nix \
-    --output ${ROOT_DIR}/nix/node/package.nix
+    --input ./package.json \
+    --lock ./package-lock.json \
+    --node-env ./nix/node/env.nix \
+    --composition ./nix/node/default.nix \
+    --output ./nix/node/package.nix
+
+popd
