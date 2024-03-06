@@ -16,7 +16,7 @@
       in
       {
         devShells = {
-          default = pkgs.mkShell { buildInputs = commonDeps ++ (with pkgs; [ node2nix myNix.runNode2Nix ]); };
+          default = pkgs.mkShell { buildInputs = commonDeps ++ (with pkgs; [ node2nix ]); };
           CI = pkgs.mkShell { buildInputs = commonDeps; };
         };
         # packages = { };
