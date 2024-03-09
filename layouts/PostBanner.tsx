@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
-import Image from '@/components/mdxComponents/Image'
-import Bleed from 'pliny/ui/Bleed.js'
+// import Image from '@/components/mdxComponents/Image'
+// import Bleed from 'pliny/ui/Bleed.js'
 import { CoreContent } from '@/utils/velite'
 import type { Blog } from '@/velite/generated'
 import Comments from '@/components/Comments'

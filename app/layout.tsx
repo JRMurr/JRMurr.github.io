@@ -1,15 +1,17 @@
 import 'css/tailwind.css'
-import 'pliny/search/algolia.css'
+// import 'pliny/search/algolia.css'
 
 import { Space_Grotesk } from 'next/font/google'
-import { Analytics, AnalyticsConfig } from 'pliny/analytics/index.js'
-import { SearchProvider, SearchConfig } from 'pliny/search/index.js'
+// import { Analytics, AnalyticsConfig } from 'pliny/analytics/index.js'
+// import { SearchProvider, SearchConfig } from 'pliny/search/index.js'
 import Header from '@/components/Header'
 import SectionContainer from '@/components/SectionContainer'
 import Footer from '@/components/Footer'
 import siteMetadata from '@/content/siteMetadata'
 import { ThemeProviders } from './theme-providers'
 import { Metadata } from 'next'
+import { KBarSearchProvider } from '@/components/search'
+import { Analytics, AnalyticsConfig } from '@/components/analytics'
 
 const space_grotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -78,10 +80,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Analytics analyticsConfig={siteMetadata.analytics as AnalyticsConfig} />
           <SectionContainer>
             <div className="flex h-screen flex-col justify-between font-sans">
-              <SearchProvider searchConfig={siteMetadata.search as SearchConfig}>
+              {/* @MIGRATE-TODO: might need to handle searchConfig not being set? */}
+              <KBarSearchProvider kbarConfig={siteMetadata.search.kbarConfig}>
                 <Header />
                 <main className="mb-auto">{children}</main>
-              </SearchProvider>
+              </KBarSearchProvider>
               <Footer />
             </div>
           </SectionContainer>

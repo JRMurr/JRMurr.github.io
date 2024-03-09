@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { formatDate } from 'pliny/utils/formatDate.js'
+import { formatDate } from '@/utils/formatDate'
 import { CoreContent } from '@/utils/velite'
 import type { Blog } from '@/velite/generated'
 import Link from '@/components/mdxComponents/Link'

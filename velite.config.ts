@@ -21,7 +21,7 @@ import { Parent, visit } from 'unist-util-visit/lib'
 // import remarkShikiTwoslash from 'remark-shiki-twoslash'
 import rehypeShiki from '@shikijs/rehype'
 import rehypeRaw from 'rehype-raw'
-import { nodeTypes } from '@mdx-js/mdx'
+// import { nodeTypes } from '@mdx-js/mdx'
 import { transformerTwoslash } from '@shikijs/twoslash'
 import { remarkCodeTitles } from 'remarkPlugins/remarkCodeTitles'
 import { twoSlashInclude } from 'remarkPlugins/twoSlashInclude'
@@ -170,7 +170,7 @@ const markdownOptions: MdxOptions = {
     // remarkImgToJsx // @MIGRATE TODO: do i need this?
   ],
   rehypePlugins: [
-    [rehypeRaw, { passThrough: nodeTypes }],
+    // [rehypeRaw, { passThrough: nodeTypes }],
     [
       rehypeShiki,
       {

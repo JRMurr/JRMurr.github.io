@@ -1,6 +1,6 @@
 'use client'
 
-import { Comments as CommentsComponent } from 'pliny/comments/index.js'
+// import { Comments as CommentsComponent } from 'pliny/comments/index.js'
 import { useState } from 'react'
 import siteMetadata from '@/content/siteMetadata'
 

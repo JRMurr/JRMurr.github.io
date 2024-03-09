@@ -3,7 +3,7 @@
 
 import { usePathname } from 'next/navigation'
 import { slug } from 'github-slugger'
-import { formatDate } from 'pliny/utils/formatDate.js'
+import { formatDate } from '@/utils/formatDate'
 import { CoreContent } from '@/utils/velite'
 import type { Blog } from '@/velite/generated'
 import Link from '@/components/mdxComponents/Link'
