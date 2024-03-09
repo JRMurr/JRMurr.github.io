@@ -19,7 +19,7 @@
     "github-slugger": "2.0.0",
     "gray-matter": "4.0.3",
     "image-size": "1.0.0",
-    "kbar": "0.1.0-beta.45",
+    "kbar": "github:iFreilicht/kbar#c9c1087",
     "next": "14.1.0",
     "next-themes": "0.2.1",
     "postcss": "8.4.35",
