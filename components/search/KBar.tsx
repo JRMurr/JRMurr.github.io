@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect, FC, ReactNode } from 'react'
-import type { Action } from 'kbar/src' // @MIGRATE TODO: might need to drop src when switching to real dep
-import { KBarProvider } from 'kbar/src' // @MIGRATE TODO: might need to drop src when switching to real dep
+import type { Action } from 'kbar'
+import { KBarProvider } from 'kbar'
 import { useRouter } from 'next/navigation.js'
 import { KBarModal } from './KBarModal'
 import { CoreContent } from '@/utils/velite'
@@ -30,8 +30,7 @@ export interface KBarConfig {
  *
  * To toggle the modal or search from child components, use the search context:
  * ```
- * import { useKBar } from 'kbar/src' // @MIGRATE TODO: might need to drop src when switching to real dep
- * const { query } = useKBar()
+ * import { useKBar } from 'kbar'  * const { query } = useKBar()
  * ```
  * See https://github.com/timc1/kbar/blob/main/src/types.ts#L98-L106 for typings.
  *
