@@ -19,7 +19,7 @@ import siteMetadata from './content/siteMetadata'
 // import { Parent, visit } from 'unist-util-visit/lib'
 
 // import remarkShikiTwoslash from 'remark-shiki-twoslash'
-import rehypeShiki from '@shikijs/rehype'
+import rehypeShiki, { RehypeShikiOptions } from '@shikijs/rehype'
 // import rehypeRaw from 'rehype-raw'
 // import { nodeTypes } from '@mdx-js/mdx'
 import { transformerTwoslash } from '@shikijs/twoslash'
@@ -158,6 +158,23 @@ const shikiErrorHandler = (err, code, lang) => {
   throw err
 }
 
+const rekypeShikiOptions: RehypeShikiOptions = {
+  themes: {
+    light: 'github-light',
+    dark: 'ayu-dark',
+  },
+  onError: (err) => {
+    console.log('err', err)
+  },
+  transformers: [
+    transformerTwoslash({
+      explicitTrigger: true,
+      onTwoslashError: twoSlashErrHandler,
+      // onShikiError: shikiErrorHandler,
+    }),
+  ],
+}
+
 const markdownOptions: MdxOptions = {
   format: 'mdx',
   gfm: true,
@@ -171,22 +188,7 @@ const markdownOptions: MdxOptions = {
   ],
   rehypePlugins: [
     // [rehypeRaw, { passThrough: nodeTypes }],
-    [
-      rehypeShiki,
-      {
-        theme: 'dracula',
-        onError: (err) => {
-          console.log('err', err)
-        },
-        transformers: [
-          transformerTwoslash({
-            explicitTrigger: true,
-            onTwoslashError: twoSlashErrHandler,
-            // onShikiError: shikiErrorHandler,
-          }),
-        ],
-      },
-    ],
+    [rehypeShiki, rekypeShikiOptions],
     rehypeSlug,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rehypeAutolinkHeadings as any,

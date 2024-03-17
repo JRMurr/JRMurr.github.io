@@ -1,7 +1,15 @@
 'use client'
-import { useState, useRef, ReactNode } from 'react'
+import { useState, useRef, ReactNode, CSSProperties } from 'react'
 
-const Pre = ({ children, className }: { children: ReactNode; className: string }) => {
+const Pre = ({
+  children,
+  className,
+  style,
+}: {
+  children: ReactNode
+  className: string
+  style: CSSProperties
+}) => {
   const textInput = useRef(null)
   const [hovered, setHovered] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -64,7 +72,9 @@ const Pre = ({ children, className }: { children: ReactNode; className: string }
         </button>
       )}
 
-      <pre className={className}>{children}</pre>
+      <pre className={className} style={style}>
+        {children}
+      </pre>
     </div>
   )
 }

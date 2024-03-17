@@ -1,7 +1,7 @@
 ---
-title: Type Safe GroupBy In TypeScript
-slug: type-safe-groupby-in-typescript
-date: '2022-05-25'
+title: test
+slug: test
+date: '2024-03-17'
 tags: ['typescript', 'types', 'code', 'guide']
 draft: false
 summary: Create a better groupBy function that only allows valid keys to be grouped on
@@ -26,6 +26,9 @@ export const vals: Foo[] = [
 ];
 ```
 
+test123
+
+
 ```ts twoslash
 // @include: main
 // ---cut---
@@ -47,4 +50,10 @@ console.dir(_.groupBy(vals, 'someLiteral'));
   b: [ { num: 1, someLiteral: 'b', object: {} } ]
 }
 */
+```
+
+
+```nix
+let foo = 1; in
+foo + 2
 ```
