@@ -238,7 +238,7 @@ type MyRecord<KeyType extends string, ValueType> = {
 };
 const myRecord: MyRecord<'foo' | 'bar', number | string> = { foo: 10, bar: 'string' };
 
-// --cut--
+// ---cut---
 type myPick<Type, Keys extends keyof Type> = {
   [key in Keys]: Type[key];
 };
