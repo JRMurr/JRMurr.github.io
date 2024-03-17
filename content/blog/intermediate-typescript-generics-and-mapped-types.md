@@ -6,7 +6,7 @@ tags: ['Typescript', 'code', 'types', 'guide']
 draft: false
 summary: Useful applications of generics and mapped types
 images: []
-layout: PostLayout
+layout: PostSimple
 ---
 
 <TOCInline toc={props.toc} asDisclosure />

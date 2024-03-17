@@ -7,7 +7,7 @@ tags: ['rust', 'database', 'parsing']
 draft: false
 summary: building a basic database in rust
 images: []
-layout: PostLayout
+layout: PostSimple
 ---
 
 <TOCInline toc={props.toc} asDisclosure />

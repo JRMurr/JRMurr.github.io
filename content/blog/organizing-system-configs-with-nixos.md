@@ -6,7 +6,7 @@ tags: ['NixOS', 'nix', 'guide', 'dotfiles']
 draft: false
 summary: How I organize and manage my system and user configs with NixOS and homemanager
 images: []
-layout: PostLayout
+layout: PostSimple
 ---
 
 <TOCInline toc={props.toc} asDisclosure />

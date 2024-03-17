@@ -12,7 +12,7 @@ summary: Using nix's new file set API to make efficient derivations
 
 images: []
 
-layout: PostLayout
+layout: PostSimple
 ---
 
 <TOCInline toc={props.toc} asDisclosure />

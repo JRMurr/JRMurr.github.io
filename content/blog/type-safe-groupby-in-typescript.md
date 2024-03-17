@@ -6,7 +6,7 @@ tags: ['typescript', 'types', 'code', 'guide']
 draft: false
 summary: Create a better groupBy function that only allows valid keys to be grouped on
 images: []
-layout: PostLayout
+layout: PostSimple
 ---
 test123
 <TOCInline toc={props.toc} asDisclosure />

@@ -6,7 +6,7 @@ tags: ['Typescript', 'code', 'types', 'guide']
 draft: false
 summary: Typescript patterns I have found to make your life easier in a big codebase
 images: []
-layout: PostLayout
+layout: PostSimple
 ---
 
 <TOCInline toc={props.toc} asDisclosure />

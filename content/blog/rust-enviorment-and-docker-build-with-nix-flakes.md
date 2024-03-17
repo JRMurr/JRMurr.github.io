@@ -6,7 +6,7 @@ tags: ['rust', 'nix', 'docker']
 draft: false
 summary: Reproducible dev environments and builds with Nix
 images: []
-layout: PostLayout
+layout: PostSimple
 ---
 
 <TOCInline toc={props.toc} asDisclosure />

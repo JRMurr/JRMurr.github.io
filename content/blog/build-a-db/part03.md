@@ -7,7 +7,7 @@ tags: ['rust', 'database', 'repl']
 draft: false
 summary: Cleaning up existing execution logic
 images: []
-layout: PostLayout
+layout: PostSimple
 ---
 
 <TOCInline toc={props.toc} asDisclosure />

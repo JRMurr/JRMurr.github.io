@@ -6,7 +6,7 @@ tags: ['nix', 'typescript', 'node']
 draft: false
 summary: Trying some different nix builders for typescript node apps
 images: []
-layout: PostLayout
+layout: PostSimple
 ---
 
 <TOCInline toc={props.toc} asDisclosure />

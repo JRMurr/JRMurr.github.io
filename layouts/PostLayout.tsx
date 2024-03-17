@@ -11,6 +11,7 @@ import siteMetadata from '@/content/siteMetadata'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 import { SeriesInfo } from 'app/blog/[...slug]/page'
 import Series from '@/components/Series'
+import Discuss from '@/components/Discuss'
 
 const editUrl = (path) => `${siteMetadata.siteRepo}/blob/main/content/${path}.md`
 const discussUrl = (path) =>
@@ -40,8 +41,8 @@ export default function PostLayout({
   series,
   children,
 }: LayoutProps) {
-  const { /*filePath, */ path, slug, date, title, tags } = content // @MIGRATE TODO: real file path?
-  // const basePath = path.split('/')[0]
+  const { path, slug, date, title, tags } = content // @MIGRATE TODO: real file path?
+  const basePath = path.split('/')[0]
 
   return (
     <SectionContainer>
@@ -66,7 +67,7 @@ export default function PostLayout({
             </div>
           </header>
           <div className="grid-rows-[auto_1fr] divide-y divide-gray-200 pb-8 dark:divide-gray-700 xl:grid xl:grid-cols-4 xl:gap-x-6 xl:divide-y-0">
-            {/* <dl className="pb-10 pt-6 xl:border-b xl:border-gray-200 xl:pt-11 xl:dark:border-gray-700">
+            <dl className="pb-10 pt-6 xl:border-b xl:border-gray-200 xl:pt-11 xl:dark:border-gray-700">
               <dt className="sr-only">Authors</dt>
               <dd>
                 <ul className="flex flex-wrap justify-center gap-4 sm:space-x-12 xl:block xl:space-x-0 xl:space-y-8">
@@ -100,29 +101,15 @@ export default function PostLayout({
                   ))}
                 </ul>
               </dd>
-            </dl> */}
-            <div className="divide-y divide-gray-200 dark:divide-gray-700 xl:col-span-4 xl:row-span-2 xl:pb-0">
+            </dl>
+            <div className="divide-y divide-gray-200 dark:divide-gray-700 xl:col-span-3 xl:row-span-2 xl:pb-0">
               <div className="prose max-w-none pb-8 pt-10 dark:prose-invert">
                 <Series series={series} currSlug={slug} />
                 {children}
               </div>
-              <div className="pb-6 pt-6 text-sm text-gray-700 dark:text-gray-300">
-                <Link href={discussUrl(path)} rel="nofollow">
-                  Discuss on Twitter
-                </Link>
-                {` • `}
-                <Link href={editUrl(path)}>View on GitHub</Link>
-              </div>
-              {siteMetadata.comments && (
-                <div
-                  className="pb-6 pt-6 text-center text-gray-700 dark:text-gray-300"
-                  id="comment"
-                >
-                  <Comments />
-                </div>
-              )}
+              <Discuss path={path} />
             </div>
-            {/* <footer>
+            <footer>
               <div className="divide-gray-200 text-sm font-medium leading-5 dark:divide-gray-700 xl:col-start-1 xl:row-start-2 xl:divide-y">
                 {tags && (
                   <div className="py-4 xl:py-8">
@@ -170,7 +157,7 @@ export default function PostLayout({
                   &larr; Back to the blog
                 </Link>
               </div>
-            </footer> */}
+            </footer>
           </div>
         </div>
       </article>

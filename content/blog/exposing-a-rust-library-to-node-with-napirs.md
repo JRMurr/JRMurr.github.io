@@ -6,7 +6,7 @@ tags: ['rust', 'node', 'typescript']
 draft: false
 summary: Short guide/exploration on making native node addons with rust
 images: []
-layout: PostLayout
+layout: PostSimple
 ---
 
 <TOCInline toc={props.toc} asDisclosure />

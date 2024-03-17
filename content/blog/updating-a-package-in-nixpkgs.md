@@ -6,7 +6,7 @@ tags: ['nix', 'rust']
 draft: false
 summary: My rough ramblings on how to contribute a small pr to Nixpkgs
 images: []
-layout: PostLayout
+layout: PostSimple
 ---
 
 # Why
