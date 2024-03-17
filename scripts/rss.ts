@@ -1,11 +1,11 @@
 import { writeFileSync, mkdirSync } from 'fs'
 import path from 'path'
 import { slug } from 'github-slugger'
-import { escape } from 'pliny/utils/htmlEscaper.js'
 import siteMetadata from '../content/siteMetadata.js'
 import tagData from '../app/tag-data.json' assert { type: 'json' }
 import { blogs } from '../.velite/index.js'
 import { sortPosts } from '../utils/velite.js'
+import { escape } from '../utils/htmlEscaper.js'
 
 const generateRssItem = (config, post) => `
   <item>

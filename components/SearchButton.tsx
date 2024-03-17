@@ -3,10 +3,7 @@ import siteMetadata from '@/content/siteMetadata'
 import { KBarButton } from './search'
 
 const SearchButton = () => {
-  if (
-    siteMetadata.search &&
-    (siteMetadata.search.provider === 'algolia' || siteMetadata.search.provider === 'kbar')
-  ) {
+  if (siteMetadata.search && siteMetadata.search.provider === 'kbar') {
     // const SearchButtonWrapper =
     //   siteMetadata.search.provider === 'algolia' ? AlgoliaButton : KBarButton
 
