@@ -99,6 +99,15 @@ export const blogs = defineCollection({
     }),
 })
 
+const seriesDescriptions = defineCollection({
+  name: 'SeriesDescriptions',
+  pattern: 'blog/**/info.yml',
+  schema: s.object({
+    title: s.string().max(99),
+    slug: s.slug('series'),
+  }),
+})
+
 const authors = defineCollection({
   name: 'Author',
   pattern: 'authors/**/*.md', // @MIGRATE TODO: mdx too?\
@@ -205,6 +214,7 @@ const config = defineConfig({
   collections: {
     blogs,
     authors,
+    seriesDescriptions,
   },
   // markdown: markdownOptions,
   mdx: markdownOptions,

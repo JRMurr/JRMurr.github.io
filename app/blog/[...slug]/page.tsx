@@ -3,11 +3,10 @@ import '@/css/code-title.css'
 import 'katex/dist/katex.css'
 import '@shikijs/twoslash/style-rich.css'
 
-import PageTitle from '@/components/PageTitle'
 import { components } from '@/components/mdxComponents'
 import { sortPosts, coreContent, allCoreContent, findAuthor } from '@/utils/velite'
-import { blogs, authors } from '@/velite/generated'
-import type { Author, Blog } from '@/velite/generated'
+import { blogs, authors, seriesDescriptions } from '@/velite/generated'
+import type { Blog } from '@/velite/generated'
 import PostSimple from '@/layouts/PostSimple'
 import PostLayout from '@/layouts/PostLayout'
 import PostBanner from '@/layouts/PostBanner'
@@ -93,8 +92,30 @@ export const generateStaticParams = async () => {
   return paths
 }
 
+function getSeriesInfo(slug: string[]): SeriesInfo | null {
+  if (slug.length <= 1) {
+    return null
+  }
+
+  const seriesSlug = slug[0]
+
+  const seriesInfo = seriesDescriptions.find((s) => s.slug === seriesSlug)
+
+  if (!seriesInfo) {
+    return null
+  }
+
+  const posts = blogs
+    .filter((post) => post.slug.startsWith(`${seriesSlug}/`))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) // sort ascending
+
+  return { title: seriesInfo.title, posts }
+}
+
 export default async function Page({ params }: { params: { slug: string[] } }) {
   const slug = decodeURI(params.slug.join('/'))
+  const series = getSeriesInfo(params.slug)
+
   // Filter out drafts in production
   const sortedCoreContents = allCoreContent(sortPosts(blogs))
   const postIndex = sortedCoreContents.findIndex((p) => p.slug === slug)
@@ -127,7 +148,13 @@ export default async function Page({ params }: { params: { slug: string[] } }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Layout content={mainContent} authorDetails={authorDetails} next={next} prev={prev}>
+      <Layout
+        content={mainContent}
+        authorDetails={authorDetails}
+        next={next}
+        prev={prev}
+        series={series}
+      >
         <MDXContent code={post.body} components={components} toc={post.toc} />
       </Layout>
     </>

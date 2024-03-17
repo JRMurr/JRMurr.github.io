@@ -9,6 +9,8 @@ import Image from '@/components/mdxComponents/Image'
 import Tag from '@/components/Tag'
 import siteMetadata from '@/content/siteMetadata'
 import ScrollTopAndComment from '@/components/ScrollTopAndComment'
+import { SeriesInfo } from 'app/blog/[...slug]/page'
+import Series from '@/components/Series'
 
 const editUrl = (path) => `${siteMetadata.siteRepo}/blob/main/content/${path}.md`
 const discussUrl = (path) =>
@@ -24,14 +26,22 @@ const postDateTemplate: Intl.DateTimeFormatOptions = {
 interface LayoutProps {
   content: CoreContent<Blog>
   authorDetails: CoreContent<Author>[]
+  series?: SeriesInfo
   next?: { path: string; title: string }
   prev?: { path: string; title: string }
   children: ReactNode
 }
 
-export default function PostLayout({ content, authorDetails, next, prev, children }: LayoutProps) {
+export default function PostLayout({
+  content,
+  authorDetails,
+  next,
+  prev,
+  series,
+  children,
+}: LayoutProps) {
   const { /*filePath, */ path, slug, date, title, tags } = content // @MIGRATE TODO: real file path?
-  const basePath = path.split('/')[0]
+  // const basePath = path.split('/')[0]
 
   return (
     <SectionContainer>
@@ -92,7 +102,10 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
               </dd>
             </dl> */}
             <div className="divide-y divide-gray-200 dark:divide-gray-700 xl:col-span-4 xl:row-span-2 xl:pb-0">
-              <div className="prose max-w-none pb-8 pt-10 dark:prose-invert">{children}</div>
+              <div className="prose max-w-none pb-8 pt-10 dark:prose-invert">
+                <Series series={series} currSlug={slug} />
+                {children}
+              </div>
               <div className="pb-6 pt-6 text-sm text-gray-700 dark:text-gray-300">
                 <Link href={discussUrl(path)} rel="nofollow">
                   Discuss on Twitter
