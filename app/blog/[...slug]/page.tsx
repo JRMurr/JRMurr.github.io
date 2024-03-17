@@ -23,6 +23,17 @@ const layouts = {
   PostBanner,
 }
 
+export interface SeriesInfo {
+  title: string
+  posts: Array<Blog>
+}
+
+interface SeriesMatter {
+  title: string
+  tags?: string[]
+  summary?: string
+}
+
 export async function generateMetadata({
   params,
 }: {

@@ -51,6 +51,7 @@ export const blogs = defineCollection({
   schema: s
     .object({
       title: s.string().max(99), // Zod primitive type
+      seriesTitle: s.string().optional(),
       date: s.isodate(), // input Date-like string, output ISO Date string.
       // slug: s.slug('blog'), // validate format, unique in blog collection
       summary: s.string(),
@@ -161,7 +162,8 @@ const shikiErrorHandler = (err, code, lang) => {
 const rekypeShikiOptions: RehypeShikiOptions = {
   themes: {
     light: 'github-light',
-    dark: 'ayu-dark',
+    // dark: 'ayu-dark',
+    dark: 'dracula',
   },
   onError: (err) => {
     console.log('err', err)
