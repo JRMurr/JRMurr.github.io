@@ -1,7 +1,7 @@
 'use client'
 
 import { DetailedHTMLProps, HTMLAttributes } from 'react'
-import { useKBar } from 'kbar'
+import { useKBar } from 'kbar/src' // @MIGRATE TODO: might need to drop src when switching to real dep
 
 /**
  * Button wrapper component that triggers the KBar modal on click.

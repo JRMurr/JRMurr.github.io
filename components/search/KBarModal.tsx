@@ -9,7 +9,7 @@ import {
   useMatches,
   Action,
   useRegisterActions,
-} from 'kbar'
+} from 'kbar/src' // @MIGRATE TODO: might need to drop src when switching to real dep
 
 export const KBarModal = ({ actions, isLoading }: { actions: Action[]; isLoading: boolean }) => {
   useRegisterActions(actions, [actions])

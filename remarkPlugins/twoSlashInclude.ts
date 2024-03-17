@@ -1,4 +1,4 @@
-import { Node, Parent } from 'unist-util-visit/lib'
+import { Parent } from 'unist-util-visit/lib/index.js'
 import flatMap from 'unist-util-flatmap'
 
 // @MIGRATE TODO: type visitor better
