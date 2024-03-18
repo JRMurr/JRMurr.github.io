@@ -171,8 +171,9 @@ const shikiErrorHandler = (err, code, lang) => {
 const rekypeShikiOptions: RehypeShikiOptions = {
   themes: {
     light: 'github-light',
-    // dark: 'ayu-dark',
-    dark: 'dracula',
+    // would like to use dracula but it adds too many italics,
+    // not super easy to change that without forking or doing weird stuff
+    dark: 'github-dark',
   },
   onError: (err) => {
     console.log('err', err)
