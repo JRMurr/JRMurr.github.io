@@ -8,7 +8,7 @@ summary: Create a better groupBy function that only allows valid keys to be grou
 images: []
 layout: PostSimple
 ---
-test123
+
 <TOCInline toc={props.toc} asDisclosure />
 
 ## Lodash's groupBy
