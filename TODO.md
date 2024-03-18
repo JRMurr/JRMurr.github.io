@@ -1,3 +1,2 @@
-[] - code light theme background is the same as actual background. Change either..
 [] - code block file name is always dark. Update remark css file
 [] - nix build would be sweet....

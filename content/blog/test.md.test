@@ -3,57 +3,14 @@ title: test
 slug: test
 date: '2024-03-17'
 tags: ['typescript', 'types', 'code', 'guide']
-draft: false
+draft: true
 summary: Create a better groupBy function that only allows valid keys to be grouped on
 images: []
 layout: PostSimple
 ---
 
+words
 
-```twoslash export=main
-import _ from 'lodash';
-
-interface Foo {
-  num: number;
-  someLiteral: 'a' | 'b' | 'c';
-  object: Record<string, any>;
-}
-
-export const vals: Foo[] = [
-  { num: 1, someLiteral: 'a', object: { key: 'value' } },
-  { num: 2, someLiteral: 'a', object: { key: 'diffValue' } },
-  { num: 1, someLiteral: 'b', object: {} },
-];
-```
-
-test123
-
-
-```ts twoslash
-// @include: main
-// ---cut---
-
-console.dir(_.groupBy(vals, 'num'));
-/*
-{
-  '1': [ { num: 1, someLiteral: 'a' }, { num: 1, someLiteral: 'b' } ],
-  '2': [ { num: 2, someLiteral: 'a' } ]
-}
-*/
-console.dir(_.groupBy(vals, 'someLiteral'));
-/*
-{
-  a:[
-      { num: 1, someLiteral: 'a', object: [Object] },
-      { num: 2, someLiteral: 'a', object: [Object] }
-  ],
-  b: [ { num: 1, someLiteral: 'b', object: {} } ]
-}
-*/
-```
-
-
-```nix
-let foo = 1; in
-foo + 2
+```typescript
+const a = 123
 ```

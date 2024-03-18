@@ -47,7 +47,7 @@ const addDepthToNestedList = <T extends { items: T[] }>(item: T): T & { depth: n
 
 export const blogs = defineCollection({
   name: 'Blog',
-  pattern: 'blog/**/*.md', // @MIGRATE TODO: mdx too?\
+  pattern: 'blog/**/*.md',
   schema: s
     .object({
       title: s.string().max(99), // Zod primitive type
@@ -170,7 +170,7 @@ const shikiErrorHandler = (err, code, lang) => {
 
 const rekypeShikiOptions: RehypeShikiOptions = {
   themes: {
-    light: 'github-light',
+    light: 'rose-pine-dawn',
     // would like to use dracula but it adds too many italics,
     // not super easy to change that without forking or doing weird stuff
     dark: 'github-dark',
