@@ -13,8 +13,8 @@ export default function Footer() {
           <SocialIcon kind="youtube" href={siteMetadata.youtube} size={6} />
           <SocialIcon kind="linkedin" href={siteMetadata.linkedin} size={6} /> */}
           <SocialIcon kind="twitter" href={siteMetadata.twitter} size={6} />
-          {/* <SocialIcon kind="instagram" href={siteMetadata.instagram} size={6} />
-          <SocialIcon kind="threads" href={siteMetadata.threads} size={6} /> */}
+          <SocialIcon kind="mastodon" href={siteMetadata.mastodon} size={6} />
+          <SocialIcon kind="rss" href="/feed.xml" size={6} />
         </div>
         <div className="mb-2 flex space-x-2 text-sm text-gray-500 dark:text-gray-400">
           <div>{siteMetadata.author}</div>
