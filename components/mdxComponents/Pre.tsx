@@ -72,7 +72,7 @@ const Pre = ({
         </button>
       )}
 
-      <pre className={className} style={style}>
+      <pre className={`rounded-lg border ${className}`} style={style}>
         {children}
       </pre>
     </div>
