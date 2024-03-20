@@ -1,18 +1,34 @@
 { pkgs ? (import ./pinned_from_flake.nix { }).pkgs, nodejs ? pkgs."nodejs_20" }:
 let
+
+  src =
+    let
+      fs = pkgs.lib.fileset;
+      rootDir = ../.;
+      trackedfiles = fs.gitTracked rootDir;
+      excluded = fs.unions [ ../.vscode ./. ../README.md ../TODO.md ../.github ];
+
+      fileSet = fs.difference trackedfiles excluded;
+    in
+    fs.toSource {
+      root = rootDir;
+      fileset = fileSet;
+    };
+
   node2nixOut = import ./node { inherit pkgs nodejs; };
 
   nodeDependencies = node2nixOut.nodeDependencies;
 
   blogBuild = pkgs.stdenv.mkDerivation {
     name = "blog-build";
-    src = ./.; # TODO: get real src with filesets
+    src = src;
     buildInputs = [ nodejs ];
     buildPhase = ''
-      ln -s ${nodeDependencies}/lib/node_modules ./node_modules
+      cp --no-preserve=mode -r ${nodeDependencies}/lib/node_modules ./node_modules
       export PATH="${nodeDependencies}/bin:$PATH"
+      npm run velite
+      IN_NIX=true npm run build
 
-      npm run build
 
       mkdir -p $out
       cp -r out $out/

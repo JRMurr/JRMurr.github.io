@@ -91,7 +91,12 @@ module.exports = () => {
         test: /\.svg$/,
         use: ['@svgr/webpack'],
       })
-      config.plugins.push(new VeliteWebpackPlugin())
+
+      if (process.env.IN_NIX) {
+        console.log('skipping velite for nix')
+      } else {
+        config.plugins.push(new VeliteWebpackPlugin())
+      }
 
       return config
     },

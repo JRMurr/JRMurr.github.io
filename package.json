@@ -1,5 +1,5 @@
 {
-  "name": "tailwind-nextjs-starter-blog",
+  "name": "johns-codes",
   "version": "2.1.0",
   "private": true,
   "scripts": {
@@ -8,6 +8,7 @@
     "build": "cross-env INIT_CWD=$PWD next build && cross-env NODE_OPTIONS='--experimental-json-modules' npx tsx ./scripts/postbuild.ts",
     "serve": "next start",
     "analyze": "cross-env ANALYZE=true next build",
+    "velite": "npx velite",
     "lint": "next lint --fix --dir pages --dir app --dir components --dir lib --dir layouts --dir scripts"
   },
   "dependencies": {

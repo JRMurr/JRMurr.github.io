@@ -8900,8 +8900,8 @@ let
     };
   };
   args = {
-    name = "tailwind-nextjs-starter-blog";
-    packageName = "tailwind-nextjs-starter-blog";
+    name = "johns-codes";
+    packageName = "johns-codes";
     version = "2.1.0";
     src = ../..;
     dependencies = [
