@@ -11,6 +11,19 @@ layout: PostSimple
 
 words
 
+```
+Some stuff
+
+const a = 1
+
+
+extra cool
+    stuff
+```
+
+
+
+
 ```typescript
-const a = 123
+const a = 2
 ```

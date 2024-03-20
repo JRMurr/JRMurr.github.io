@@ -23,10 +23,9 @@ import rehypeShiki, { RehypeShikiOptions } from '@shikijs/rehype'
 // import rehypeRaw from 'rehype-raw'
 // import { nodeTypes } from '@mdx-js/mdx'
 import { transformerTwoslash } from '@shikijs/twoslash'
-import { remarkCodeTitles } from 'remarkPlugins/remarkCodeTitles'
-import { twoSlashInclude } from 'remarkPlugins/twoSlashInclude'
 import { allCoreContent, sortPosts } from './utils/velite'
 import { slug } from 'github-slugger'
+import { remarkCodeTitles, remarkDefaultCodeLang, twoSlashInclude } from 'remarkPlugins'
 
 // https://github.com/zce/velite/tree/main/examples/nextjs
 
@@ -182,7 +181,7 @@ const rekypeShikiOptions: RehypeShikiOptions = {
     transformerTwoslash({
       explicitTrigger: true,
       onTwoslashError: twoSlashErrHandler,
-      // onShikiError: shikiErrorHandler,
+      onShikiError: shikiErrorHandler,
     }),
   ],
 }
@@ -194,6 +193,7 @@ const markdownOptions: MdxOptions = {
   remarkPlugins: [
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [remarkMath as any, { singleDollarTextMath: true }],
+    remarkDefaultCodeLang,
     twoSlashInclude,
     remarkCodeTitles,
     // remarkImgToJsx // @MIGRATE TODO: do i need this?
