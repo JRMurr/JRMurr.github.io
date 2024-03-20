@@ -2,6 +2,23 @@
 let
   node2nixOut = import ./node { inherit pkgs nodejs; };
 
+  nodeDependencies = node2nixOut.nodeDependencies;
+
+  blogBuild = pkgs.stdenv.mkDerivation {
+    name = "blog-build";
+    src = ./.; # TODO: get real src with filesets
+    buildInputs = [ nodejs ];
+    buildPhase = ''
+      ln -s ${nodeDependencies}/lib/node_modules ./node_modules
+      export PATH="${nodeDependencies}/bin:$PATH"
+
+      npm run build
+
+      mkdir -p $out
+      cp -r out $out/
+    '';
+  };
+
   # rootDir = builtins.toString ../.;
 
 
@@ -14,4 +31,4 @@ let
   #     --output ${rootDir}/nix/node/package.nix
   # '';
 in
-{ inherit node2nixOut; }
+{ inherit node2nixOut nodeDependencies blogBuild; }
