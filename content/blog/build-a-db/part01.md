@@ -86,7 +86,7 @@ This will tell cargo we are using workspaces. Once we start making crates I will
 While we could go right to execution or parsing and just develop with unit tests, I like having some form of interactivity as soon as possible.
 The unit test approach would definitely make sense if this was a "real" project, for personal stuff I'm fine being a bit in the wild west to make life easier.
 
-So to get to interactivity let's make a REPL. We can make a new crate by going into the ` crates`` directory and running  `cargo new sql_jr_repl`. The [rustyline crate](https://github.com/kkawakam/rustyline) seems like it will cover the basics for a REPL, so we can add it with `cargo add rustyline`in the`sql_jr_repl` directory.
+So to get to interactivity let's make a REPL. We can make a new crate by going into the `crates` directory and running  `cargo new sql_jr_repl`. The [rustyline crate](https://github.com/kkawakam/rustyline) seems like it will cover the basics for a REPL, so we can add it with `cargo add rustyline`in the`sql_jr_repl` directory.
 
 We can copy the example with some small tweaks to get started
 
