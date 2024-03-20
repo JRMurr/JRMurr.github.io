@@ -169,7 +169,7 @@ const shikiErrorHandler = (err, code, lang) => {
 
 const rekypeShikiOptions: RehypeShikiOptions = {
   themes: {
-    light: 'rose-pine-dawn',
+    light: 'github-light',
     // would like to use dracula but it adds too many italics,
     // not super easy to change that without forking or doing weird stuff
     dark: 'github-dark',
