@@ -7062,15 +7062,6 @@ let
         sha512 = "hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==";
       };
     };
-    "reading-time-1.5.0" = {
-      name = "reading-time";
-      packageName = "reading-time";
-      version = "1.5.0";
-      src = fetchurl {
-        url = "https://registry.npmjs.org/reading-time/-/reading-time-1.5.0.tgz";
-        sha512 = "onYyVhBNr4CmAxFsKS7bz+uTLRakypIe4R+5A824vBSkQy/hB3fZepoVEf8OVAxzLvK+H/jm9TzpI3ETSm64Kg==";
-      };
-    };
     "reflect.getprototypeof-1.0.5" = {
       name = "reflect.getprototypeof";
       packageName = "reflect.getprototypeof";
@@ -9963,7 +9954,6 @@ let
       sources."read-cache-1.0.0"
       sources."readable-stream-3.6.2"
       sources."readdirp-3.6.0"
-      sources."reading-time-1.5.0"
       sources."reflect.getprototypeof-1.0.5"
       (sources."refractor-4.8.1" // {
         dependencies = [

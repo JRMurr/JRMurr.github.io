@@ -56,7 +56,7 @@ export const blogs = defineCollection({
       summary: s.string(),
       tags: s.array(s.string()).default([]),
       authors: s.array(s.string()).default(['default']),
-      layout: s.string().default('PostLayout'),
+      layout: s.string().default('PostSimple'),
       //   cover: s.image().optional(), // input image relpath, output image object with blurImage.
       //   video: s.file().optional(), // input file relpath, output file public path.
       metadata: s.metadata(), // extract markdown reading-time, word-count, etc.

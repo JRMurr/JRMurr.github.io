@@ -21,7 +21,7 @@ interface LayoutProps {
 }
 
 export default function PostLayout({ content, next, prev, series, children }: LayoutProps) {
-  const { path, slug, date, title } = content
+  const { path, slug, date, title, metadata } = content
 
   return (
     <SectionContainer>
@@ -35,6 +35,8 @@ export default function PostLayout({ content, next, prev, series, children }: La
                   <dt className="sr-only">Published on</dt>
                   <dd className="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
                     <time dateTime={date}>{formatDate(date, siteMetadata.locale)}</time>
+                    <span className="mx-2">-</span>
+                    <span className="ml-1">{metadata.readingTime} min read</span>
                   </dd>
                 </div>
               </dl>
