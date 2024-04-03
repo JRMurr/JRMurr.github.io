@@ -8,7 +8,7 @@ const siteMetadata = {
   siteUrl: 'https://johns.codes',
   siteRepo: 'https://github.com/JRMurr/JRMurr.github.io',
   siteLogo: '/static/images/logo.png',
-  socialBanner: '/static/images/twitter-card.png',
+  // socialBanner: '/static/images/twitter-card.png', // TODO: would be cool to have one...
   mastodon: 'https://hachyderm.io/@jrmurr',
   email: '',
   github: 'https://github.com/JRMurr',

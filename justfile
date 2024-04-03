@@ -12,3 +12,6 @@ new:
 
 run:
   npm run dev
+
+pub-date:
+  npx tsx -e 'export {}; const now = new Date(); console.log(now.toISOString())'
