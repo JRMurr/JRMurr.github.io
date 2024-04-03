@@ -1,1 +1,0 @@
-{"pageProps":{"posts":[{"title":"Efficient Nix Derivations with File Sets","date":"2023-12-02T21:22:44.113Z","tags":["nix","nix-pkgs","roc"],"draft":false,"summary":"Using nix's new file set API to make efficient derivations","images":[],"layout":"PostLayout","slug":"efficient-nix-derivations-with-file-sets"}],"tag":"roc"},"__N_SSG":true}

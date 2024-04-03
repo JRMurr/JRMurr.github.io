@@ -1,0 +1,5 @@
+User-Agent: *
+Allow: /
+
+Host: https://johns.codes
+Sitemap: https://johns.codes/sitemap.xml

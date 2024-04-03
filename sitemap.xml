@@ -1,110 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://johns.codes/blog/intermediate-typescript</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/blog/building-typescript-node-apps-with-nix</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/blog/efficient-nix-derivations-with-file-sets</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/blog/exposing-a-rust-library-to-node-with-napirs</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/blog/intermediate-typescript-generics-and-mapped-types</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/blog/organizing-system-configs-with-nixos</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/blog/rust-enviorment-and-docker-build-with-nix-flakes</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/blog/type-safe-groupby-in-typescript</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/blog/updating-a-package-in-nixpkgs</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/blog/build-a-db/part01</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/blog/build-a-db/part02</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/blog/build-a-db/part03</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/code</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/database</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/docker</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/dotfiles</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/guide</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/nix</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/nix-pkgs</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/nixos</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/node</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/parsing</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/repl</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/roc</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/rust</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/types</loc>
-  </url>
-
-  <url>
-    <loc>https://johns.codes/tags/typescript</loc>
-  </url>
+<url>
+<loc>https://johns.codes/</loc>
+<lastmod>2024-04-03</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/blog</loc>
+<lastmod>2024-04-03</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/projects</loc>
+<lastmod>2024-04-03</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/tags</loc>
+<lastmod>2024-04-03</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/blog/building-typescript-node-apps-with-nix</loc>
+<lastmod>2022-09-06T23:57:55.477Z</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/blog/efficient-nix-derivations-with-file-sets</loc>
+<lastmod>2023-12-02T21:22:44.113Z</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/blog/exposing-a-rust-library-to-node-with-napirs</loc>
+<lastmod>2023-05-01T17:21:59.515Z</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/blog/intermediate-typescript-generics-and-mapped-types</loc>
+<lastmod>2022-01-31T00:00:00.000Z</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/blog/intermediate-typescript</loc>
+<lastmod>2022-01-25T00:00:00.000Z</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/blog/organizing-system-configs-with-nixos</loc>
+<lastmod>2023-10-09T07:14:19.315Z</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/blog/rust-enviorment-and-docker-build-with-nix-flakes</loc>
+<lastmod>2022-05-19T00:00:00.000Z</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/blog/type-safe-groupby-in-typescript</loc>
+<lastmod>2022-05-25T00:00:00.000Z</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/blog/updating-a-package-in-nixpkgs</loc>
+<lastmod>2022-08-02T03:43:05.229Z</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/blog/build-a-db/part01</loc>
+<lastmod>2023-01-02T05:19:22.985Z</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/blog/build-a-db/part02</loc>
+<lastmod>2023-01-23T14:01:22.231Z</lastmod>
+</url>
+<url>
+<loc>https://johns.codes/blog/build-a-db/part03</loc>
+<lastmod>2023-04-04T00:01:55.249Z</lastmod>
+</url>
 </urlset>
