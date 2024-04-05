@@ -1,0 +1,24 @@
+
+  <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+      <title>John&#39;s Codes</title>
+      <link>https://johns.codes/blog</link>
+      <description>My ramblings on programming</description>
+      <language>en-us</language>
+      <managingEditor> (John Murray)</managingEditor>
+      <webMaster> (John Murray)</webMaster>
+      <lastBuildDate>Sat, 02 Dec 2023 21:22:44 GMT</lastBuildDate>
+      <atom:link href="https://johns.codes/tags/roc/feed.xml" rel="self" type="application/rss+xml"/>
+      
+  <item>
+    <guid>https://johns.codes/blog/efficient-nix-derivations-with-file-sets</guid>
+    <title>Efficient Nix Derivations with File Sets</title>
+    <link>https://johns.codes/blog/efficient-nix-derivations-with-file-sets</link>
+    <description>Using nix&#39;s new file set API to make efficient derivations</description>
+    <pubDate>Sat, 02 Dec 2023 21:22:44 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>nix</category><category>nix-pkgs</category><category>roc</category>
+  </item>
+
+    </channel>
+  </rss>

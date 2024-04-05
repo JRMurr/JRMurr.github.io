@@ -1,0 +1,74 @@
+
+  <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+      <title>John&#39;s Codes</title>
+      <link>https://johns.codes/blog</link>
+      <description>My ramblings on programming</description>
+      <language>en-us</language>
+      <managingEditor> (John Murray)</managingEditor>
+      <webMaster> (John Murray)</webMaster>
+      <lastBuildDate>Mon, 01 May 2023 17:21:59 GMT</lastBuildDate>
+      <atom:link href="https://johns.codes/tags/rust/feed.xml" rel="self" type="application/rss+xml"/>
+      
+  <item>
+    <guid>https://johns.codes/blog/exposing-a-rust-library-to-node-with-napirs</guid>
+    <title>Exposing a Rust Library to Node with Napi-rs</title>
+    <link>https://johns.codes/blog/exposing-a-rust-library-to-node-with-napirs</link>
+    <description>Short guide/exploration on making native node addons with rust</description>
+    <pubDate>Mon, 01 May 2023 17:21:59 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>rust</category><category>node</category><category>typescript</category>
+  </item>
+
+  <item>
+    <guid>https://johns.codes/blog/rust-enviorment-and-docker-build-with-nix-flakes</guid>
+    <title>Rust Environment and Docker Build with Nix Flakes</title>
+    <link>https://johns.codes/blog/rust-enviorment-and-docker-build-with-nix-flakes</link>
+    <description>Reproducible dev environments and builds with Nix</description>
+    <pubDate>Thu, 19 May 2022 00:00:00 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>rust</category><category>nix</category><category>docker</category>
+  </item>
+
+  <item>
+    <guid>https://johns.codes/blog/updating-a-package-in-nixpkgs</guid>
+    <title>Making a PR to Nixpkgs</title>
+    <link>https://johns.codes/blog/updating-a-package-in-nixpkgs</link>
+    <description>My rough ramblings on how to contribute a small pr to Nixpkgs</description>
+    <pubDate>Tue, 02 Aug 2022 03:43:05 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>nix</category><category>rust</category>
+  </item>
+
+  <item>
+    <guid>https://johns.codes/blog/build-a-db/part01</guid>
+    <title>Building a Simple DB in Rust - Part 1 - Parsing</title>
+    <link>https://johns.codes/blog/build-a-db/part01</link>
+    <description>building a basic database in rust</description>
+    <pubDate>Mon, 02 Jan 2023 05:19:22 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>rust</category><category>database</category><category>parsing</category>
+  </item>
+
+  <item>
+    <guid>https://johns.codes/blog/build-a-db/part02</guid>
+    <title>Building a Simple DB in Rust - Part 2 - Basic Execution</title>
+    <link>https://johns.codes/blog/build-a-db/part02</link>
+    <description>Building a basic database in rust</description>
+    <pubDate>Mon, 23 Jan 2023 14:01:22 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>rust</category><category>database</category>
+  </item>
+
+  <item>
+    <guid>https://johns.codes/blog/build-a-db/part03</guid>
+    <title>Building a Simple DB in Rust - Part 3 - Less Basic Execution</title>
+    <link>https://johns.codes/blog/build-a-db/part03</link>
+    <description>Cleaning up existing execution logic</description>
+    <pubDate>Tue, 04 Apr 2023 00:01:55 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>rust</category><category>database</category><category>repl</category>
+  </item>
+
+    </channel>
+  </rss>

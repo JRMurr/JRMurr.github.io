@@ -1,0 +1,64 @@
+
+  <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+      <title>John&#39;s Codes</title>
+      <link>https://johns.codes/blog</link>
+      <description>My ramblings on programming</description>
+      <language>en-us</language>
+      <managingEditor> (John Murray)</managingEditor>
+      <webMaster> (John Murray)</webMaster>
+      <lastBuildDate>Tue, 06 Sep 2022 23:57:55 GMT</lastBuildDate>
+      <atom:link href="https://johns.codes/tags/nix/feed.xml" rel="self" type="application/rss+xml"/>
+      
+  <item>
+    <guid>https://johns.codes/blog/building-typescript-node-apps-with-nix</guid>
+    <title>Building Typescript Node Apps With Nix</title>
+    <link>https://johns.codes/blog/building-typescript-node-apps-with-nix</link>
+    <description>Trying some different nix builders for typescript node apps</description>
+    <pubDate>Tue, 06 Sep 2022 23:57:55 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>nix</category><category>typescript</category><category>node</category>
+  </item>
+
+  <item>
+    <guid>https://johns.codes/blog/efficient-nix-derivations-with-file-sets</guid>
+    <title>Efficient Nix Derivations with File Sets</title>
+    <link>https://johns.codes/blog/efficient-nix-derivations-with-file-sets</link>
+    <description>Using nix&#39;s new file set API to make efficient derivations</description>
+    <pubDate>Sat, 02 Dec 2023 21:22:44 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>nix</category><category>nix-pkgs</category><category>roc</category>
+  </item>
+
+  <item>
+    <guid>https://johns.codes/blog/organizing-system-configs-with-nixos</guid>
+    <title>Organizing system configs with NixOS</title>
+    <link>https://johns.codes/blog/organizing-system-configs-with-nixos</link>
+    <description>How I organize and manage my system and user configs with NixOS and homemanager</description>
+    <pubDate>Mon, 09 Oct 2023 07:14:19 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>NixOS</category><category>nix</category><category>guide</category><category>dotfiles</category>
+  </item>
+
+  <item>
+    <guid>https://johns.codes/blog/rust-enviorment-and-docker-build-with-nix-flakes</guid>
+    <title>Rust Environment and Docker Build with Nix Flakes</title>
+    <link>https://johns.codes/blog/rust-enviorment-and-docker-build-with-nix-flakes</link>
+    <description>Reproducible dev environments and builds with Nix</description>
+    <pubDate>Thu, 19 May 2022 00:00:00 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>rust</category><category>nix</category><category>docker</category>
+  </item>
+
+  <item>
+    <guid>https://johns.codes/blog/updating-a-package-in-nixpkgs</guid>
+    <title>Making a PR to Nixpkgs</title>
+    <link>https://johns.codes/blog/updating-a-package-in-nixpkgs</link>
+    <description>My rough ramblings on how to contribute a small pr to Nixpkgs</description>
+    <pubDate>Tue, 02 Aug 2022 03:43:05 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>nix</category><category>rust</category>
+  </item>
+
+    </channel>
+  </rss>

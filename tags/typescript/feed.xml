@@ -1,0 +1,64 @@
+
+  <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+      <title>John&#39;s Codes</title>
+      <link>https://johns.codes/blog</link>
+      <description>My ramblings on programming</description>
+      <language>en-us</language>
+      <managingEditor> (John Murray)</managingEditor>
+      <webMaster> (John Murray)</webMaster>
+      <lastBuildDate>Tue, 06 Sep 2022 23:57:55 GMT</lastBuildDate>
+      <atom:link href="https://johns.codes/tags/typescript/feed.xml" rel="self" type="application/rss+xml"/>
+      
+  <item>
+    <guid>https://johns.codes/blog/building-typescript-node-apps-with-nix</guid>
+    <title>Building Typescript Node Apps With Nix</title>
+    <link>https://johns.codes/blog/building-typescript-node-apps-with-nix</link>
+    <description>Trying some different nix builders for typescript node apps</description>
+    <pubDate>Tue, 06 Sep 2022 23:57:55 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>nix</category><category>typescript</category><category>node</category>
+  </item>
+
+  <item>
+    <guid>https://johns.codes/blog/exposing-a-rust-library-to-node-with-napirs</guid>
+    <title>Exposing a Rust Library to Node with Napi-rs</title>
+    <link>https://johns.codes/blog/exposing-a-rust-library-to-node-with-napirs</link>
+    <description>Short guide/exploration on making native node addons with rust</description>
+    <pubDate>Mon, 01 May 2023 17:21:59 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>rust</category><category>node</category><category>typescript</category>
+  </item>
+
+  <item>
+    <guid>https://johns.codes/blog/intermediate-typescript-generics-and-mapped-types</guid>
+    <title>Intermediate Typescript: Generics and Mapped Types</title>
+    <link>https://johns.codes/blog/intermediate-typescript-generics-and-mapped-types</link>
+    <description>Useful applications of generics and mapped types</description>
+    <pubDate>Mon, 31 Jan 2022 00:00:00 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>Typescript</category><category>code</category><category>types</category><category>guide</category>
+  </item>
+
+  <item>
+    <guid>https://johns.codes/blog/intermediate-typescript</guid>
+    <title>Intermediate Typescript: Literals and Unions</title>
+    <link>https://johns.codes/blog/intermediate-typescript</link>
+    <description>Typescript patterns I have found to make your life easier in a big codebase</description>
+    <pubDate>Tue, 25 Jan 2022 00:00:00 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>Typescript</category><category>code</category><category>types</category><category>guide</category>
+  </item>
+
+  <item>
+    <guid>https://johns.codes/blog/type-safe-groupby-in-typescript</guid>
+    <title>Type Safe GroupBy In TypeScript</title>
+    <link>https://johns.codes/blog/type-safe-groupby-in-typescript</link>
+    <description>Create a better groupBy function that only allows valid keys to be grouped on</description>
+    <pubDate>Wed, 25 May 2022 00:00:00 GMT</pubDate>
+    <author> (John Murray)</author>
+    <category>typescript</category><category>types</category><category>code</category><category>guide</category>
+  </item>
+
+    </channel>
+  </rss>
