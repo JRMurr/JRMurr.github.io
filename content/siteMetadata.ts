@@ -86,6 +86,7 @@ const siteMetadata = {
     //   indexName: 'docsearch',
     // },
   },
+  posts_per_page: 15,
 } as const
 
 export default siteMetadata

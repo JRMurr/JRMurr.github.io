@@ -2,8 +2,9 @@ import ListLayout from '@/layouts/ListLayoutWithTags'
 import { allCoreContent, sortPosts } from '@/utils/velite'
 import { blogs } from '@/velite/generated'
 import { genPageMetadata } from 'app/seo'
+import siteMetadata from '@/content/siteMetadata'
 
-const POSTS_PER_PAGE = 10
+const POSTS_PER_PAGE = siteMetadata.posts_per_page
 
 export const metadata = genPageMetadata({ title: 'Blog' })
 

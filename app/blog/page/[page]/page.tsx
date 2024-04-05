@@ -1,8 +1,9 @@
 import ListLayout from '@/layouts/ListLayoutWithTags'
 import { allCoreContent, sortPosts } from '@/utils/velite'
 import { blogs } from '@/velite/generated'
+import siteMetadata from '@/content/siteMetadata'
 
-const POSTS_PER_PAGE = 5
+const POSTS_PER_PAGE = siteMetadata.posts_per_page
 
 export const generateStaticParams = async () => {
   const totalPages = Math.ceil(blogs.length / POSTS_PER_PAGE)
