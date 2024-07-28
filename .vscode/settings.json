@@ -6,10 +6,12 @@
   "editor.formatOnSave": true,
   "cSpell.words": [
     "Beingessner",
+    "comptime",
     "globby",
     "GOATED",
     "miette",
     "Nextjs",
+    "raylib",
     "relpath",
     "serde",
     "Shiki",
