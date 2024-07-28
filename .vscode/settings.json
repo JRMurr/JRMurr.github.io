@@ -15,6 +15,7 @@
     "relpath",
     "serde",
     "Shiki",
+    "Stockfish",
     "Twoslash",
     "typeof",
     "vals"

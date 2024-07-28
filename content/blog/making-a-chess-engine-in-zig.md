@@ -23,6 +23,8 @@ So I decided to merge the two desires together and make my own engine in zig.
 This post will be part describing how a chess engine works and part my thoughts on using zig to make it.
 This won't really be a tutorial, more of a vibe, but hopefully you learn something!
 
+If your lazy and just wanna read some code it lives [here](https://github.com/JRMurr/ZigFish)
+I called it ZigFish since this will obviously match Stockfish in elo....
 
 # How Does a Chess Engine Work?
 
@@ -230,4 +232,16 @@ I can then make an array of that size, then use `@intFromEnum` to lookup the ind
 
 ## Move Generation
 
+Now that we have a board, we can start figuring out the moves.
+While each piece's movement rules are pretty simple to humans, there are SO MANY EDGE CASES.
 
+Things like
+- En Passant
+- Castling
+- Pinned Pieces (a piece who is blocking an attack on the king)
+
+Those situations on their own are not horrible, what really caused pain was combos of those situations like
+
+{/* TODO: compile the engine with raylib to work on web and put it here.... */}
+Like this position `4k3/8/8/KPp3r1/8/8/8/8 w - c6 0 2` // TODO: show
+The black C pawn could technically be captured En Passant but that would reval the rook attack on the king..
