@@ -164,6 +164,7 @@ So if I want to know where all the White Pawns are I can do a bitwise intersecti
 
 The other benefit is when you apply shifts/masks on the bitset, it will apply to all pieces at once.
 For example to figure out all possible squares knights can move to you can do this
+{/* TODO: call out adding numbers for directional shifts */}
 ```zig
 pub fn knightMoves(self: Self) Self {
     // https://www.chessprogramming.org/Knight_Pattern#Multiple_Knight_Attacks
@@ -245,3 +246,61 @@ Those situations on their own are not horrible, what really caused pain was comb
 {/* TODO: compile the engine with raylib to work on web and put it here.... */}
 Like this position `4k3/8/8/KPp3r1/8/8/8/8 w - c6 0 2` // TODO: show
 The black C pawn could technically be captured En Passant but that would reval the rook attack on the king..
+
+
+### Sliding Moves
+
+The sliding pieces can eat up a lot of time. The queen can "see" up to 27 squares if its at the center of the board.
+So if you have a "naive" algorithm that "walks" the 8 directions you can go that can eat up a lot of the move generation time.
+
+So this is where BitBoards can help a lot. I went with what the chess wiki calls the ["Classical Approach"](https://www.chessprogramming.org/Classical_Approach).
+
+At its core, I precompute the 8 rays on each square. A ray is all the potential squares a piece could slide to along a column, row, or diagonal in both directions.
+
+So for example here are some of the rays for the b4 square (stolen from the chess wiki, have i mentioned how dope it is yet...)
+```
+East (+1)           North (+8)           NorthEast (+9)      NorthWest (+7)
+. . . . . . . .     . . . 1 . . . .      . . . . . . . 1     . . . . . . . .
+. . . . . . . .     . . . 1 . . . .      . . . . . . 1 .     1 . . . . . . .
+. . . . . . . .     . . . 1 . . . .      . . . . . 1 . .     . 1 . . . . . .
+. . . . . . . .     . . . 1 . . . .      . . . . 1 . . .     . . 1 . . . . .
+. . . R 1 1 1 1     . . . R . . . .      . . . B . . . .     . . . B . . . .
+. . . . . . . .     . . . . . . . .      . . . . . . . .     . . . . . . . .
+. . . . . . . .     . . . . . . . .      . . . . . . . .     . . . . . . . .
+. . . . . . . .     . . . . . . . .      . . . . . . . .     . . . . . . . .
+```
+
+Now I can use the ray as a mask to see any potential blockers along the ray.
+
+So for example
+```
+occupied         &  NorthWest(g2)       {a8, c6}
+1 . 1 1 1 1 1 1     1 . . . . . . .     1 . . . . . . .
+1 . 1 1 1 1 1 1     . 1 . . . . . .     . . . . . . . .
+. 1 1 . . . . .     . . 1 . . . . .     . . 1 . . . . .
+. . . . . . . .     . . . 1 . . . .     . . . . . . . .
+. . . . . . . .  &  . . . . 1 . . .  =  . . . . . . . .
+. . . . . . 1 .     . . . . . 1 . .     . . . . . . . .
+1 1 1 1 1 1 B 1     . . . . . . . .     . . . . . . . .
+1 1 1 1 1 . 1 1     . . . . . . . .     . . . . . . . .
+```
+
+Once the ray mask is applied to the occupied board shown here only 2 squares remain (a8 and c6).
+{/* TODO: explain bit scan and positive/negative rays bit more */}
+Since this this ray is going in a positive direction on the board, if you find the first LSB set, that will get you the blocker of the ray.
+
+So in this case, we will find c6. So any square "behind" c6 will not be accessible for this piece. 
+We can use the same NorthWest ray on c6 and "subtract" its ray from the ray original ray we computed on g2
+
+```
+NorthWest(c6)   xor  NorthWest(g2)   =  final northWest Attacks
+1 . . . . . . .      1 . . . . . . .    . . . . . . . . 
+. 1 . . . . . .      . 1 . . . . . .    . . . . . . . . 
+. . . . . . . .      . . 1 . . . . .    . . 1 . . . . . 
+. . . . . . . .      . . . 1 . . . .    . . . 1 . . . . 
+. . . . . . . .      . . . . 1 . . .    . . . . 1 . . . 
+. . . . . . . .      . . . . . 1 . .    . . . . . 1 . . 
+. . . . . . . .      . . . . . . . .    . . . . . . . . 
+. . . . . . . .      . . . . . . . .    . . . . . . . . 
+```
+
