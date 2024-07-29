@@ -97,7 +97,7 @@ I chose the spaghetti route since I'm not smart enough yet to make it nice but i
 
 I'll leave out the tedium but overall the process of getting some chess pieces drawn on the board, and some logic to move them around was pretty straightforward.
 If your curious feel free to checkout my [spritemanager](https://github.com/JRMurr/ZigFish/blob/d061604cc2f634a19da4863724345a64b373652a/src/graphics/sprite.zig#L41).
-Raylib is super simple to use, the simple things are simple. Since chess is just draw some rectangles and a few sprites, it didn't take long to have the board display good to go.
+Raylib is super nice to use, the simple things are simple. Since chess is just draw some rectangles and a few sprites, it didn't take long to have the board display good to go.
 
 ## The logic
 
@@ -149,7 +149,7 @@ Optional types in zig are great! Its just like the `Option` type in rust but mor
 
 This array approach works and I used it for a while but has some downsides.
 - You need to loop over the whole array a lot to find all the pieces you care about
-- Sliding pieces like rooks, bishops, and queens require you to "walk" each direction which takes time (this will matter a lot doing move generation)
+- Sliding pieces like rooks, bishops, and queens require you to "walk" each direction which takes time (this will matter a lot during move generation)
 - Its not the cool option I'll explain in a second
 
 
@@ -303,4 +303,133 @@ NorthWest(c6)   xor  NorthWest(g2)   =  final northWest Attacks
 . . . . . . . .      . . . . . . . .    . . . . . . . . 
 . . . . . . . .      . . . . . . . .    . . . . . . . . 
 ```
+
+So with an intersection, a bit scan, and an xor I have all the possible squares a piece could slide to along that ray!
+
+#### Zig Comptime
+
+These rays could be computed as needed, they aren't horribly expensive but are not free.
+It would be great to store all rays ahead of time.
+Thankfully zig's comptime logic is great. You can have any pure zig code run at compile time and output whatever you want!
+So I compute all rays at compile time, the rays are just statically stored in the produced executable.
+
+I compute the rays by first computing all the "lines" for each square. A Line is just both directions of a ray combined
+
+```zig
+// https://www.chessprogramming.org/On_an_empty_Board#By_Calculation_3
+// given a square index, get all squares on its rank (row)
+pub fn rankMask(sq: u32) MaskInt {
+    return RANK_0 << toShiftInt(sq & 56);
+}
+
+// get all squares on the same file (column) as the square passed in
+pub fn fileMask(sq: u32) MaskInt {
+    return FILE_A << toShiftInt(sq & 7);
+}
+
+inline fn mainDiagonalMask(sq: u32) MaskInt {
+    const sq_i32 = @as(i32, @intCast(sq));
+
+    const diag: i32 = (sq_i32 & 7) - (sq_i32 >> 3);
+    return if (diag >= 0)
+        MAIN_DIAG >> (toShiftInt(diag) * 8)
+    else
+        MAIN_DIAG << (toShiftInt(-diag) * 8);
+}
+
+inline fn antiDiagonalMask(sq: u32) MaskInt {
+    const sq_i32 = @as(i32, @intCast(sq));
+    const diag: i32 = 7 - (sq_i32 & 7) - (sq_i32 >> 3);
+    return if (diag >= 0)
+        ANTI_DIAG >> (toShiftInt(diag) * 8)
+    else
+        ANTI_DIAG << (toShiftInt(-diag) * 8);
+}
+
+pub const Line = enum {
+    Rank,
+    File,
+    MainDiag,
+    AntiDiag,
+
+    // sq is the "index" of the square on the board, so a1 is 0, b1 is 1, etc
+    pub fn computeLine(self: Line, sq: u32) BoardBitSet {
+
+        const mask = switch (self) {
+            .Rank => rankMask(sq),
+            .File => fileMask(sq),
+            .MainDiag => mainDiagonalMask(sq),
+            .AntiDiag => antiDiagonalMask(sq),
+        };
+
+        return BoardBitSet.fromMask(mask);
+    }
+};
+```
+
+With this setup, I can stores all lines for each square in an array thats computed at compile time
+
+```zig
+pub const Lines = [64][NUM_LINES]BoardBitSet;
+
+pub fn computeLines() Lines {
+    @setEvalBranchQuota(64 * NUM_LINES * 100 + 1);
+    var moves: [64][NUM_LINES]BoardBitSet = undefined;
+
+    inline for (0..64) |idx| {
+        inline for (utils.enumFields(Line)) |f| {
+            const line_idx = f.value;
+            const line: Line = @enumFromInt(line_idx);
+
+            moves[idx][line_idx] = line.computeLine(idx);
+        }
+    }
+    return moves;
+}
+
+pub const LINES = computeLines(); // this is a top level variable so it just runs at compile time
+```
+
+I then can "split" the lines in half to get the corresponding rays
+
+```zig
+pub const Dir = enum(u3) {
+    North = 0,
+    South = 1,
+    West = 2,
+    East = 3,
+    NorthWest = 4,
+    NorthEast = 5,
+    SouthWest = 6,
+    SouthEast = 7,
+
+    pub fn computeRay(self: Dir, sq: u32) BoardBitSet {
+        // https://www.chessprogramming.org/On_an_empty_Board#Rays_by_Line
+        const line = self.toLine();
+
+        const square_bitset = BoardBitSet.initWithIndex(sq);
+        const single_bit = square_bitset.bit_set.mask;
+
+        const line_attacks = precompute.LINES[sq][@intFromEnum(line)];
+
+        var ray_mask: MaskInt = undefined;
+        if (self.isPositive()) {
+            const shifted = single_bit << 1;
+            // creates a mask where all bits to the left of the original single bit (including the bit itself)
+            // are set to 0 and all bits to the right are set to 1.
+            ray_mask = 0 -% shifted;
+        } else {
+            // creates a mask where all bits to the right of the single bit are set to 1
+            // and all bits to the left (including the bit itself) are set to 0.
+            ray_mask = single_bit -| 1;
+        }
+
+        return BoardBitSet.fromMask(line_attacks.bit_set.mask & ray_mask);
+    }
+}
+```
+
+I also store these rays at compile time so I only pay the compute cost once!
+
+
 
