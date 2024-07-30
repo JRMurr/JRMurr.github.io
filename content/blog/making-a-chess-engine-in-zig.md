@@ -243,9 +243,12 @@ Things like
 
 Those situations on their own are not horrible, what really caused pain was combos of those situations like
 
-{/* TODO: compile the engine with raylib to work on web and put it here.... */}
-Like this position `4k3/8/8/KPp3r1/8/8/8/8 w - c6 0 2` // TODO: show
-The black C pawn could technically be captured En Passant but that would reval the rook attack on the king..
+Like this (really dumb) position
+
+<IFrame width="600" height="400" src="https://lichess.org/embed/game/eJXA7KVE?theme=auto&bg=auto#12"/>
+
+
+The black F pawn could technically be captured En Passant but that would reval the rook attack on the king..
 
 
 ### Sliding Moves
