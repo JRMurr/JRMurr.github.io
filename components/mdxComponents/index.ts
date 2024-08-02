@@ -6,7 +6,7 @@ import TableWrapper from './TableWrapper'
 import Note from './Note'
 import Pre from './Pre'
 import IFrame from './IFrame'
-import { Chess } from './special'
+import { Chess } from './chess'
 
 export const components = {
   Image,
