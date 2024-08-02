@@ -6,6 +6,7 @@ import TableWrapper from './TableWrapper'
 import Note from './Note'
 import Pre from './Pre'
 import IFrame from './IFrame'
+import { Chess } from './special'
 
 export const components = {
   Image,
@@ -15,6 +16,7 @@ export const components = {
   pre: Pre,
   table: TableWrapper,
   Note: Note,
+  Chess,
   // BlogNewsletterForm,
 }
 
