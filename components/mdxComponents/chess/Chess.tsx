@@ -1,7 +1,7 @@
 'use client'
 import { ReactNode, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
-import zigFishInit from '../../../public/static/zigfish-wasm/zigfish'
+// import zigFishInit from '../../../public/static/zigfish-wasm/zigfish'
 
 interface Props {
   //   children: ReactNode
@@ -30,13 +30,16 @@ const Chess = (p: Props) => {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // const { default: zigFishInit } = await import('./htmlout/zigfish')
+    const { default: zigFishInit } = await import('../../../public/static/zigfish-wasm/zigfish')
+    // TODO: swc is optimzing the zigfish js file and removeing some of the guards it has in place checking if window is defined
     await zigFishInit(wasmModule)
     console.log('loaded!')
   }
 
   useEffect(() => {
-    loadWasm()
+    if (window !== undefined) {
+      loadWasm()
+    }
   }, [])
 
   return (

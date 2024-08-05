@@ -72,6 +72,7 @@ module.exports = () => {
   ]
   return plugins.reduce((acc, next) => next(acc), {
     output: 'export',
+    // swcMinify: false,
     reactStrictMode: true,
     pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
     eslint: {
@@ -95,6 +96,22 @@ module.exports = () => {
       ]
     },
     webpack: (config, options) => {
+      // config.optimization.minimize = false
+      // config.optimization.minimizer = []
+
+      // config.experiments = config.experiments ?? {}
+      // config.experiments.asyncWebAssembly = true
+      // config.experiments.layers = true
+
+      // config.devtool = false
+      // TODO: remove, nextjs trys to overwrite me...
+      Object.defineProperty(config, 'devtool', {
+        get() {
+          return false
+        },
+        set() {},
+      })
+
       config.module.rules.push({
         test: /\.svg$/,
         use: ['@svgr/webpack'],

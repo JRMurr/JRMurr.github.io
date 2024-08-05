@@ -23,7 +23,7 @@
     "gray-matter": "4.0.3",
     "image-size": "1.0.0",
     "kbar": "github:JRMurr/kbar#03aab6e0a96c9806cf6a45477b469ca72f2868bf",
-    "next": "14.1.0",
+    "next": "14.2.5",
     "next-themes": "0.2.1",
     "postcss": "8.4.35",
     "react": "18.2.0",
