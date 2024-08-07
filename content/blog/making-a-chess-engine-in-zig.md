@@ -21,7 +21,7 @@ TODO:
   - parsing done need to actually use
 - Explain fen?
 - nix build stuff for fastchess
-- Iframe broken for lichess?
+- Iframe broken for lichess (its something with headers so might only matter locally)
 - More uci so can run on lichess
 
 

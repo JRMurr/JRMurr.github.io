@@ -11,7 +11,7 @@ interface Props {
 const IFrame = ({ children, title, width, height, src }: Props) => {
   // "https://lichess.org/study/embed/GDCFGo2g/DBUXdibd#2"
   return (
-    <iframe title={title} width={width} height={height} src={src}>
+    <iframe title={title} width={width} height={height} src={src} allow="cross-origin">
       {children}
     </iframe>
   )
