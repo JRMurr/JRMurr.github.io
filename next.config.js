@@ -105,12 +105,12 @@ module.exports = () => {
 
       // config.devtool = false
       // TODO: remove, nextjs trys to overwrite me...
-      Object.defineProperty(config, 'devtool', {
-        get() {
-          return false
-        },
-        set() {},
-      })
+      // Object.defineProperty(config, 'devtool', {
+      //   get() {
+      //     return false
+      //   },
+      //   set() {},
+      // })
 
       config.module.rules.push({
         test: /\.svg$/,

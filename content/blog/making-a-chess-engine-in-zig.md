@@ -10,7 +10,20 @@ layout: PostSimple
 
 <TOCInline toc={props.toc} asDisclosure />
 
-<Chess/>
+{/* <Chess/> */ }
+
+TODO:
+- Explain eval more
+  - update eval with isolated/passed pawn
+  - update eval with better "phase" support opening vs endgame position scoring
+- Search in a thread/cancellation
+- Implement and explain using opening books
+  - parsing done need to actually use
+- Explain fen?
+- nix build stuff for fastchess
+- Iframe broken for lichess?
+- More uci so can run on lichess
+
 
 I had the honor of speaking at Systems Distributed at the end of June.
 Since it was hosted by TigerBeetle who is one of the largest zig users, a lot of the zig community was there.
@@ -38,13 +51,11 @@ At its core a chess engine needs to do 3 things
 It needs to do all of those things FAST, chess generally has a move time limit so you don't have infinite time to figure out what move to play.
 
 
-## Implementing Chess
-
 So the first thing I did was implement all of the chess rules so the engine would be a good boi and play only legal moves.
 We can't have it play like [chatgpt where a rook can fly diagonally across the board...](https://youtu.be/rSCNW1OCk_M?si=zjoIu-h-njEsIiYF&t=591)
 
 
-### A Gui
+## A Gui
 
 Before I even started the logic I wanted to have a nice gui to play with, so I found this [zig raylib binding](https://github.com/Not-Nik/raylib-zig).
 This way I have something pretty to look at while developing.
@@ -233,7 +244,7 @@ This is where I really started to love zig's comptime.
 My `enumLen` helper can introspect the enum type I pass in to get how many possible enum tags there are.
 I can then make an array of that size, then use `@intFromEnum` to lookup the index for each tag type in that array.
 
-## Move Generation
+### Move Generation
 
 Now that we have a board, we can start figuring out the moves.
 While each piece's movement rules are pretty simple to humans, there are SO MANY EDGE CASES.
@@ -253,7 +264,7 @@ Like this (really dumb) position
 The black F pawn could technically be captured En Passant but that would reval the rook attack on the king..
 
 
-### Sliding Moves
+#### Sliding Moves
 
 The sliding pieces can eat up a lot of time. The queen can "see" up to 27 squares if its at the center of the board.
 So if you have a "naive" algorithm that "walks" the 8 directions you can go that can eat up a lot of the move generation time.
@@ -311,7 +322,7 @@ NorthWest(c6)   xor  NorthWest(g2)   =  final northWest Attacks
 
 So with an intersection, a bit scan, and an xor I have all the possible squares a piece could slide to along that ray!
 
-#### Zig Comptime
+##### Zig Comptime
 
 These rays could be computed as needed, they aren't horribly expensive but are not free.
 It would be great to store all rays ahead of time.
@@ -436,5 +447,180 @@ pub const Dir = enum(u3) {
 
 I also store these rays at compile time so I only pay the compute cost once!
 
+
+## Search
+
+So now that I have a (mostly) bug free implementation of chess, I can start working on searching through moves to find the best moves to play.
+
+Move search works roughly like this
+
+- Get all valid moves for this position
+- play a move, and recursively search the new position until some depth is hit
+- evaluate the deepest positions (give it a score)
+- Play the move the gives you the highest score
+
+What I described is basically [minimax search](https://www.chessprogramming.org/Minimax).
+The main extra piece is you need to assume the other player will also be making the best moves for them.
+If theres a checkmate you could possibly reach in 2 moves, that would score well but if it requires the other player to play "dumb" moves you should not really consider it.
+
+So to get the score for non-leaf nodes, you will pick the min score when its the opponents turn, and the max if its your turn.
+
+Minimax is a good searching algorithm but its pretty slow. It requires you to check every possible node in the search tree.
+Thankfully with a small tweak we can make it much more efficient. That change is [Alpha-Beta search](https://www.chessprogramming.org/Alpha-Beta)
+
+Alpha beta search would help us in this kind of situation
+- The first move we examine to our depth limit is neutral, ie the position is pretty balanced for both sides
+- The second move leads to black being able to capture our queen right away. Since this is so much worse than the first move we can stop searching this sub tree right now
+
+To do the above we track 2 values, alpha and beta. Alpha is the lower bound for us, if a position gets lower than alpha we can ignore it. Beta is an upper bound, if we could get into a position thats really good, the other player won't allow us to play that move so theres not point to explore that either.
+
+The [wikipedia page](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning) for alpha-beta pruning has some good examples if your more interested, but TLDR this is an easy to implement search algorithm that is pretty fast and it will give the same answer as normal minimax search.
+
+### Evaluation
+
+There are many ways you can evaluate a chess position but the simplest thing to do first is to sum up the piece values for each player then subtract your piece values from the opponent's piece score.
+
+
+
+
+### Move ordering
+
+To help see more pruning, I need to sort the moves we examine so "better" moves are examined first. This way we should see more cutoffs for the worse moves.
+
+
+
+## Testing
+
+As I worked on more and more search improvements I ran into an issue. How do I know if the engine is getting better at playing chess? I could play against it after each change, but I suck...
+So the best approach is to have every change to the engine play an older version of itself. If the newer version beats the older one more often than not, the change was probably a good one.
+
+Thankfully [Fastchess](https://github.com/Disservin/fastchess) exists, it will make "tournaments" where a random position is given to 2 engines and they both play as white and black in that position to see who wins.
+It gives a basic report that looks roughly like
+```text
+Results of new vs old (0.1/move, NULL, NULL, popularpos_lichess.epd):
+Elo: 220.12 +/- 17.71, nElo: 244.54 +/- 15.23
+LOS: 100.00 %, DrawRatio: 35.60 %, PairsRatio: 15.51
+Games: 2000, Wins: 1552, Losses: 431, Draws: 17, Points: 1560.5 (78.03 %)
+Ptnml(0-2): [36, 3, 356, 14, 591], WL/DD Ratio: inf
+```
+So in this run, the new version have the engine has won 1552 / 2000 games. So this version of the engine is much better than the older one. You can go more into specific elo ratings to see how much a change
+affects elo but win/lose ratio is good enough for me...
+
+
+### UCI
+
+To use fastchess I need my engine to support the [UCI](https://gist.github.com/DOBRO/2592c6dad754ba67e6dcaec8c90165bf) protocol. This is a pretty basic protocol, it sends simple text commands over stdin to the process.
+You then need to respond with basic text commands.
+
+I messed with parsing a few times when working on the engine. I eventually used [mecha](https://github.com/Hejsil/mecha) for parsing [pgn](https://www.chess.com/terms/chess-pgn) later on,
+but when I implemented UCI I stuck with the std lib for simplicity. So the parsing logic looked roughly like this
+
+```zig
+fn ParseRes(comptime T: anytype) type {
+    return struct { parsed: T, rest: TokenIter };
+}
+
+//https://gist.github.com/DOBRO/2592c6dad754ba67e6dcaec8c90165bf
+pub const CommandKind = enum {
+    Uci,
+    Debug,
+    IsReady,
+    SetOption,
+    Register,
+    UciNewGame,
+    Position,
+    Go,
+    Stop,
+    PonderHit,
+    Quit,
+
+    fn asStr(self: CommandKind) []const u8 {
+        return switch (self) {
+            .Uci => "uci",
+            .Debug => "debug",
+            .IsReady => "isready",
+            .SetOption => "setoption",
+            .Register => "register",
+            .UciNewGame => "ucinewgame",
+            .Position => "position",
+            .Go => "go",
+            .Stop => "stop",
+            .PonderHit => "ponderhit",
+            .Quit => "quit",
+        };
+    }
+
+    pub fn fromStr(str: []const u8) !ParseRes(CommandKind) {
+        var iter = std.mem.tokenizeScalar(u8, str, ' ');
+
+        const command_str = iter.next() orelse {
+            return error.EmptyInput;
+        };
+
+        inline for (Utils.enumFields(CommandKind)) |f| {
+            const kind: CommandKind = @enumFromInt(f.value);
+            if (std.mem.eql(u8, command_str, kind.asStr())) {
+                return .{ .parsed = kind, .rest = iter };
+            }
+        }
+
+        return error.InvalidCommand;
+    }
+};
+```
+
+So just a basic enum where I map each variant to what the protocol describes. In `fromStr` I use the amazing helper [std.mem.tokenizeScalar](https://ziglang.org/documentation/master/std/#std.mem.tokenizeScalar).
+This is great for basic parsing, it will split the string on a space in this case (and consume multiple spaces if they are all together). The iterator would then just return all words.
+I have a generic type `ParseRes(T)` that returns the parsed token and the rest of the string.
+
+Error handling is super easy, marking the return type as `!T` is sorta like `Result<T, any>` but better. Zig will infer the error type for you, so I can just make errors "on the fly" and zig will do the work for me.
+Error handling and optionals in zig are soooooo nice. They are built right into the syntax of the language so they are really easy to use and make the golden path a breeze. Error handling in rust is nice but its annoying to need to basically always pull in `anyhow`/`thiserror` to make them come close to how zig handles it.
+
+
+I then parse the rest of the protocol with this
+
+```zig
+pub const Command = union(CommandKind) {
+    Uci,
+    Debug: bool,
+    IsReady,
+    SetOption: OptionArgs,
+    Register,
+    UciNewGame,
+    Position: PositionArgs,
+    Go: GoArgs,
+    Stop,
+    PonderHit,
+    Quit,
+
+
+     pub fn fromStr(allocator: Allocator, str: []const u8) !ParseRes(Command) {
+        const commandKindRes = try CommandKind.fromStr(str);
+        const kind = commandKindRes.parsed;
+        var iter = commandKindRes.rest;
+
+        const command: Command = switch (kind) {
+            .Uci, .IsReady, .Register, .UciNewGame, .Stop, .PonderHit, .Quit => |k| blk: {
+                inline for (Utils.unionFields(Command)) |f| {
+                    // type checking gets sad should only hit void because of the switch but needs to explicitly skip
+                    if (f.type != void) {
+                        continue;
+                    }
+                    if (std.mem.eql(u8, f.name, @tagName(k))) {
+                        break :blk @unionInit(Command, f.name, {});
+                    }
+                }
+                std.debug.panic("No match on EmptyCommandArgs for: {s}", .{@tagName(k)});
+            },
+            // many other variants.... look on github if you care https://github.com/JRMurr/ZigFish/blob/a591ff34c994fb8e8dabafbe9d834fc5c2aa7ed8/src/uci/commands.zig#L208
+        };
+
+        return .{ .parsed = command, .rest = iter };
+    }
+}
+```
+
+
+I omitted the non-void commands since thats just more special case parsing. For the void commands (ie commands that are a single word), I can do more comptime magic to convert the enum of `CommandKind` to the corresponding variant in `Command`.
 
 

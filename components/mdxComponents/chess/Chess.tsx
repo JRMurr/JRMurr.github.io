@@ -14,31 +14,31 @@ interface Props {
 const Chess = (p: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const loadWasm = async () => {
-    'use client'
-    const wasmModule = {
-      print: (text) => {
-        console.log('[WASM] ' + text)
-      },
-      printErr: (text) => {
-        console.log('[WASM-ERROR] ' + text)
-      },
-      canvas: canvasRef,
-      onRuntimeInitialized: () => {
-        console.log('WASM runtime initialized')
-      },
-    }
+  // const loadWasm = async () => {
+  //   'use client'
+  //   const wasmModule = {
+  //     print: (text) => {
+  //       console.log('[WASM] ' + text)
+  //     },
+  //     printErr: (text) => {
+  //       console.log('[WASM-ERROR] ' + text)
+  //     },
+  //     canvas: canvasRef,
+  //     onRuntimeInitialized: () => {
+  //       console.log('WASM runtime initialized')
+  //     },
+  //   }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { default: zigFishInit } = await import('../../../public/static/zigfish-wasm/zigfish')
-    // TODO: swc is optimzing the zigfish js file and removeing some of the guards it has in place checking if window is defined
-    await zigFishInit(wasmModule)
-    console.log('loaded!')
-  }
+  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //   const { default: zigFishInit } = await import('../../../public/static/zigfish-wasm/zigfish')
+  //   // TODO: swc is optimzing the zigfish js file and removeing some of the guards it has in place checking if window is defined
+  //   await zigFishInit(wasmModule)
+  //   console.log('loaded!')
+  // }
 
   useEffect(() => {
     if (window !== undefined) {
-      loadWasm()
+      // loadWasm()
     }
   }, [])
 
