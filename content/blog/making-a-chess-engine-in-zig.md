@@ -2,7 +2,7 @@
 title: Making a Chess Engine in Zig
 date: 2024-07-28T15:23:42.275Z
 tags: ["zig","chess","nix"]
-draft: true
+draft: false
 summary: Learning zig by making a chess engine
 images: []
 layout: PostSimple
