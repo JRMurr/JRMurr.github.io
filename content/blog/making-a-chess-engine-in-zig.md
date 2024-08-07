@@ -25,6 +25,9 @@ TODO:
 - More uci so can run on lichess
 
 
+<IFrame width="1400" height="1300" src="/static/zigfish/zigfish.html"/>
+
+
 I had the honor of speaking at Systems Distributed at the end of June.
 Since it was hosted by TigerBeetle who is one of the largest zig users, a lot of the zig community was there.
 After talking to some of them zig seemed more interesting for me to try out.
