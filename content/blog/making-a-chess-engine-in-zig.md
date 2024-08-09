@@ -779,58 +779,14 @@ Now that we have everything building we can finally make a script to run fast-ch
 , lib
 , git
 , fastchess
-# a nix derivation with a bunch of positions to use when playing bot games
-# https://github.com/JRMurr/ZigFish/blob/0607861d50e0b6ac553da3e2f713966e886300e6/nix/books.nix#L26
-, books
 ,
 }:
 let
   getExe = lib.getExe;
-  bookPath = name: "${books.${name}}/${name}";
-  # arguments to pass to fast chess
   pgnOutFile = "$OUT_DIR/pgnout.pgn";
   logFile = "$OUT_DIR/log.txt";
-  # https://github.com/Disservin/fast-chess/blob/master/man
-  fastArgsMap = {
-    rounds = "1000";
-    maxmoves = "100";
-    # many args ommited
-    openings = {
-      file = bookPath "popularpos_lichess.epd";
-      format = "epd";
-      order = "random";
-    };
-    engine = [
-      ''cmd="$NEW_ENGINE" name=new st=0.1 timemargin=100''
-      ''cmd="$OLD_ENGINE" name=old st=0.1 timemargin=100''
-    ];
-  };
-
-  # toplevel/root args for fastchess have a - infront and the name and space after for val
-  toRootArgStr = name: val: "-${name} ${val}";
-  # sub args are key=val format
-  toSubArgStr = name: val: "${name}=${val}";
-  # converts the argument mapping above to the cli args fast chess wants
-  fastArgsLst = lib.mapAttrsToList
-    (
-      name: val:
-        if builtins.isList val then
-          (lib.concatMapStringsSep " " (toRootArgStr name) val)
-        else if builtins.isAttrs val then
-          (
-            let
-              vals = lib.concatStringsSep " " (lib.mapAttrsToList toSubArgStr val);
-            in
-            toRootArgStr name vals
-          )
-        else if builtins.isString val then
-          (toRootArgStr name val)
-        else
-          "-${name}"
-    )
-    fastArgsMap;
-  # the final arg string
-  fastArgs = lib.concatStringsSep " \\\n" fastArgsLst;
+ 
+  fastArgs = "omitted.. see https://github.com/JRMurr/ZigFish/blob/0607861d50e0b6ac553da3e2f713966e886300e6/nix/runFast.nix#L20"
 
 in
 writeShellScriptBin "runFast" ''
@@ -868,3 +824,4 @@ nix run .#runFast
 ```
 
 this will call that script and kick off the fast-chess tournament of the bot on my local checkout of the repo vs an older commit.
+
