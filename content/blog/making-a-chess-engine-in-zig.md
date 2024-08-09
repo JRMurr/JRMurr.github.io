@@ -20,6 +20,7 @@ TODO:
 - Implement and explain using opening books
   - parsing done need to actually use
 - Explain uci impl? (might be boring)
+- Talk about chat gpt?
 - Explain fen?
 - nix build stuff for fastchess
 - Iframe broken for lichess (its something with headers so might only matter locally)
@@ -698,6 +699,8 @@ When you go to use zig in a nix derivation you can set the output of the `deps.n
 let
   rootDir = ../../.; # relative path to the repo root
   fs = lib.fileset;
+  # grab only zig files to use as the src code for the derivation
+  # this way if I update things like a readme a re-build won't happen
   fileHasAnySuffix = fileSuffixes: file: (lib.lists.any (s: lib.hasSuffix s file.name) fileSuffixes);
   zigFiles = fs.fileFilter (fileHasAnySuffix [ ".zig" ".zon" ]) rootDir;
 
@@ -711,7 +714,7 @@ stdenvNoCC.mkDerivation {
     fileset = zigFiles;
   };
   nativeBuildInputs = [ zig ];
-  dontInstall = true;
+  dontInstall = true; # don't run the default installPhase, our build phase will install
   buildPhase =
     let
       buildArgs = [
@@ -723,7 +726,6 @@ stdenvNoCC.mkDerivation {
     in
     ''
       mkdir -p .cache
-      ls -la
       # The magic bit that pulls in the deps from the other file
       ln -s ${callPackage ./deps.nix { }} .cache/p
       # zig build install is set to build+install the uci version of the engine
@@ -775,10 +777,10 @@ Now that we have everything building we can finally make a script to run fast-ch
 
 ```nix
 { writeShellScriptBin
-, buildAtCommit
+, buildAtCommit # the build script shown above
 , lib
 , git
-, fastchess
+, fastchess # the derivation for fastchess shown above...above...
 ,
 }:
 let
