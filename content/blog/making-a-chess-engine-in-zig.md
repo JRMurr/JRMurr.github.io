@@ -42,11 +42,6 @@ If your lazy and just wanna read some code it lives [here](https://github.com/JR
 I called it ZigFish since this will obviously match Stockfish in elo....
 
 
-{ /* 
-<IFrame width="1400" height="1300" src="/static/zigfish/zigfish.html"/>
-*/}
-
-
 <Chess/>
 # How Does a Chess Engine Work?
 
@@ -267,7 +262,6 @@ Like this (really dumb) position
 
 { /* 
 
-<Chess type='static' position="rnbqkbn1/ppppp1p1/8/3KPprp/8/8/PPPP1PPP/RNBQ1BNR w q - 0 7" lastMove="f7f5"/> 
 <IFrame width="600" height="400" src="https://lichess.org/embed/game/eJXA7KVE?theme=auto&bg=auto#12"/>
 
 */ }

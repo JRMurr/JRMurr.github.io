@@ -96,7 +96,7 @@ module.exports = () => {
       ]
     },
     webpack: (config, options) => {
-      config.optimization.minimize = false
+      // config.optimization.minimize = false
       // config.optimization.minimize = false
       // config.optimization.minimizer = []
 

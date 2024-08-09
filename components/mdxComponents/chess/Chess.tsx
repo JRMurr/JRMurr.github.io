@@ -1,5 +1,5 @@
 'use client'
-import { ReactNode, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
 
 interface Props {
@@ -12,9 +12,11 @@ interface Props {
 
 const Chess = (p: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const moduleRef = useRef<any>(null)
 
   const loadWasm = async () => {
-    'use client'
+    console.log('LOADING')
     // https://emscripten.org/docs/api_reference/module.html#module
     const wasmModule = {
       print: (text) => {
@@ -34,10 +36,16 @@ const Chess = (p: Props) => {
 
     const { default: zigFishInit } = await import('./zigfish/zigfish.js')
     await zigFishInit(wasmModule)
+    moduleRef.current = wasmModule
   }
 
   useEffect(() => {
-    loadWasm()
+    const init = loadWasm()
+    return () => {
+      init.then(() => {
+        console.log('unloading', moduleRef.current)
+      })
+    }
   }, [])
 
   return (
