@@ -10,7 +10,6 @@ layout: PostSimple
 
 <TOCInline toc={props.toc} asDisclosure />
 
-{/* <Chess/> */ }
 
 TODO:
 - Explain eval more
@@ -262,8 +261,7 @@ Those situations on their own are not horrible, what really caused pain was comb
 
 Like this (really dumb) position
 
-<IFrame width="600" height="400" src="https://lichess.org/embed/game/eJXA7KVE?theme=auto&bg=auto#12"/>
-
+<Chess type='static' position="rnbqkbn1/ppppp1p1/8/3KPprp/8/8/PPPP1PPP/RNBQ1BNR w q - 0 7" lastMove="f7f5"/>
 
 The black F pawn could technically be captured En Passant but that would reval the rook attack on the king..
 

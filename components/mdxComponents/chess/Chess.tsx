@@ -1,56 +1,47 @@
 'use client'
-import { ReactNode, useEffect, useRef } from 'react'
-import dynamic from 'next/dynamic'
-// import zigFishInit from '../../../public/static/zigfish-wasm/zigfish'
+import { ComponentProps, ReactNode, useEffect, useRef } from 'react'
+import { Chessboard } from 'react-chessboard'
+import { Square, CustomSquareStyles } from 'react-chessboard/dist/chessboard/types'
 
-interface Props {
-  //   children: ReactNode
-  //   width: number
-  //   height: number
-  //   src: string
-  //   title: string
+type BaseBoardProps = ComponentProps<typeof Chessboard>
+
+type Move = `${Square}${Square}`
+
+interface StaticBoardProps extends BaseBoardProps {
+  type: 'static'
+  lastMove?: Move
+}
+
+interface PlayableBoard extends BaseBoardProps {
+  type: 'playable'
+}
+
+type Props = StaticBoardProps | PlayableBoard
+
+const StaticChessBoard = (p: StaticBoardProps) => {
+  const { lastMove, ...rest } = p
+
+  const customSquareStyles: CustomSquareStyles = {}
+
+  if (p.lastMove) {
+    const from = p.lastMove.slice(0, 2)
+    const to = p.lastMove.slice(2)
+    const backgroundColor = '#696969' // don't even think of laughing
+    customSquareStyles[from] = { backgroundColor }
+    customSquareStyles[to] = { backgroundColor }
+  }
+
+  return <Chessboard {...rest} arePiecesDraggable={false} customSquareStyles={customSquareStyles} />
+}
+const PlayableChessboard = (p: PlayableBoard) => {
+  return <Chessboard />
 }
 
 const Chess = (p: Props) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  // const loadWasm = async () => {
-  //   'use client'
-  //   const wasmModule = {
-  //     print: (text) => {
-  //       console.log('[WASM] ' + text)
-  //     },
-  //     printErr: (text) => {
-  //       console.log('[WASM-ERROR] ' + text)
-  //     },
-  //     canvas: canvasRef,
-  //     onRuntimeInitialized: () => {
-  //       console.log('WASM runtime initialized')
-  //     },
-  //   }
-
-  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   const { default: zigFishInit } = await import('../../../public/static/zigfish-wasm/zigfish')
-  //   // TODO: swc is optimzing the zigfish js file and removeing some of the guards it has in place checking if window is defined
-  //   await zigFishInit(wasmModule)
-  //   console.log('loaded!')
-  // }
-
-  useEffect(() => {
-    if (window !== undefined) {
-      // loadWasm()
-    }
-  }, [])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      // class="emscripten"
-      id="canvas"
-      onContextMenu={(e) => e.preventDefault()}
-      tabIndex={-1}
-    ></canvas>
-  )
+  if (p.type === 'static') {
+    return <StaticChessBoard {...p} />
+  }
+  return <PlayableChessboard {...p} />
 }
 
 export default Chess
