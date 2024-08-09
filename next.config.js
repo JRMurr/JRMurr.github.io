@@ -63,7 +63,7 @@ const securityHeaders = [
 ]
 
 /**
- * @type {import('next/dist/next-server/server/config').NextConfig}
+ * @type {import('next').NextConfig}
  **/
 module.exports = () => {
   const plugins = [
@@ -96,6 +96,7 @@ module.exports = () => {
       ]
     },
     webpack: (config, options) => {
+      config.optimization.minimize = false
       // config.optimization.minimize = false
       // config.optimization.minimizer = []
 

@@ -41,9 +41,13 @@ This won't really be a tutorial, more of a vibe, but hopefully you learn somethi
 If your lazy and just wanna read some code it lives [here](https://github.com/JRMurr/ZigFish)
 I called it ZigFish since this will obviously match Stockfish in elo....
 
+
+{ /* 
 <IFrame width="1400" height="1300" src="/static/zigfish/zigfish.html"/>
+*/}
 
 
+<Chess/>
 # How Does a Chess Engine Work?
 
 At its core a chess engine needs to do 3 things
@@ -261,7 +265,12 @@ Those situations on their own are not horrible, what really caused pain was comb
 
 Like this (really dumb) position
 
-<Chess type='static' position="rnbqkbn1/ppppp1p1/8/3KPprp/8/8/PPPP1PPP/RNBQ1BNR w q - 0 7" lastMove="f7f5"/>
+{ /* 
+
+<Chess type='static' position="rnbqkbn1/ppppp1p1/8/3KPprp/8/8/PPPP1PPP/RNBQ1BNR w q - 0 7" lastMove="f7f5"/> 
+<IFrame width="600" height="400" src="https://lichess.org/embed/game/eJXA7KVE?theme=auto&bg=auto#12"/>
+
+*/ }
 
 The black F pawn could technically be captured En Passant but that would reval the rook attack on the king..
 
