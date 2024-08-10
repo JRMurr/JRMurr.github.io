@@ -53,9 +53,11 @@ const Chess = (p: Props) => {
       init.then((wasmModule) => {
         try {
           wasmModule.force_exit(0)
+          delete wasmModule['wasmMemory']
         } catch (error) {
           /* empty */
         }
+        console.debug('unloading chess wasm')
       })
     }
   }, [])
