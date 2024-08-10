@@ -606,28 +606,28 @@ var tempDouble;
 var tempI64;
 
 var ASM_CONSTS = {
- 304736: () => {
+ 304464: () => {
   if (document.fullscreenElement) return 1;
  },
- 304782: () => document.getElementById("canvas").width,
- 304834: () => parseInt(document.getElementById("canvas").style.width),
- 304902: () => {
+ 304510: () => document.getElementById("canvas").width,
+ 304562: () => parseInt(document.getElementById("canvas").style.width),
+ 304630: () => {
   document.exitFullscreen();
  },
- 304929: () => {
+ 304657: () => {
   setTimeout(function() {
    Module.requestFullscreen(false, false);
   }, 100);
  },
- 305002: () => {
+ 304730: () => {
   if (document.fullscreenElement) return 1;
  },
- 305048: () => document.getElementById("canvas").width,
- 305100: () => screen.width,
- 305125: () => {
+ 304776: () => document.getElementById("canvas").width,
+ 304828: () => screen.width,
+ 304853: () => {
   document.exitFullscreen();
  },
- 305152: () => {
+ 304880: () => {
   setTimeout(function() {
    Module.requestFullscreen(false, true);
    setTimeout(function() {
@@ -635,55 +635,55 @@ var ASM_CONSTS = {
    }, 100);
   }, 100);
  },
- 305285: () => {
+ 305013: () => {
   if (document.fullscreenElement) return 1;
  },
- 305331: () => document.getElementById("canvas").width,
- 305383: () => parseInt(document.getElementById("canvas").style.width),
- 305451: () => {
+ 305059: () => document.getElementById("canvas").width,
+ 305111: () => parseInt(document.getElementById("canvas").style.width),
+ 305179: () => {
   if (document.fullscreenElement) return 1;
  },
- 305497: () => document.getElementById("canvas").width,
- 305549: () => screen.width,
- 305574: () => {
+ 305225: () => document.getElementById("canvas").width,
+ 305277: () => screen.width,
+ 305302: () => {
   if (document.fullscreenElement) return 1;
  },
- 305620: () => document.getElementById("canvas").width,
- 305672: () => screen.width,
- 305697: () => {
+ 305348: () => document.getElementById("canvas").width,
+ 305400: () => screen.width,
+ 305425: () => {
   document.exitFullscreen();
  },
- 305724: () => {
+ 305452: () => {
   if (document.fullscreenElement) return 1;
  },
- 305770: () => document.getElementById("canvas").width,
- 305822: () => parseInt(document.getElementById("canvas").style.width),
- 305890: () => {
+ 305498: () => document.getElementById("canvas").width,
+ 305550: () => parseInt(document.getElementById("canvas").style.width),
+ 305618: () => {
   document.exitFullscreen();
  },
- 305917: () => screen.width,
- 305942: () => screen.height,
- 305968: () => window.screenX,
- 305995: () => window.screenY,
- 306022: $0 => {
+ 305645: () => screen.width,
+ 305670: () => screen.height,
+ 305696: () => window.screenX,
+ 305723: () => window.screenY,
+ 305750: $0 => {
   navigator.clipboard.writeText(UTF8ToString($0));
  },
- 306075: $0 => {
+ 305803: $0 => {
   document.getElementById("canvas").style.cursor = UTF8ToString($0);
  },
- 306146: () => {
+ 305874: () => {
   document.getElementById("canvas").style.cursor = "none";
  },
- 306203: $0 => {
+ 305931: $0 => {
   document.getElementById("canvas").style.cursor = UTF8ToString($0);
  },
- 306274: () => {
+ 306002: () => {
   if (document.fullscreenElement) return 1;
  },
- 306320: () => {
+ 306048: () => {
   if (document.pointerLockElement) return 1;
  },
- 306367: ($0, $1, $2, $3, $4) => {
+ 306095: ($0, $1, $2, $3, $4) => {
   if (typeof window === "undefined" || (window.AudioContext || window.webkitAudioContext) === undefined) {
    return 0;
   }
@@ -754,7 +754,7 @@ var ASM_CONSTS = {
   window.miniaudio.referenceCount += 1;
   return 1;
  },
- 308525: () => {
+ 308253: () => {
   if (typeof (window.miniaudio) !== "undefined") {
    window.miniaudio.referenceCount -= 1;
    if (window.miniaudio.referenceCount === 0) {
@@ -762,8 +762,8 @@ var ASM_CONSTS = {
    }
   }
  },
- 308689: () => (navigator.mediaDevices !== undefined && navigator.mediaDevices.getUserMedia !== undefined),
- 308793: () => {
+ 308417: () => (navigator.mediaDevices !== undefined && navigator.mediaDevices.getUserMedia !== undefined),
+ 308521: () => {
   try {
    var temp = new (window.AudioContext || window.webkitAudioContext);
    var sampleRate = temp.sampleRate;
@@ -773,7 +773,7 @@ var ASM_CONSTS = {
    return 0;
   }
  },
- 308964: ($0, $1, $2, $3, $4, $5) => {
+ 308692: ($0, $1, $2, $3, $4, $5) => {
   var deviceType = $0;
   var channels = $1;
   var sampleRate = $2;
@@ -844,8 +844,8 @@ var ASM_CONSTS = {
   device.pDevice = pDevice;
   return miniaudio.track_device(device);
  },
- 311792: $0 => miniaudio.get_device_by_index($0).webaudio.sampleRate,
- 311858: $0 => {
+ 311520: $0 => miniaudio.get_device_by_index($0).webaudio.sampleRate,
+ 311586: $0 => {
   var device = miniaudio.get_device_by_index($0);
   if (device.scriptNode !== undefined) {
    device.scriptNode.onaudioprocess = function(e) {};
@@ -860,15 +860,15 @@ var ASM_CONSTS = {
   device.webaudio = undefined;
   device.pDevice = undefined;
  },
- 312251: $0 => {
+ 311979: $0 => {
   miniaudio.untrack_device_by_index($0);
  },
- 312294: $0 => {
+ 312022: $0 => {
   var device = miniaudio.get_device_by_index($0);
   device.webaudio.resume();
   device.state = miniaudio.device_state.started;
  },
- 312419: $0 => {
+ 312147: $0 => {
   var device = miniaudio.get_device_by_index($0);
   device.webaudio.suspend();
   device.state = miniaudio.device_state.stopped;
@@ -9085,9 +9085,9 @@ var _asyncify_stop_rewind = () => (_asyncify_stop_rewind = wasmExports["af"])();
 
 var ___emscripten_embedded_file_data = Module["___emscripten_embedded_file_data"] = 216884;
 
-var ___start_em_js = Module["___start_em_js"] = 312545;
+var ___start_em_js = Module["___start_em_js"] = 312273;
 
-var ___stop_em_js = Module["___stop_em_js"] = 312618;
+var ___stop_em_js = Module["___stop_em_js"] = 312346;
 
 Module["addRunDependency"] = addRunDependency;
 
