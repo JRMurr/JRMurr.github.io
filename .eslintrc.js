@@ -7,6 +7,7 @@ module.exports = {
     node: true,
     es6: true,
   },
+  ignores: ['./components/mdxComponents/chess/zigfish/*'],
   plugins: ['@typescript-eslint'],
   extends: [
     'eslint:recommended',
