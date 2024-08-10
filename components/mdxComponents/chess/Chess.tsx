@@ -10,15 +10,19 @@ interface Props {
   //   title: string
 }
 
+interface ZigFishModule extends EmscriptenModule {
+  force_exit: (status: number) => void
+  canvas: HTMLCanvasElement
+}
+
 const Chess = (p: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const moduleRef = useRef<any>(null)
 
   const loadWasm = async () => {
-    console.log('LOADING')
     // https://emscripten.org/docs/api_reference/module.html#module
-    const wasmModule = {
+    const wasmModule: Partial<ZigFishModule> = {
       print: (text) => {
         console.log('[WASM] ' + text)
       },
@@ -26,7 +30,7 @@ const Chess = (p: Props) => {
         console.log('[WASM-ERROR] ' + text)
       },
       get canvas() {
-        return canvasRef.current
+        return canvasRef.current || undefined
       },
       set canvas(_) {},
       onRuntimeInitialized: () => {
@@ -34,16 +38,24 @@ const Chess = (p: Props) => {
       },
     }
 
-    const { default: zigFishInit } = await import('./zigfish/zigfish.js')
-    await zigFishInit(wasmModule)
-    moduleRef.current = wasmModule
+    const { default: zigFishInit } = (await import('./zigfish/zigfish.js')) as {
+      default: EmscriptenModuleFactory<ZigFishModule>
+    }
+    const updatedModule = await zigFishInit(wasmModule)
+    moduleRef.current = updatedModule
+
+    return updatedModule
   }
 
   useEffect(() => {
     const init = loadWasm()
     return () => {
-      init.then(() => {
-        console.log('unloading', moduleRef.current)
+      init.then((wasmModule) => {
+        try {
+          wasmModule.force_exit(0)
+        } catch (error) {
+          /* empty */
+        }
       })
     }
   }, [])
