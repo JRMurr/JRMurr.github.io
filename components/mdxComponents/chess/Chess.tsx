@@ -42,7 +42,11 @@ const Chess = (p: Props) => {
       default: EmscriptenModuleFactory<ZigFishModule>
     }
     const updatedModule = await zigFishInit(wasmModule)
+    // console.log('updatedModule\n\n\n\n', updatedModule, '--------\n\n\n\n')
     moduleRef.current = updatedModule
+
+    // TODO: this "works" but only shows a portion of the board
+    // updatedModule['setCanvasSize'](800, 800, false)
 
     return updatedModule
   }
