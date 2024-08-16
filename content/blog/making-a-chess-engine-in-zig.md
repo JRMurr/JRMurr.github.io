@@ -25,9 +25,9 @@ TODO:
 - Iframe broken for lichess (its something with headers so might only matter locally)
 - More uci so can run on lichess
 
-I had the honor of speaking at Systems Distributed at the end of June.
+I had the honor of [speaking at Systems Distributed](https://www.youtube.com/watch?v=whqMdAD5JTc) at the end of June.
 Since it was hosted by TigerBeetle who is one of the largest zig users, a lot of the zig community was there.
-After talking to some of them zig seemed more interesting for me to try out.
+After talking to some of them, zig seemed more interesting for me to try out.
 
 Around the same time my youtube algorithm got me hooked on chess content.
 Im not a good chess player by any means but it started giving me the urge to make my own chess engine.

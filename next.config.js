@@ -70,7 +70,11 @@ module.exports = () => {
     // withContentlayer,
     withBundleAnalyzer,
   ]
-  return plugins.reduce((acc, next) => next(acc), {
+
+  /**
+   * @type {import('next').NextConfig}
+   **/
+  const conf = {
     output: 'export',
     // swcMinify: false,
     reactStrictMode: true,
@@ -95,7 +99,12 @@ module.exports = () => {
         },
       ]
     },
-    webpack: (config, options) => {
+    webpack: (c, options) => {
+      /**
+       * @type {import('webpack').Configuration}
+       **/
+      const config = c
+
       // config.optimization.minimize = false
       // config.optimization.minimize = false
       // config.optimization.minimizer = []
@@ -124,9 +133,20 @@ module.exports = () => {
         config.plugins.push(new VeliteWebpackPlugin())
       }
 
+      console.log('config.output.filename: ', config.output.filename)
+
+      // https://stackoverflow.com/questions/73157442/webpack-warning-using-webworker-circular-dependency-between-chunks-with-runtime
+      // config.output.filename = (pathData, assetInfo) => {
+      //   console.log('pathData, assetInfo', pathData, assetInfo)
+
+      //   return `${pathData.chunk.name}.${process.env.npm_package_version}.js`
+      // }
+
       return config
     },
-  })
+  }
+
+  return plugins.reduce((acc, next) => next(acc), conf)
 }
 
 class VeliteWebpackPlugin {

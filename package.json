@@ -43,15 +43,16 @@
     "unist-util-visit": "4.1.2"
   },
   "devDependencies": {
-    "@types/emscripten": "^1.39.13",
     "@shikijs/rehype": "1.1.7",
     "@shikijs/twoslash": "1.1.7",
     "@svgr/webpack": "8.1.0",
+    "@types/emscripten": "^1.39.13",
     "@types/inquirer": "^9.0.7",
     "@types/lodash": "4.14.202",
     "@types/mdx": "2.0.11",
     "@types/node": "^20.11.25",
     "@types/react": "18.2.61",
+    "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "6.21.0",
     "@typescript-eslint/parser": "6.21.0",
     "cross-env": "7.0.3",
