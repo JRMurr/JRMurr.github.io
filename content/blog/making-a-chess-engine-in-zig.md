@@ -60,7 +60,6 @@ We can't have it play like [chatgpt where a rook can fly diagonally across the b
 ## A Gui
 
 Before I even started the logic I wanted to have a nice gui to play with, so I found this [zig raylib binding](https://github.com/Not-Nik/raylib-zig).
-This way I have something pretty to look at while developing.
 
 This was my first interaction with zig's build system/package management. To add this dependency you can run
 ```shell
@@ -111,14 +110,14 @@ Its easy to make the `build.zig` "script" a pile of spaghetti like any build sys
 I chose the spaghetti route since I'm not smart enough yet to make it nice but it still "just works"
 
 I'll leave out the tedium but overall the process of getting some chess pieces drawn on the board, and some logic to move them around was pretty straightforward.
-If your curious feel free to checkout my [spritemanager](https://github.com/JRMurr/ZigFish/blob/d061604cc2f634a19da4863724345a64b373652a/src/graphics/sprite.zig#L41).
+If your curious feel free to checkout [the ui code here](https://github.com/JRMurr/ZigFish/tree/main/src/ui).
 Raylib is super nice to use, the simple things are simple. Since chess is just draw some rectangles and a few sprites, it didn't take long to have the board display good to go.
 
 ## The logic
 
 So now that I have a chess board to draw, I need to implement all the rules of chess.
 This is where the [Chess Programming Wiki](https://www.chessprogramming.org/Main_Page) became my best friend.
-It has some many resources to help make your engine.
+It has sooooooo many resources to help make your engine.
 
 ### Board Representation
 
@@ -148,7 +147,7 @@ pub const Piece = struct packed {
 }
 ```
 
-So a chess Piece is a color, and piece type/kind.
+This represents a chess Piece as a color + its type/kind.
 
 Then you could so something like
 
@@ -172,10 +171,10 @@ This array approach works and I used it for a while but has some downsides.
 
 So after a little while using this array representation I switched to a [BitBoard](https://www.chessprogramming.org/Bitboards)
 
-The core idea is, since there are 64 squares, you can use a `u64` where each bit represents 1 square. If the bit is set a piece is there.
+The core idea is, since there are 64 squares, you can use a `u64` where each bit represents 1 square. If the `nth` bit is set, a piece is is on the `nth` square.
 You then have 6 `u64`s to track each piece type, and 2 more to track the color of those pieces. In my case I had a redundant 9th `u64` just for all occupied squares.
 
-So if I want to know where all the White Pawns are I can do a bitwise intersection of the pawn bitset and the white bitset.
+So if I want to know where all the white pawns are, I can do a bitwise intersection of the pawn bitset and the white bitset.
 
 The other benefit is when you apply shifts/masks on the bitset, it will apply to all pieces at once.
 For example to figure out all possible squares knights can move to you can do this
@@ -195,8 +194,9 @@ pub fn knightMoves(self: Self) Self {
 }
 ```
 So a few bitwise operations handle all knights at the same time.
-This speed is invaluable when figuring out all the squares the enemy pieces attack. 
-This way we can prune moves that would put our own king in check.
+This speed is invaluable when figuring out all the squares the enemy pieces attack.
+
+{/* This way we can prune moves that would put our own king in check. */}
 
 
 Zig has a nice helper in the std lib [std.bit_set.IntegerBitSet](https://ziglang.org/documentation/master/std/#std.bit_set.IntegerBitSet).
@@ -212,6 +212,9 @@ pub const BoardBitSet = packed struct {
     // a bunch of funcs...
 }
 ```
+
+{/* TODO: should this show off some funcs? ^^^^ */}
+
 
 So now my `Board` struct looks like
 
@@ -250,6 +253,8 @@ I can then make an array of that size, then use `@intFromEnum` to lookup the ind
 
 Now that we have a board, we can start figuring out the moves.
 While each piece's movement rules are pretty simple to humans, there are SO MANY EDGE CASES.
+
+{/* TODO: yeet example and clean this intro up a bit */}
 
 Things like
 - En Passant
