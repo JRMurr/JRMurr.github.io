@@ -107,7 +107,7 @@ const Chess = (p: Props) => {
       ) : (
         <Note>
           Looks like you are on a small screen, If you load this on a desktop you can play against
-          my engine in the browser
+          my engine in the browser!
         </Note>
       )}
     </div>
