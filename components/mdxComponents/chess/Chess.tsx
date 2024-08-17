@@ -89,13 +89,14 @@ const ChessInner = (p: Props) => {
 
 const Chess = (p: Props) => {
   'use client'
-  const [isDesktop, setDesktop] = useState(window.innerWidth > 1280)
+  const [isDesktop, setDesktop] = useState(false)
 
   const updateMedia = () => {
     setDesktop(window.innerWidth > 1280)
   }
 
   useEffect(() => {
+    setDesktop(window.innerWidth > 1280)
     window.addEventListener('resize', updateMedia)
     return () => window.removeEventListener('resize', updateMedia)
   })

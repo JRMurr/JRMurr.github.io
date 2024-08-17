@@ -133,7 +133,13 @@ module.exports = () => {
         config.plugins.push(new VeliteWebpackPlugin())
       }
 
-      console.log('config.output.filename: ', config.output.filename)
+      config.ignoreWarnings = [
+        // generated wasm is sad, don't care
+        /Circular dependency between chunks with runtime/,
+      ]
+
+      // console.log('config.output.filename: ', config.output.filename)
+      // config.output.filename = '[name].[id].bundle.js'
 
       // https://stackoverflow.com/questions/73157442/webpack-warning-using-webworker-circular-dependency-between-chunks-with-runtime
       // config.output.filename = (pathData, assetInfo) => {
