@@ -10,9 +10,15 @@ interface Props {
   //   title: string
 }
 
+// 11x8 ratio...
+const cell_size = 90
+const width = cell_size * 11
+const height = cell_size * 8
+
 interface ZigFishModule extends EmscriptenModule {
   force_exit: (status: number) => void
   canvas: HTMLCanvasElement
+  setCanvasSize: (width: number, height: number, noUpdates: boolean) => void
 }
 
 const Chess = (p: Props) => {
@@ -45,8 +51,7 @@ const Chess = (p: Props) => {
     // console.log('updatedModule\n\n\n\n', updatedModule, '--------\n\n\n\n')
     moduleRef.current = updatedModule
 
-    // TODO: this "works" but only shows a portion of the board
-    // updatedModule['setCanvasSize'](800, 800, false)
+    updatedModule.setCanvasSize(width, height, false)
 
     return updatedModule
   }
