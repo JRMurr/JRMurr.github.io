@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import dynamic from 'next/dynamic'
+import Note from '../Note'
 
 interface Props {
   //   children: ReactNode
@@ -19,9 +20,10 @@ interface ZigFishModule extends EmscriptenModule {
   force_exit: (status: number) => void
   canvas: HTMLCanvasElement
   setCanvasSize: (width: number, height: number, noUpdates: boolean) => void
+  forcedAspectRatio: number
 }
 
-const Chess = (p: Props) => {
+const ChessInner = (p: Props) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const moduleRef = useRef<any>(null)
@@ -42,6 +44,7 @@ const Chess = (p: Props) => {
       onRuntimeInitialized: () => {
         console.log('WASM runtime initialized')
       },
+      forcedAspectRatio: 11 / 8,
     }
 
     const { default: zigFishInit } = (await import('./zigfish/zigfish.js')) as {
@@ -52,6 +55,9 @@ const Chess = (p: Props) => {
     moduleRef.current = updatedModule
 
     updatedModule.setCanvasSize(width, height, false)
+    // const tmp = canvasRef.current as any
+    // tmp.style.width = `${90 * 11}`
+    // tmp.style.height = `${90 * 8}`
 
     return updatedModule
   }
@@ -78,6 +84,33 @@ const Chess = (p: Props) => {
       onContextMenu={(e) => e.preventDefault()}
       tabIndex={-1}
     ></canvas>
+  )
+}
+
+const Chess = (p: Props) => {
+  'use client'
+  const [isDesktop, setDesktop] = useState(window.innerWidth > 1280)
+
+  const updateMedia = () => {
+    setDesktop(window.innerWidth > 1280)
+  }
+
+  useEffect(() => {
+    window.addEventListener('resize', updateMedia)
+    return () => window.removeEventListener('resize', updateMedia)
+  })
+
+  return (
+    <div>
+      {isDesktop ? (
+        <ChessInner {...p}></ChessInner>
+      ) : (
+        <Note>
+          Looks like you are on a small screen, If you load this on a desktop you can play against
+          my engine in the browser
+        </Note>
+      )}
+    </div>
   )
 }
 

@@ -1,8 +1,8 @@
 import { ReactNode } from 'react'
 
 interface Props {
-  children: ReactNode
-  className: string
+  children?: ReactNode
+  className?: string
 }
 
 const Note = ({ children, className }: Props) => {
