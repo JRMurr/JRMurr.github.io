@@ -86,7 +86,7 @@ export const blogs = defineCollection({
       tocRaw: s.toc(),
       draft: s.boolean().default(false),
       lastmod: s.isodate().optional(),
-      path: s.path(),
+      // path: s.path(),
     })
     // more additional fields (computed fields)
     .transform(({ tocRaw, ...data }) => {
@@ -110,6 +110,7 @@ export const blogs = defineCollection({
 
       return {
         ...data,
+        path: `blog/${data.slug}`,
         // slug,
         toc: tocRaw.map(addDepthToNestedList),
         // computedFields,
