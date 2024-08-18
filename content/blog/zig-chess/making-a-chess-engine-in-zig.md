@@ -29,9 +29,11 @@ This won't really be a tutorial, more of a vibe, but hopefully you learn somethi
 If your lazy and just wanna read some code it lives [here](https://github.com/JRMurr/ZigFish)
 I called it ZigFish since this will obviously match Stockfish in elo....
 If you're on a browser, you should see the engine below... (if not please go easy on me, wasm has caused me so much pain....).
-Play it and see how you do!
+Play it and see how you do! I'd guess its elo is around 1k. Basically it won't blunder hard and thats enough to beat me....
 
 <Chess/>
+
+
 
 
 # How Does a Chess Engine Work?
