@@ -145,7 +145,7 @@ const authors = defineCollection({
   }),
 })
 
-type Blogs = z.infer<typeof blogs.schema>[]
+export type Blogs = z.infer<typeof blogs.schema>[]
 
 function createSearchIndex(blogs: Blogs) {
   if (
@@ -161,7 +161,9 @@ function createSearchIndex(blogs: Blogs) {
 }
 
 async function createRss(blogs: Blogs) {
-  await generateRSS(siteMetadata, blogs)
+  const tagCounts = createTagCount(blogs)
+
+  await generateRSS(siteMetadata, blogs, tagCounts)
 }
 
 const isProduction = process.env.NODE_ENV === 'production'
@@ -180,6 +182,8 @@ function createTagCount(blogs) {
     }
   })
   writeFileSync('./app/tag-data.json', JSON.stringify(tagCount))
+
+  return tagCount
 }
 
 const twoSlashErrHandler = (err, code, lang, options) => {
@@ -253,7 +257,6 @@ const config = defineConfig({
   },
   complete: async (collections) => {
     createSearchIndex(collections.blogs)
-    createTagCount(collections.blogs)
     await createRss(collections.blogs)
   },
 })

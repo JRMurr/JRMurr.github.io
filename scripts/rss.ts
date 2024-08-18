@@ -1,9 +1,7 @@
 import { writeFileSync, mkdirSync } from 'fs'
 import path from 'path'
 import { slug } from 'github-slugger'
-import siteMetadata from '../content/siteMetadata.js'
-import tagData from '../app/tag-data.json' assert { type: 'json' }
-import { blogs } from '../.velite/index.js'
+import type { Blogs } from '../velite.config'
 import { sortPosts } from '../utils/velite.js'
 import { escape } from '../utils/htmlEscaper.js'
 
@@ -35,7 +33,12 @@ const generateRss = (config, posts, page = 'feed.xml') => `
   </rss>
 `
 
-export async function generateRSS(config, blogs, page = 'feed.xml') {
+export async function generateRSS(
+  config,
+  blogs: Blogs,
+  tagCounts: Record<string, number>,
+  page = 'feed.xml'
+) {
   const publishPosts = blogs.filter((post) => post.draft !== true)
   // RSS for blog post
   if (publishPosts.length > 0) {
@@ -44,7 +47,7 @@ export async function generateRSS(config, blogs, page = 'feed.xml') {
   }
 
   if (publishPosts.length > 0) {
-    for (const tag of Object.keys(tagData)) {
+    for (const tag of Object.keys(tagCounts)) {
       const filteredPosts = blogs.filter((post) => post.tags.map((t) => slug(t)).includes(tag))
       const rss = generateRss(config, filteredPosts, `tags/${tag}/${page}`)
       const rssPath = path.join('public', 'tags', tag)
@@ -53,10 +56,3 @@ export async function generateRSS(config, blogs, page = 'feed.xml') {
     }
   }
 }
-
-const rss = () => {
-  generateRSS(siteMetadata, blogs)
-  console.log('RSS feed generated...')
-}
-
-export default rss
