@@ -26,10 +26,10 @@ TODO:
 
 I had the honor of [speaking at Systems Distributed](https://www.youtube.com/watch?v=whqMdAD5JTc) at the end of June.
 Since it was hosted by TigerBeetle who is one of the largest zig users, a lot of the zig community was there.
-After talking to some of them, zig seemed more interesting for me to try out.
+After talking to some of them, Zig seemed more interesting for me to try out.
 
 Around the same time my youtube algorithm got me hooked on chess content.
-Im not a good chess player by any means, but it started giving me the urge to make my own chess engine.
+I'm not a good chess player by any means, but it started giving me the urge to make my own chess engine.
 If I make a good chess engine that should obviously make me a better chess player...
 
 So I decided to merge the two desires together and make my own engine in zig.
@@ -63,7 +63,7 @@ We can't have it play like [chatgpt where a rook can fly diagonally across the b
 
 Before I even started the logic I wanted to have a nice gui to play with, so I found this [zig raylib binding](https://github.com/Not-Nik/raylib-zig).
 
-This was my first interaction with zig's build system/package management. To add this dependency you can run
+This was my first interaction with Zig's build system/package management. To add this dependency you can run
 ```shell
   zig fetch --save https://github.com/Not-Nik/raylib-zig/archive/{commit-sha}.tar.gz
 ```
@@ -279,7 +279,7 @@ The black F pawn could technically be captured En Passant but that would reval t
 #### Sliding Moves
 
 The sliding pieces can eat up a lot of time. The queen can "see" up to 27 squares if its at the center of the board.
-So if you have a "naive" algorithm that "walks" the 8 directions you can go that can eat up a lot of the move generation time.
+So if you have a naive algorithm that "walks" the 8 directions you can go that can eat up a lot of the move generation time.
 
 So this is where BitBoards can help a lot. I went with what the chess wiki calls the ["Classical Approach"](https://www.chessprogramming.org/Classical_Approach).
 
@@ -473,7 +473,7 @@ Move search works roughly like this
 
 What I described is basically [minimax search](https://www.chessprogramming.org/Minimax).
 The main extra piece is you need to assume the other player will also be making the best moves for them.
-If theres a checkmate you could possibly reach in 2 moves, that would score well but if it requires the other player to play "dumb" moves you should not really consider it.
+If there's a checkmate you could possibly reach in 2 moves, that would score well but if it requires the other player to play "dumb" moves you should not really consider it.
 
 So to get the score for non-leaf nodes, you will pick the min score when its the opponents turn, and the max if its your turn.
 
@@ -504,7 +504,7 @@ To help see more pruning, I need to sort the moves we examine so "better" moves 
 ## Testing
 
 As I worked on more and more search improvements I ran into an issue. How do I know if the engine is getting better at playing chess? I could play against it after each change, but I suck...
-So the best approach is to have every change to the engine play an older version of itself. If the newer version beats the older one more often than not, the change was probably a good one.
+The best approach is to have every change to the engine play against an older version of itself. If the newer version beats the older one more often than not, the change was probably a good one.
 
 Thankfully [Fastchess](https://github.com/Disservin/fastchess) exists, it will make "tournaments" where a random position is given to 2 engines and they both play as white and black in that position to see who wins.
 It gives a basic report that looks roughly like
@@ -1102,7 +1102,7 @@ After 30ish min of setup my branch was deployed and I could verify the wasm work
 
 If you remove the pain of getting the wasm build to work, this whole project was insanely fun. 
 
-Making a chess engine gave a similar feeling to playing factorio/satisfactory or a zachtronics game.
+Making a chess engine gave me a similar feeling to playing Factorio, Satisfactory, or a Zachtronics game.
 Those games all are games with some software engineering vibes.
 Developing a chess engine is software engineering with some playing a game vibes.
 
