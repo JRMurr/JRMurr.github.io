@@ -298,11 +298,9 @@ Once the ray mask is applied to the occupied board shown here only 2 squares rem
 The bit board uses [Little Endian Rank File Mapping](https://www.chessprogramming.org/Square_Mapping_Considerations#LittleEndianRankFileMapping).
 This basically means lower Ranks (rows) have lower index and then each rank starts with the a file as the lowest index in that rank.
 
-Here are how the indexes are laid out.
+Here are how the indexes are laid out (the indexes here correspond the `nth` bit in the `u64` backing the bit board)
 
-TODO: add picture for real
-
-![Board Index Example](https://www.chessprogramming.org/images/b/b5/Lerf.JPG)
+![Board Index Example](./sqaures.jpg)
 
 
 So when if you look at the `u64` backing the bitboard, "lower" bits are near the bottom of the board. More concretely the least significant bit would be a1. The most significant bit would be h8.
