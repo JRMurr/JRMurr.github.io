@@ -22,7 +22,6 @@ TODO:
 - Talk about chat gpt?
 - Explain fen?
 - nix build stuff for fastchess
-- Iframe broken for lichess (its something with headers so might only matter locally)
 - More uci so can run on lichess
 
 I had the honor of [speaking at Systems Distributed](https://www.youtube.com/watch?v=whqMdAD5JTc) at the end of June.
@@ -30,7 +29,7 @@ Since it was hosted by TigerBeetle who is one of the largest zig users, a lot of
 After talking to some of them, zig seemed more interesting for me to try out.
 
 Around the same time my youtube algorithm got me hooked on chess content.
-Im not a good chess player by any means but it started giving me the urge to make my own chess engine.
+Im not a good chess player by any means, but it started giving me the urge to make my own chess engine.
 If I make a good chess engine that should obviously make me a better chess player...
 
 So I decided to merge the two desires together and make my own engine in zig.
@@ -40,9 +39,12 @@ This won't really be a tutorial, more of a vibe, but hopefully you learn somethi
 
 If your lazy and just wanna read some code it lives [here](https://github.com/JRMurr/ZigFish)
 I called it ZigFish since this will obviously match Stockfish in elo....
-
+If you're on a browser, you should see the engine below... (if not please go easy on me, wasm has caused me so much pain....).
+Play it an see how you do!
 
 <Chess/>
+
+
 # How Does a Chess Engine Work?
 
 At its core a chess engine needs to do 3 things
@@ -832,4 +834,270 @@ nix run .#runFast
 ```
 
 this will call that script and kick off the fast-chess tournament of the bot on my local checkout of the repo vs an older commit.
+
+
+
+
+# Some thoughts on zig
+
+I've spent about a month and half of my free time working on this engine, so I feel like i've gotten a decent vibe on what programming is zig is like.
+Zig is still pretty young so take everything I say with a grain of salt.
+Im sure many of the issues I bring up will be addressed eventually/would go away as I used the lang more.
+
+## Memory safety
+
+Zig did not have a goal of memory safety at all, I don't expect this language to behave like rust.
+For the first week or two working on the engine, I really enjoyed not dealing with the borrow checker.
+It felt great to just write what was in my mind and see results instantly.
+Optional/Error types covers a lot of the common memory safety pitfalls.
+
+Though once I started doing some multi threading, I ran into issues.
+Again, a lot of these are pretty obvious in retrospect so I would put most of these in "skill issue" territory.
+
+
+### All my homies love a .clone()
+
+The first was very obvious but pretty funny.
+
+During my raylib update func, I have logic roughly like
+```zig
+fn update() {
+    if (is_ai_turn) {
+        game.findBestMove() // does search in a background thread so this resolves instantly
+    }
+    // other stuff
+    game.draw()
+}
+```
+
+The comment might give it away but, `findBestMove` didn't clone the board so it was being modified all the time during search.
+Then the draw function would see this weird board state and the UI would show pieces moving/popping in and out of existence and eventually something would crash.
+
+
+As a bug, this was pretty easy, the fix is obvious, just clone the board. Also, the bug was pretty fun to look at...
+It made me want to make this happen "for real" during search so you can watch the engine "think".
+
+
+
+### Who up passing by they value
+
+In zig everything is passed by Value by default. 
+So basically every param is copied when passed to a function (though this might be optimized to a ptr ref in some cases).
+
+Sometimes zig will let you know you probably messed up. For example
+
+```zig
+const Foo = struct {
+    bar: usize = 0,
+
+    fn update(self: Foo) void {
+        self.bar = 1; // COMPILE ERROR: cannot assign to constant
+    }
+};
+```
+
+Since `update` takes in Foo by value, `self` is constant so modifying the field would accomplish nothing.
+Sometimes this fact is nice. You could have something like
+
+```zig
+const Foo = struct {
+    bar: usize = 0,
+
+    fn cloneUpdate(self: Foo) Foo {
+        var newFoo = self;
+        newFoo.bar = 1;
+        return newFoo;
+    }
+};
+```
+
+now we copy Foo and return a modified version, allowing for immutable apis.
+
+
+With that said, passing by value lead to one of the more annoying "memory" bugs I ran into. 
+I have a struct that is a bounded array for all the possible moves in a position
+
+```zig
+pub const MAX_MOVES: usize = 218;
+
+const MoveArr = std.BoundedArray(Move, MAX_MOVES);
+
+const MoveList = struct {
+    moves: MoveArr,
+    
+    //.... other stuff
+
+    pub fn items(self: MoveList) []const Move {
+        return self.moves.constSlice();
+    }
+}
+```
+
+I started having really weird issues during search. Iterating over `moves.items` would sometimes error since a start piece didn't exist.
+I spent a long time debugging. My first thought was maybe the allocator I was using wasn't thread safe? (the first version of this struct used an array list instead of a bounded array).
+I refactored to use the bounded array and it was still sad...
+
+Finally I had a friend look over the code and he saw the issue right away. `items` is passing `MoveList` by value, so `constSlice` is returning a ptr to that copy. When the function over that MoveList is gone and its memory can be modified by other things on the stack.
+
+Once I switched the function to be 
+
+```zig
+pub fn items(self: *const MoveList) []const Move {
+    return self.moves.constSlice();
+}
+```
+The issues went away.
+
+This is definitely one of those issues that if I wrote more C/C++ I would have seen right away so I wont fault zig in this case too much. I hope in future versions simple cases like this could be caught by lints or something like that.
+
+I don't think zig needs lifetimes but I hope simple stuff like this could be caught.
+
+
+## Comptime
+
+I've talked about comptime a bit during the chess part of this blog but it deserves more love.
+It makes generics so simple. If you need something more complicated you can just write some zig code.
+You no longer need to learn traits, templates, or any other type level logic. Its all just zig.
+
+This power can be a little confusing. It can be hard to tell what is comptime and what is not.
+Generally its not a big deal since its again all just zig.
+Though if the code you call is doing syscalls/calling c code you are gonna get sad.
+
+My only real issues with Comptime is it makes the IDE experience not great.
+The language server has trouble figuring out the types of comptime vars sometimes so you lose intellisense.
+
+With that said, I would be surprised if this is not addressed in some form before zig 1.0 so im not too worried about it.
+
+
+
+## Build System
+
+The first two things I heard about zig was comptime and its build system.
+
+As a nix lover, build systems make me feel some type of way. I've spent many, many, hours fighting/making dumb build systems.
+Zig caused me so little pain, it felt like a breath of fresh air.
+
+Like comptime, its all just zig. I didn't have to parse weird syntax to figure what esoteric build flags are being set. I had simple hop to definition in a zig file.
+
+My only "issue" is I didn't spend enough time making my build script "nice".
+Its easy to just make a giant `build` func that has a bunch of copied code instead of splitting up the build logic into separate funcs.
+My jank did serve me well though.
+
+
+
+# The pain of getting the engine running in this blog post
+
+<Note>
+None of what im about to rant about is zig's fault. This won't be a tutorial, I forgot half the things I did along the way anyway.
+
+I experienced so much pain that it must be shared
+
+Feel free to skip this whole section, I won't judge
+</Note>
+
+Zig has native support for wasm, if I only had zig code to compile I would be big chilling (hopefully).
+
+But, one of the core goals of zig is easy interop with c. In my case I used this fact to use raylib for rendering the chess board/ui.
+I had no issues with raylib when I was running it on my desktop.
+
+Once I realized I "could" compile it to wasm to have in my blog, I had nothing but issues.
+
+## Emscripten
+
+So first up, I needed to use emscripten to compile since raylib is in C. My raylib bindings had some code to build with emscripten but since I use multithreading
+it wasn't working out of the box. Long story short, I had to set many different compile options, some in zig, some in emscripten to say
+"trust me bro my browser is new and can use multithreading". After a few hours I finally had the engine running in a emscripten's basic index.html wrapper.
+Emscripten generated 4 files, the wasm, a js "glue" file, a js worker file for multithreading with web workers, and an index.html file which is a simple example to load it all in a browser.
+
+
+
+## Nextjs/react
+
+Since I had some working wasm/js/html code, I wanted to load it in my blog. My [blog](https://github.com/JRMurr/JRMurr.github.io) is a nextjs static site that I deploy to github pages.
+Why Nextjs? I found a nice [template](https://github.com/timlrx/tailwind-nextjs-starter-blog) a few years ago and it was simple to get going. 
+As I've done more and more customizing,I've started to wish I used something simpler. The wasm build had me very close to just yeeting it all and making my own static site generator...
+
+
+Making a react component to wrap some other code isn't too crazy. In theory something like
+```ts
+const Chess = () => {
+    const canvasRef = useRef<HTMLCanvasElement>(null)
+
+     useEffect(() => {
+        // omitting a lot of real logic
+        const init = loadWasm(canvasRef) // import the glue code and give it the canvas to render
+    }, [])
+
+
+    return (
+      <canvas
+        ref={canvasRef}
+        id="canvas"
+        onContextMenu={(e) => e.preventDefault()}
+      ></canvas>
+  )
+}
+```
+
+and this "almost" worked. I saw some of the wasm code running but it would always error with something like
+`window` is undefined. I thought this was weird dumb nextjs server side rendering bug in dev mode,
+so I threw `'use client'` all over the place, still sad...
+
+The stack traces were garbage because the glue code was transformed heavily by webpack. Once I undid that I saw the issue. The glue code had logic like
+```js
+if (typeof window === 'object') {
+    // do stuff with window
+}
+```
+
+nextjs/webpack/swc/some other tool hiding in my node modules transformed the conditional to be
+
+```js
+if (true) {
+    // do stuff with window
+}
+```
+
+If you aren't using web workers, this is fine but in a web worker, you don't have the window object...
+I spent hours searching through nextjs/webpack docs to find a way to disable this optimization and could not find it... I did eventually realize it was swc doing this but I couldn't configure it :(.
+
+
+I was able to find this [emscripten issue](https://github.com/emscripten-core/emscripten/issues/19996) describing this exact "bug" and it had a workaround of adding this 
+```js
+if (!global.window) {
+      global.window = {
+        encodeURIComponent: encodeURIComponent,
+        location: location,
+      }
+    }
+```
+to the glue code. 
+
+This was one of those issues that made me understand why non webdevs hate web dev... I generally enjoy webdev but man do frameworks really get in your way..
+
+
+## Content security headers and github pages
+
+So I spent a few days dealing with the above issue, 
+once I got something working I wanted to make sure this would actually work when deployed for real.
+
+I double checked all the nextjs config options I tweaked and remembered I had to add `Cross-Origin-Embedder-Policy` and `Cross-Origin-Opener-Policy` security headers on the next js dev server. These are needed for `SharedArrayBuffer` to run in the browser.
+I think the reason is because of some cpu exploits are possible with them so they are locked down.
+
+I deploy my blog with github pages so I went looking how to enable those headers on there. After a while I found out, you can't.
+
+If I could describe the sadness I felt in this moment... I spent days getting this wasm to run only for it to not run in prod...
+
+
+After a few min of sadness thinking I would need to spend another week switching hosting providers or figuring out a seperate way to host the engine. I found a ray of hope.
+
+[Cloudflare pages](https://developers.cloudflare.com/pages/) (I'm not sponsored by them, but if you are from cloudflare slide in my dms.... I want some swag). Its basically github pages but has more features (including setting headers), can build my nextjs app natively, and its also free!
+
+
+After 30ish min of setup my branch was deployed and I could verify the wasm worked. I really enjoy the UX for it over github pages. Highly recommend checking it out if you have not.
+
+
+
+
+
 

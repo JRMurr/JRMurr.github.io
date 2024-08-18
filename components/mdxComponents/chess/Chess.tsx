@@ -29,6 +29,8 @@ const ChessInner = (p: Props) => {
   const moduleRef = useRef<any>(null)
 
   const loadWasm = async () => {
+    const tile = document.title // wasm is setting this....
+
     // https://emscripten.org/docs/api_reference/module.html#module
     const wasmModule: Partial<ZigFishModule> = {
       print: (text) => {
@@ -58,7 +60,7 @@ const ChessInner = (p: Props) => {
     // const tmp = canvasRef.current as any
     // tmp.style.width = `${90 * 11}`
     // tmp.style.height = `${90 * 8}`
-
+    document.title = tile
     return updatedModule
   }
 
