@@ -11,8 +11,6 @@ layout: PostSimple
 <TOCInline toc={props.toc} asDisclosure />
 
 
-TODO:
-- Explain eval and move ordering
 
 I had the honor of [speaking at Systems Distributed](https://www.youtube.com/watch?v=whqMdAD5JTc) at the end of June.
 Since it was hosted by TigerBeetle who is one of the largest zig users, a lot of the zig community was there.
@@ -30,7 +28,7 @@ This won't really be a tutorial, more of a vibe, but hopefully you learn somethi
 If your lazy and just wanna read some code it lives [here](https://github.com/JRMurr/ZigFish)
 I called it ZigFish since this will obviously match Stockfish in elo....
 If you're on a browser, you should see the engine below... (if not please go easy on me, wasm has caused me so much pain....).
-Play it an see how you do!
+Play it and see how you do!
 
 <Chess/>
 
@@ -246,25 +244,14 @@ I can then make an array of that size, then use `@intFromEnum` to lookup the ind
 Now that we have a board, we can start figuring out the moves.
 While each piece's movement rules are pretty simple to humans, there are SO MANY EDGE CASES.
 
-{/* TODO: yeet example and clean this intro up a bit */}
 
 Things like
 - En Passant
 - Castling
 - Pinned Pieces (a piece who is blocking an attack on the king)
 
-Those situations on their own are not horrible, what really caused pain was combos of those situations like
-
-Like this (really dumb) position
-
-{ /* 
-
-<IFrame width="600" height="400" src="https://lichess.org/embed/game/eJXA7KVE?theme=auto&bg=auto#12"/>
-
-*/ }
-
-The black F pawn could technically be captured En Passant but that would reval the rook attack on the king..
-
+Those situations on their own are not horrible, what really caused pain was combos of those situations. 
+I'd estimate roughly 60-70% of the bugs I ran into on this project were logic issues involving the edge cases mentioned above.
 
 #### Sliding Moves
 
@@ -275,7 +262,7 @@ So this is where BitBoards can help a lot. I went with what the chess wiki calls
 
 At its core, I precompute the 8 rays on each square. A ray is all the potential squares a piece could slide to along a column, row, or diagonal in both directions.
 
-So for example here are some of the rays for the b4 square (stolen from the chess wiki, have i mentioned how dope it is yet...)
+So for example here are some of the rays for the b4 square (stolen from the chess wiki)
 ```
 East (+1)           North (+8)           NorthEast (+9)      NorthWest (+7)
 . . . . . . . .     . . . 1 . . . .      . . . . . . . 1     . . . . . . . .
@@ -304,8 +291,19 @@ occupied         &  NorthWest(g2)       {a8, c6}
 ```
 
 Once the ray mask is applied to the occupied board shown here only 2 squares remain (a8 and c6).
-{/* TODO: explain bit scan and positive/negative rays bit more */}
-Since this this ray is going in a positive direction on the board, if you find the first LSB set, that will get you the blocker of the ray.
+
+##### Bit scans
+
+The bit board uses [Little Endian Rank File Mapping](https://www.chessprogramming.org/Square_Mapping_Considerations#LittleEndianRankFileMapping).
+This basically means lower Ranks (rows) have lower index and then each rank starts with the a file as the lowest index in that rank.
+
+Here are how the indexes are layed out
+
+![Board Index Example](https://www.chessprogramming.org/images/b/b5/Lerf.JPG)
+
+
+
+
 
 So in this case, we will find c6. So any square "behind" c6 will not be accessible for this piece. 
 We can use the same NorthWest ray on c6 and "subtract" its ray from the ray original ray we computed on g2
@@ -478,17 +476,152 @@ To do the above we track 2 values, alpha and beta. Alpha is the lower bound for 
 
 The [wikipedia page](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning) for alpha-beta pruning has some good examples if your more interested, but TLDR this is an easy to implement search algorithm that is pretty fast and it will give the same answer as normal minimax search.
 
+
+
+
 ### Evaluation
 
-There are many ways you can evaluate a chess position but the simplest thing to do first is to sum up the piece values for each player then subtract your piece values from the opponent's piece score.
+There are many ways you can evaluate a chess position. The simplest thing to do sum up the piece values for each player then subtract your piece values from the opponent's piece score.
 
+So it would be something like
+
+```zig
+pub const Score = i64;
+
+pub const PIECE_SCORES = std.EnumArray(Kind, Score).init(.{
+    .King = 0,
+    .Queen = 900,
+    .Bishop = 330,
+    .Knight = 320,
+    .Rook = 500,
+    .Pawn = 100,
+});
+
+fn getMaterialScore(board: *const Board, color: Color) Score {
+    var score: Score = 0;
+    inline for (utils.enumFields(Kind)) |f| {
+        const kind_idx = f.value;
+        const kind: Kind = @enumFromInt(kind_idx);
+
+        const p: Piece = .{ .kind = kind, .color = color };
+        const pieces = board.getPieceSet(p);
+
+        if (kind != Kind.King) {
+            const piece_count = pieces.count();
+            score += @as(Score, @intCast(piece_count)) * PIECE_SCORES.get(kind);
+        }
+    }
+    return score;
+}
+```
+
+So here `getMaterialScore` will loop over all the pieces for a color and sum its values up. Here The `Score` is in "centipawns" so a pawn is worth 100 centipawns.
+The scores for the other pieces roughly follow traditional wisdom. Bishops are worth a little bit more than knights, rooks are more, and finally queens.
+I decided to give kings no score. Honestly for no real reason since if you lose a king, you lose anyway.
+
+
+Pure piece score eval is decent but it can be a little lacking. So I also give a score for where a piece is on the board.
+For example, pawns should be in the center or pushed as far up as possible, knights should avoid being on the side of the board, etc.
+
+So for each piece I track static arrays of score to add/subtract if a piece is on that square.
+
+For example here is the knight score array
+
+```zig
+const KNIGHT_SCORE = PieceSquare{ 
+        -50,-40,-30,-30,-30,-30,-40,-50,
+        -40,-20,  0,  0,  0,  0,-20,-40,
+        -30,  0, 10, 15, 15, 10,  0,-30,
+        -30,  5, 15, 20, 20, 15,  5,-30,
+        -30,  0, 15, 20, 20, 15,  0,-30,
+        -30,  5, 10, 15, 15, 10,  5,-30,
+        -40,-20,  0,  5,  5,  0,-20,-40,
+        -50,-40,-30,-30,-30,-30,-40,-50,
+    };
+```
+
+So during eval I also call
+
+```zig
+pub fn scorePieces(p: Piece, board: BoardBitSet) Score {
+        var score: Score = 0;
+
+        const piece_sqaure = getPieceSquare(p); // gets the score array for the given piece
+
+        var board_iter = board.iterator();
+        while (board_iter.next()) |pos| {
+            score += piece_sqaure[pos.toIndex()];
+        }
+
+        return score;
+    }
+```
+
+to update the score with positional info.
+
+
+There are a lot of more improvements you can make to eval like analyzing pawn structure, king safety, and much more. Basic piece score and position gets you decently far so I stopped there for now.
 
 
 
 ### Move ordering
 
-To help see more pruning, I need to sort the moves we examine so "better" moves are examined first. This way we should see more cutoffs for the worse moves.
+To help see more pruning during search, I need to sort the moves we examine so "better" moves are examined first. This way we should see more cutoffs for the worse moves.
 
+Ordering moves is pretty arbitrary. You can't do a full evaluation of the board or that would just be doing the work I explained above
+
+So I score moves with the rough vibe of 
+
+- prefer captures
+- avoid moving to a square if its under attack. Especially if its under attack by a pawn
+
+```zig
+const MoveCompareCtx = struct {
+    gen_info: MoveGen.MoveGenInfo, // generated info like what is under attack
+    best_move: ?Move = null, // previous best move from a shallower search
+};
+
+
+fn score_move(ctx: MoveCompareCtx, move: Move) Score {
+    var score: Score = 0;
+
+    // If in a previous iteration of search this was the best move, look at it first
+    if (ctx.best_move) |best| {
+        if (best.eql(move)) {
+            return MAX_SCORE;
+        }
+    }
+
+    const move_val = Precompute.PIECE_SCORES.get(move.kind);
+
+    if (move.move_flags.contains(MoveType.Castling)) {
+        score += 100;
+    }
+
+    if (move.captured_kind) |k| {
+        const captured_score = Precompute.PIECE_SCORES.get(k);
+
+        score += 10 * captured_score - move_val;
+    }
+
+    if (move.promotion_kind) |k| {
+        score += Precompute.PIECE_SCORES.get(k);
+    }
+
+    // Lower score if position is under attack
+    const attack_info = ctx.gen_info.attack_info;
+    if (attack_info.attackers[@intFromEnum(Kind.Pawn)].isSet(move.end.toIndex())) {
+        score -= (@divFloor(move_val, 4));
+    } else if (attack_info.attacked_squares.isSet(move.end.toIndex())) {
+        score -= (@divFloor(move_val, 8));
+    }
+
+    return score;
+}
+```
+
+
+This is definitely the most "vibes" part of the search I worked on. Just went with my gut and it seemed to work out fine. I think until I actually get more speed ups during move generation this wont matter as much. 
 
 
 ## Testing
@@ -1101,6 +1234,8 @@ Since its a very well established "thing", you don't really have to think of new
 If you get stuck the wiki has a lot of good resources to help out. You also have very good indicators of how good you are doing, if it wins more its doing better.
 Finally, if you make your code more performant there are obvious benefits, the engine can analyze more and therefore do better.
 
+
+I only scratched the surface of chess engines. There are a lot of improvements I could make to make search faster/evaluation better. Maybe I'll revisit in the future...
 
 On the zig side, zig is a great language. Its simple to use but has a lot of power behind it. 
 Using raylib with it reminded me and the early games I made in SDL and XNA. 

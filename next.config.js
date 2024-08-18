@@ -53,6 +53,10 @@ const securityHeaders = [
   //     value: 'camera=(), microphone=(), geolocation=()',
   //   },
   {
+    key: 'Cross-Origin-Resource-Policy',
+    value: 'cross-origin',
+  },
+  {
     key: 'Cross-Origin-Embedder-Policy',
     value: 'require-corp',
   },
