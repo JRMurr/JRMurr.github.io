@@ -12,17 +12,7 @@ layout: PostSimple
 
 
 TODO:
-- Explain eval more
-  - update eval with isolated/passed pawn
-  - update eval with better "phase" support opening vs endgame position scoring
-- Search in a thread/cancellation
-- Implement and explain using opening books
-  - parsing done need to actually use
-- Explain uci impl? (might be boring)
-- Talk about chat gpt?
-- Explain fen?
-- nix build stuff for fastchess
-- More uci so can run on lichess
+- Explain eval and move ordering
 
 I had the honor of [speaking at Systems Distributed](https://www.youtube.com/watch?v=whqMdAD5JTc) at the end of June.
 Since it was hosted by TigerBeetle who is one of the largest zig users, a lot of the zig community was there.
@@ -1118,3 +1108,11 @@ Using raylib with it reminded me and the early games I made in SDL and XNA.
 I will most likely reach for zig more in the future on simpler projects. Once it gets a better library ecosystem, hopefully my more complex projects can be handled by it too.
 
 
+
+## Extra resources
+
+There was a lot of parts I left out in this post. If your curious on more details on how a chess engine works, check out these videos by Sebastian Lague
+- https://youtu.be/U4ogK0MIzqk?si=3An5bvn-Y6fKC7fT
+- https://youtu.be/_vqlIPDR2TU?si=simGP7j1OlfyOxHd
+
+I based a lot of my approach on his and he makes some great videos!
