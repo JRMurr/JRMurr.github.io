@@ -1,7 +1,7 @@
 ---
 title: Making a Chess Engine in Zig
 slug: making-a-chess-engine-in-zig
-date: 2024-07-28T15:23:42.275Z
+date: 2024-08-18T21:17:20.871Z
 tags: ["zig","chess","nix"]
 draft: false
 summary: Learning zig by making a chess engine
@@ -169,7 +169,7 @@ So if I want to know where all the white pawns are, I can do a bitwise intersect
 
 The other benefit is when you apply shifts/masks on the bitset, it will apply to all pieces at once.
 For example to figure out all possible squares knights can move to you can do this
-{/* TODO: call out adding numbers for directional shifts */}
+
 ```zig
 pub fn knightMoves(self: Self) Self {
     // https://www.chessprogramming.org/Knight_Pattern#Multiple_Knight_Attacks
@@ -187,9 +187,6 @@ pub fn knightMoves(self: Self) Self {
 So a few bitwise operations handle all knights at the same time.
 This speed is invaluable when figuring out all the squares the enemy pieces attack.
 
-{/* This way we can prune moves that would put our own king in check. */}
-
-
 Zig has a nice helper in the std lib [std.bit_set.IntegerBitSet](https://ziglang.org/documentation/master/std/#std.bit_set.IntegerBitSet).
 This just wraps a unsigned int and has some nice helpers for set union, intersection, and iterating over the set bits.
 
@@ -203,9 +200,6 @@ pub const BoardBitSet = packed struct {
     // a bunch of funcs...
 }
 ```
-
-{/* TODO: should this show off some funcs? ^^^^ */}
-
 
 So now my `Board` struct looks like
 
@@ -350,17 +344,32 @@ So I compute all rays at compile time, the rays are just statically stored in th
 I compute the rays by first computing all the "lines" for each square. A Line is just both directions of a ray combined
 
 ```zig
+pub const BitSet = std.bit_set.IntegerBitSet(64);
+pub const MaskInt = BitSet.MaskInt;
+pub const ShiftInt = BitSet.ShiftInt;
+
+// mask for the bottom rank (row)
+pub const RANK_0: MaskInt = 0x00000000000000FF;
+
 // https://www.chessprogramming.org/On_an_empty_Board#By_Calculation_3
 // given a square index, get all squares on its rank (row)
 pub fn rankMask(sq: u32) MaskInt {
     return RANK_0 << toShiftInt(sq & 56);
 }
 
+// mask for the A file (left most column)
+pub const FILE_A: MaskInt = 0x0101010101010101;
+
 // get all squares on the same file (column) as the square passed in
 pub fn fileMask(sq: u32) MaskInt {
     return FILE_A << toShiftInt(sq & 7);
 }
 
+
+pub const MAIN_DIAG: MaskInt = 0x8040201008040201; // A1 to H8
+pub const ANTI_DIAG: MaskInt = 0x0102040810204080; // H1 to A8
+
+// get all squares on the South west to North east diagonal this square is on
 inline fn mainDiagonalMask(sq: u32) MaskInt {
     const sq_i32 = @as(i32, @intCast(sq));
 
@@ -371,6 +380,7 @@ inline fn mainDiagonalMask(sq: u32) MaskInt {
         MAIN_DIAG << (toShiftInt(-diag) * 8);
 }
 
+// get all squares on the North west to South east diagonal this square is on
 inline fn antiDiagonalMask(sq: u32) MaskInt {
     const sq_i32 = @as(i32, @intCast(sq));
     const diag: i32 = 7 - (sq_i32 & 7) - (sq_i32 >> 3);
@@ -407,7 +417,9 @@ With this setup, I can stores all lines for each square in an array thats comput
 pub const Lines = [64][NUM_LINES]BoardBitSet;
 
 pub fn computeLines() Lines {
-    @setEvalBranchQuota(64 * NUM_LINES * 100 + 1);
+    // not exact but tells zig its ok to do more work at comptime
+    // by default zig will error if it does more than 1k branches at comptime to avoid possible infinite loops
+    @setEvalBranchQuota(64 * NUM_LINES * 100); 
     var moves: [64][NUM_LINES]BoardBitSet = undefined;
 
     inline for (0..64) |idx| {
@@ -521,7 +533,7 @@ fn getMaterialScore(board: *const Board, color: Color) Score {
         const kind_idx = f.value;
         const kind: Kind = @enumFromInt(kind_idx);
 
-        const p: Piece = .{ .kind = kind, .color = color };
+        const p = Piece{ .kind = kind, .color = color };
         const pieces = board.getPieceSet(p);
 
         if (kind != Kind.King) {
@@ -535,7 +547,7 @@ fn getMaterialScore(board: *const Board, color: Color) Score {
 
 So here `getMaterialScore` will loop over all the pieces for a color and sum its values up. Here The `Score` is in "centipawns" so a pawn is worth 100 centipawns.
 The scores for the other pieces roughly follow traditional wisdom. Bishops are worth a little bit more than knights, rooks are more, and finally queens.
-I decided to give kings no score. Honestly for no real reason since if you lose a king, you lose anyway.
+I decided to give kings no score. Honestly for no real reason other than if you lose a king, you lose anyway.
 
 
 Pure piece score eval is decent but it can be a little lacking. So I also give a score for where a piece is on the board.
@@ -645,7 +657,7 @@ This is definitely the most "vibes" part of the search I worked on. Just went wi
 ## Testing
 
 As I worked on more and more search improvements I ran into an issue. How do I know if the engine is getting better at playing chess? I could play against it after each change, but I suck...
-The best approach is to have every change to the engine play against an older version of itself. If the newer version beats the older one more often than not, the change was probably a good one.
+The best approach is to have every change play against an older version without the change. If the changed version beats the unchanged one more often than not, the change was probably a good one.
 
 Thankfully [Fastchess](https://github.com/Disservin/fastchess) exists, it will make "tournaments" where a random position is given to 2 engines and they both play as white and black in that position to see who wins.
 It gives a basic report that looks roughly like
@@ -662,7 +674,7 @@ affects elo but win/lose ratio is good enough for me...
 
 ### UCI
 
-To use fastchess I need my engine to support the [UCI](https://gist.github.com/DOBRO/2592c6dad754ba67e6dcaec8c90165bf) protocol. This is a pretty basic protocol, it sends simple text commands over stdin to the process.
+To use fastchess, I need my engine to support the [UCI](https://gist.github.com/DOBRO/2592c6dad754ba67e6dcaec8c90165bf) protocol. This is a pretty basic protocol, it sends simple text commands over stdin to the process.
 You then need to respond with basic text commands.
 
 I messed with parsing a few times when working on the engine. I eventually used [mecha](https://github.com/Hejsil/mecha) for parsing [pgn](https://www.chess.com/terms/chess-pgn) later on,
@@ -673,7 +685,6 @@ fn ParseRes(comptime T: anytype) type {
     return struct { parsed: T, rest: TokenIter };
 }
 
-//https://gist.github.com/DOBRO/2592c6dad754ba67e6dcaec8c90165bf
 pub const CommandKind = enum {
     Uci,
     Debug,
@@ -841,7 +852,7 @@ linkFarm "zig-packages" [
 ]
 ```
 
-When you go to use zig in a nix derivation you can set the output of the `deps.nix` as you zig cache so zig will just pull the deps from there instead of doing a network call to fetch them.
+When you go to use zig in a nix derivation you can set the output of the `deps.nix` as the zig cache so zig will just pull the deps from there instead of doing a network call to fetch them.
 
 ```nix
 { stdenvNoCC, callPackage, zig, lib }:
@@ -981,9 +992,9 @@ this will call that script and kick off the fast-chess tournament of the bot on 
 
 # Some thoughts on zig
 
-I've spent about a month and half of my free time working on this engine, so I feel like i've gotten a decent vibe on what programming is zig is like.
+I've spent about a month and half of my free time working on this engine, so I feel like i've gotten a decent vibe of what programming in zig is like.
 Zig is still pretty young so take everything I say with a grain of salt.
-Im sure many of the issues I bring up will be addressed eventually/would go away as I used the lang more.
+I'm sure many of the issues I bring up will be addressed eventually/would go away as I used the lang more.
 
 ## Memory safety
 
@@ -1016,13 +1027,13 @@ Then the draw function would see this weird board state and the UI would show pi
 
 
 As a bug, this was pretty easy, the fix is obvious, just clone the board. Also, the bug was pretty fun to look at...
-It made me want to make this happen "for real" during search so you can watch the engine "think".
+It made me want to make this happen "for real" during search so you can watch the engine "think". Maybe in v2....
 
 
 
 ### Who up passing by they value
 
-In zig everything is passed by Value by default. 
+In zig everything is passed by value.
 So basically every param is copied when passed to a function (though this might be optimized to a ptr ref in some cases).
 
 Sometimes zig will let you know you probably messed up. For example
@@ -1075,8 +1086,7 @@ const MoveList = struct {
 ```
 
 I started having really weird issues during search. Iterating over `moves.items` would sometimes error since a start piece didn't exist.
-I spent a long time debugging. My first thought was maybe the allocator I was using wasn't thread safe? (the first version of this struct used an array list instead of a bounded array).
-I refactored to use the bounded array and it was still sad...
+I spent a long time debugging. I refactored this struct many times, tried using allocators (tbh don't know how that didn't fix it....) but it was always still sad
 
 Finally I had a friend look over the code and he saw the issue right away. `items` is passing `MoveList` by value, so `constSlice` is returning a ptr to that copy. When the function over that MoveList is gone and its memory can be modified by other things on the stack.
 
@@ -1092,6 +1102,19 @@ The issues went away.
 This is definitely one of those issues that if I wrote more C/C++ I would have seen right away so I wont fault zig in this case too much. I hope in future versions simple cases like this could be caught by lints or something like that.
 
 I don't think zig needs lifetimes but I hope simple stuff like this could be caught.
+
+
+
+## Allocators
+
+Zig's choice to never allocator without you knowing is really nice. Any function that would allocate needs to take in an allocator as a param.
+This allows you to decide what kind of allocator you might want. Maybe you can use an arena, or maybe just a fixed buffer you allocated on the stack.
+
+
+I used them very heavily in the beginning but as I had to pass them around more and more it got me to question if I really needed it.
+Eventually in many spots I realized I don't really need to the dynamic allocations and slowly swapped them out with things like bounded arrays or fixed buffers.
+
+In other langs I probably would have realized the same things but the fact that it was staring me in the face made me think about it sooner.
 
 
 ## Comptime
@@ -1118,7 +1141,8 @@ The first two things I heard about zig was comptime and its build system.
 As a nix lover, build systems make me feel some type of way. I've spent many, many, hours fighting/making dumb build systems.
 Zig caused me so little pain, it felt like a breath of fresh air.
 
-Like comptime, its all just zig. I didn't have to parse weird syntax to figure what esoteric build flags are being set. I had simple hop to definition in a zig file.
+Like comptime, its all just zig. I didn't have to parse weird syntax to figure what esoteric build flags are being set.
+I can do things like hop to definition, import other files, print debug, etc.
 
 My only "issue" is I didn't spend enough time making my build script "nice".
 Its easy to just make a giant `build` func that has a bunch of copied code instead of splitting up the build logic into separate funcs.
