@@ -297,15 +297,34 @@ Once the ray mask is applied to the occupied board shown here only 2 squares rem
 The bit board uses [Little Endian Rank File Mapping](https://www.chessprogramming.org/Square_Mapping_Considerations#LittleEndianRankFileMapping).
 This basically means lower Ranks (rows) have lower index and then each rank starts with the a file as the lowest index in that rank.
 
-Here are how the indexes are layed out
+Here are how the indexes are laid out.
+
+TODO: add picture for real
 
 ![Board Index Example](https://www.chessprogramming.org/images/b/b5/Lerf.JPG)
 
 
+So when if you look at the `u64` backing the bitboard, "lower" bits are near the bottom of the board. More concretely the least significant bit would be a1. The most significant bit would be h8.
 
+##### Back to sliding...
 
+So back to the ray example. We have a NorthWest ray that intersected with two occupied squares.
 
-So in this case, we will find c6. So any square "behind" c6 will not be accessible for this piece. 
+```
+{a8, c6}
+1 . . . . . . .
+. . . . . . . .
+. . 1 . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+```
+
+Since we want the first hit along this ray, we want the least significant bit, which in this case would be c6.
+
+So any square "behind" c6 will not be accessible for this piece.
 We can use the same NorthWest ray on c6 and "subtract" its ray from the ray original ray we computed on g2
 
 ```
