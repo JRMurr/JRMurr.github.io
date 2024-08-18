@@ -35,7 +35,7 @@ const generateRss = (config, posts, page = 'feed.xml') => `
   </rss>
 `
 
-async function generateRSS(config, blogs, page = 'feed.xml') {
+export async function generateRSS(config, blogs, page = 'feed.xml') {
   const publishPosts = blogs.filter((post) => post.draft !== true)
   // RSS for blog post
   if (publishPosts.length > 0) {
@@ -58,4 +58,5 @@ const rss = () => {
   generateRSS(siteMetadata, blogs)
   console.log('RSS feed generated...')
 }
+
 export default rss

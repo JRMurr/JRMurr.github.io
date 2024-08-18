@@ -10,7 +10,7 @@ const siteMetadata = {
   siteLogo: '/static/images/logo.png',
   // socialBanner: '/static/images/twitter-card.png', // TODO: would be cool to have one...
   mastodon: 'https://hachyderm.io/@jrmurr',
-  email: '',
+  email: 'johnreillymurray@gmail.com',
   github: 'https://github.com/JRMurr',
   twitter: 'https://twitter.com/JRMurrCodes',
   locale: 'en-US',

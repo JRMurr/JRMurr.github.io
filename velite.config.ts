@@ -26,6 +26,7 @@ import { transformerTwoslash } from '@shikijs/twoslash'
 import { allCoreContent, sortPosts } from './utils/velite'
 import { slug } from 'github-slugger'
 import { remarkCodeTitles, remarkDefaultCodeLang, twoSlashInclude } from 'remarkPlugins'
+import { generateRSS } from './scripts/rss'
 
 // https://github.com/zce/velite/tree/main/examples/nextjs
 
@@ -159,6 +160,10 @@ function createSearchIndex(blogs: Blogs) {
   }
 }
 
+async function createRss(blogs: Blogs) {
+  await generateRSS(siteMetadata, blogs)
+}
+
 const isProduction = process.env.NODE_ENV === 'production'
 function createTagCount(blogs) {
   const tagCount: Record<string, number> = {}
@@ -246,9 +251,10 @@ const config = defineConfig({
     base: '/gen/',
     clean: true,
   },
-  complete: (collections) => {
+  complete: async (collections) => {
     createSearchIndex(collections.blogs)
     createTagCount(collections.blogs)
+    await createRss(collections.blogs)
   },
 })
 
