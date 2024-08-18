@@ -1,5 +1,6 @@
 ---
 title: Making a Chess Engine in Zig
+slug: making-a-chess-engine-in-zig
 date: 2024-07-28T15:23:42.275Z
 tags: ["zig","chess","nix"]
 draft: false

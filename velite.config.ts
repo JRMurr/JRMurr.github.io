@@ -44,6 +44,27 @@ const addDepthToNestedList = <T extends { items: T[] }>(item: T): T & { depth: n
   return helper(item, 0)
 }
 
+const mySlug = (by: string = 'global', reserved: string[] = []) =>
+  z
+    .string()
+    .min(3)
+    .max(200)
+    .regex(/^[a-z0-9]+(?:(-|\/)[a-z0-9]+)*$/i, 'Invalid slug')
+    .refine((value) => !reserved.includes(value), 'Reserved slug')
+    .superRefine((value, { path, meta, addIssue }) => {
+      const key = `schemas:slug:${by}:${value}`
+      const { cache } = meta.config
+      if (cache.has(key)) {
+        addIssue({
+          fatal: true,
+          code: 'custom',
+          message: `duplicate slug '${value}' in '${meta.path}:${path.join('.')}'`,
+        })
+      } else {
+        cache.set(key, meta.path)
+      }
+    })
+
 export const blogs = defineCollection({
   name: 'Blog',
   pattern: 'blog/**/*.md',
@@ -52,7 +73,7 @@ export const blogs = defineCollection({
       title: s.string().max(99), // Zod primitive type
       seriesTitle: s.string().optional(),
       date: s.isodate(), // input Date-like string, output ISO Date string.
-      // slug: s.slug('blog'), // validate format, unique in blog collection
+      slug: mySlug('blog'), // validate format, unique in blog collection
       summary: s.string(),
       tags: s.array(s.string()).default([]),
       authors: s.array(s.string()).default(['default']),
@@ -83,13 +104,13 @@ export const blogs = defineCollection({
         // url: '',
       }
       // const computedFields = getComputedFields(data)
-      const slug = data.path.replace('blog/', '')
+      // const slug = data.path.replace('blog/', '')
 
       // console.log({ path: data.path, slug })
 
       return {
         ...data,
-        slug,
+        // slug,
         toc: tocRaw.map(addDepthToNestedList),
         // computedFields,
         structuredData,

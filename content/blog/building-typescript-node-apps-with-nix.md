@@ -1,6 +1,6 @@
 ---
 title: Building Typescript Node Apps With Nix
-slig: building-typescript-node-apps-with-nix
+slug: building-typescript-node-apps-with-nix
 date: 2022-09-06T23:57:55.477Z
 tags: ['nix', 'typescript', 'node']
 draft: false
