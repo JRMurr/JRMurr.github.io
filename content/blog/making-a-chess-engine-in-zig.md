@@ -1089,7 +1089,7 @@ I deploy my blog with github pages so I went looking how to enable those headers
 If I could describe the sadness I felt in this moment... I spent days getting this wasm to run only for it to not run in prod...
 
 
-After a few min of sadness thinking I would need to spend another week switching hosting providers or figuring out a seperate way to host the engine. I found a ray of hope.
+After a few min of sadness thinking I would need to spend another week switching hosting providers or figuring out a separate way to host the engine. I found a ray of hope.
 
 [Cloudflare pages](https://developers.cloudflare.com/pages/) (I'm not sponsored by them, but if you are from cloudflare slide in my dms.... I want some swag). Its basically github pages but has more features (including setting headers), can build my nextjs app natively, and its also free!
 
@@ -1098,6 +1098,23 @@ After 30ish min of setup my branch was deployed and I could verify the wasm work
 
 
 
+# Final thoughts
 
+If you remove the pain of getting the wasm build to work, this whole project was insanely fun. 
+
+Making a chess engine gave a similar feeling to playing factorio/satisfactory or a zachtronics game.
+Those games all are games with some software engineering vibes.
+Developing a chess engine is software engineering with some playing a game vibes.
+
+
+Since its a very well established "thing", you don't really have to think of new ideas/designs. You can just focus on implementing an idea.
+If you get stuck the wiki has a lot of good resources to help out. You also have very good indicators of how good you are doing, if it wins more its doing better.
+Finally, if you make your code more performant there are obvious benefits, the engine can analyze more and therefore do better.
+
+
+On the zig side, zig is a great language. Its simple to use but has a lot of power behind it. 
+Using raylib with it reminded me and the early games I made in SDL and XNA. 
+
+I will most likely reach for zig more in the future on simpler projects. Once it gets a better library ecosystem, hopefully my more complex projects can be handled by it too.
 
 
