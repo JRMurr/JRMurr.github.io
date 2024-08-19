@@ -1263,7 +1263,11 @@ After a few min of sadness thinking I would need to spend another week switching
 
 After 30ish min of setup my branch was deployed and I could verify the wasm worked. I really enjoy the UX for it over github pages. Highly recommend checking it out if you have not.
 
+<Note>
+When I posted this blog I realized setting these headers broke [giscus](https://giscus.app/), the app that lets me use github discussions for blog comments.
+I spent a while trying to patch it but since its in an iframe I don't have much control. I was able to fix it for chrome by setting [credentialless](https://developer.mozilla.org/en-US/docs/Web/Security/IFrame_credentialless). Firefox doesn't support it though :(. The pain truly never ends
 
+</Note>
 
 # Final thoughts
 
