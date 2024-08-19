@@ -41,7 +41,7 @@ export default function PostLayout({
   series,
   children,
 }: LayoutProps) {
-  const { path, slug, date, title, tags } = content // @MIGRATE TODO: real file path?
+  const { path, slug,realPath, date, title, tags } = content // @MIGRATE TODO: real file path?
   const basePath = path.split('/')[0]
 
   return (
@@ -107,7 +107,7 @@ export default function PostLayout({
                 <Series series={series} currSlug={slug} />
                 {children}
               </div>
-              <Discuss path={path} />
+              <Discuss path={realPath} />
             </div>
             <footer>
               <div className="divide-gray-200 text-sm font-medium leading-5 dark:divide-gray-700 xl:col-start-1 xl:row-start-2 xl:divide-y">

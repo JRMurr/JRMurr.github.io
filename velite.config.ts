@@ -87,6 +87,7 @@ export const blogs = defineCollection({
       tocRaw: s.toc(),
       draft: s.boolean().default(false),
       lastmod: s.isodate().optional(),
+      realPath: s.path(),
       // path: s.path(),
     })
     // more additional fields (computed fields)

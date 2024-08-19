@@ -21,7 +21,7 @@ interface LayoutProps {
 }
 
 export default function PostLayout({ content, next, prev, series, children }: LayoutProps) {
-  const { path, slug, date, title, metadata } = content
+  const { path, slug,realPath, date, title, metadata } = content
 
   return (
     <SectionContainer>
@@ -51,7 +51,7 @@ export default function PostLayout({ content, next, prev, series, children }: La
                 <Series series={series} currSlug={slug} />
                 {children}
               </div>
-              <Discuss path={path} />
+              <Discuss path={realPath} />
             </div>
 
             <footer>

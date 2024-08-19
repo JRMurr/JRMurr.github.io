@@ -1,5 +1,5 @@
 import { useTheme } from 'next-themes'
-import GiscusComponent from '@giscus/react'
+import GiscusComponent from './giscusComponent';
 import type { Mapping, BooleanString, InputPosition } from '@giscus/react'
 
 export interface GiscusConfig {
@@ -60,7 +60,7 @@ export const Giscus = ({
       inputPosition={inputPosition}
       theme={commentsTheme}
       lang={lang}
-      loading="lazy"
+      loading="eager"
     />
   )
 }

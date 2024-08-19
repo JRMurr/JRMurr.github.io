@@ -79,6 +79,9 @@
     "@opentelemetry/sdk-trace-node": "1.13.0",
     "@opentelemetry/semantic-conventions": "1.13.0"
   },
+  "overrides": {
+    "giscus": "github:JRMurr/giscus-component#45792a9754335e4fefab575b996c033fb747a7c4"
+  },
   "lint-staged": {
     "*.+(js|jsx|ts|tsx)": [
       "eslint --fix"
