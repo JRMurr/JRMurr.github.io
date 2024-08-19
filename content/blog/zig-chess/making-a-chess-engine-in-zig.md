@@ -32,7 +32,7 @@ I called it ZigFish since this will obviously match Stockfish in elo....
 # Try it out
 
 If you're on a browser, you should see the engine below... (if not please go easy on me, wasm has caused me so much pain....).
-Play it and see how you do! I'd guess its elo is around 1k, if you give it more time to think (the slider) it will play better but its still just ok.
+Play it and see how you do! If you give it more time to think (the slider) it will play better but its still just ok.
 I hope to add more improvements over time
 
 <Chess/>
