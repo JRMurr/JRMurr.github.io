@@ -16,14 +16,16 @@ layout: PostSimple
 This year has been a long one for me, I gave my first talk, got married (a few days ago as write this on my honeymoon...), and I'm expecting my first kid in May. 
 Now that the stress of wedding planning is over, and I'm still childless, it's time to add a new kind of pain to my life.
 
-**Doing Advent of Code in pure nix**
+# Doing Advent of Code in Pure Nix
 
 <Note>
 If you're lazy, you can see my code [here](https://github.com/JRMurr/AdventOfCode2024) and if you're nix curious I included some nix tips at the end
 </Note>
 
 
-By "pure nix" I mean only using the nix evaluation language. TLDR i will require that `nix eval <my code>` returns the answer to each problem for advent of code. This definition allows for [IFD or import from derivation](https://nix.dev/manual/nix/2.23/language/import-from-derivation), this is somewhat intentional. You technically need IFD to import nix pkgs which is fine. 
+By "pure nix" I mean using the nix evaluation language. TLDR i will require that `nix eval <my code>` returns the answer to each problem for advent of code. 
+This definition allows for [IFD or import from derivation](https://nix.dev/manual/nix/2.23/language/import-from-derivation), this is somewhat intentional. 
+You technically need IFD to import nix pkgs which is fine.
 The kind of IFD that's bad is doing something like
 
 ```nix
@@ -38,9 +40,11 @@ in
 "${builtins.readFile drv} world"
 ```
 
-here the nix evaluation would need to build the derivation drv to finish evaluation, this is something you generally want to avoid since nix blocks the eval thread while this derivation is being built. 
+here the nix evaluation would need to build the derivation `drv` to finish evaluation, 
+this is something you generally want to avoid since nix blocks the eval thread while this derivation is being built. 
 
-For my case in AOC, this is probably fine but goes against the spirit of my self imposed challenge. But after a few days of doing this I might give up and allow myself using derivations as poor mans caching or to use some coreutil programs to simplify my nix logic.
+For my case in AOC, this is probably fine but goes against the spirit of my self imposed challenge.
+But after a few days of doing this I might give up and allow myself using derivations as poor mans caching or to use some coreutil programs to simplify my nix logic.
 
 
 This series of posts will assume you sorta understand nix's syntax but if you understand any functional lang it shouldn't be too hard to follow.
@@ -48,9 +52,12 @@ This series of posts will assume you sorta understand nix's syntax but if you un
 
 # Is Nix Language Good?
 
-One of my hottest takes is that the nix language is actually pretty good for its use case. That is defining declarative builds. It makes working with attrsets (hashmaps) really nice for common use cases like nested attributes, merging, and default missing values. Its lazy so you can write very declarative looking code and not worry that is all going to be run, only whats needed will be run. Its syntax is also pretty simple so if you know a functional language you can probably pick it up in a few days (the rest of the nix ecosystem though is a different story...)
+One of my hottest takes is that the nix language is actually pretty good for its use case. That is defining declarative builds.
+It makes working with attrsets (hashmaps) really nice for common use cases like nested attributes, merging, and default missing values.
+Its lazy so you can write very declarative looking code and not worry that is all going to be run, only whats needed will be run.
+Its syntax is also pretty simple so if you know a functional language you can probably pick it up in a few days (the rest of the nix ecosystem though is a different story...)
 
-The main issues with the language IMO are 
+The main issues with the language IMO are
 
 - Confusing error messages
 - No static types
@@ -84,12 +91,14 @@ To init my repo I have some flake templates I like to get started with
 nix flake --refresh init --template github:JRMurr/NixOsConfig#common
 ```
 
-my common template is pretty simple, the main thing it adds is a flake with nixos-unstable as the pkgs input and [flake-utils](https://github.com/numtide/flake-utils). It also adds an `.envrc` for [direnv](https://direnv.net/) to load the flake. Finally it includes [just](https://github.com/casey/just) which is a nice command runner, I don't always need it but its nice to have.
-
+my common template is pretty simple, the main thing it adds is a flake with nixos-unstable as the pkgs input and [flake-utils](https://github.com/numtide/flake-utils). 
+It also adds an `.envrc` for [direnv](https://direnv.net/) to load the flake.
+Finally it includes [just](https://github.com/casey/just) which is a nice command runner, I don't always need it but its nice to have.
 
 ## Day Template
 
-Most puzzles for advent of code follow the same format. 2 parts and have an example input you can use to check your answer. So I like to make a template for each day with a standard structure to make my life easy, I just copy that folder to start a new day and im good to go. 
+Most puzzles for advent of code follow the same format. 2 parts and have an example input you can use to check your answer. 
+So I like to make a template for each day with a standard structure to make my life easy, I just copy that folder to start a new day and im good to go. 
 I settled on this structure
 
 ```nix
@@ -113,7 +122,7 @@ in
 }
 ```
 
-The ` pkgs ? import ../locked.nix` line references this file at the repo root
+The `pkgs ? import ../locked.nix` line references this file at the repo root
 ```nix
 let
 
@@ -133,13 +142,15 @@ in
 this just makes it easy to use the same locked nixpkgs input the flake does in standalone nix files. 
 
 
-I copy this file into a subdir for each day called `day01`, `day02`, etc. I then made a small helper script called [run-day](https://github.com/JRMurr/AdventOfCode2024/blob/main/runDay.nix#L83) that basically lets me do
+I copy this file into a subdir for each day called `day01`, `day02`, etc.
+ I then made a small helper script called [run-day](https://github.com/JRMurr/AdventOfCode2024/blob/main/runDay.nix#L83) that basically lets me do
 
 ```shell
 run-day --day 01 --part 1 --useExample false
 ```
 
-this way i can easily run any day/part with/without examples. I could have exposed all of these as `apps` in my flake to let me do `nix run .#day01...` but I would need to update that each day which is not horrible but annoying.
+this way i can easily run any day/part with/without examples. 
+I could have exposed all of these as `apps` in my flake to let me do `nix run .#day01...` but I would need to update that each day which is not horrible but annoying.
 
 
 So to init each day I use this script
@@ -190,15 +201,14 @@ One thing to note if your doing AOC, please gitignore you puzzle input files, se
 [puzzle link](https://adventofcode.com/2024/day/1)
 
 
-Day 1 is usually pretty easy and this year is no different. TLDR you are a file with 2 columns of numbers and you need to parse each column into its own list.
+Day 1 is usually pretty easy and this year is no different. TLDR you have a file with 2 columns of numbers and you need to parse each column into its own list.
 
 ## Part 1
 
+In part 1 we need to sort each list and find the differences between the numbers at the same idx in each list.
 
-
-In part 1 we need to sort each list and find the differences between the numbers are the same indexs in each list.
-
-To get started I pulled up [noogle](https://noogle.dev/), its the best way to search/find nix functions in the std lib. You can search by name or by input/output types of functions. Its not as good as [hoogle](https://hoogle.haskell.org/) but given nix's lack of static types its the best we got.
+To get started I pulled up [noogle](https://noogle.dev/), its the best way to search/find nix functions in the std lib. 
+You can search by name or by input/output types of functions. Its not as good as [hoogle](https://hoogle.haskell.org/) but given nix's lack of static types its the best we got.
 
 I first came across [splitString](https://noogle.dev/f/lib/strings/splitString) which lets me split each of input with
 ```nix
@@ -220,10 +230,11 @@ splitPair = str:
 ;
 ```
 
-the first split would turn the string `3   4` into `["3" "" "" "4"]`, so after grabbing the first and last elements of the list, I can convert them to numbers with [lib.strings.toIntBase10](https://noogle.dev/f/lib/strings/toIntBase10)
+the first split would turn the string `3   4` into `["3" "" "" "4"]`, so after grabbing the first and last elements of the list, 
+I can convert them to numbers with [lib.strings.toIntBase10](https://noogle.dev/f/lib/strings/toIntBase10)
 
 
-now to get the left and right numbers into their own list I can do 
+now to get the left and right numbers into their own list I can do
 
 ```nix
 pairStrs = lib.strings.splitString "\n" text;
@@ -237,7 +248,8 @@ This feels inefficient since we walk the list of pairs twice, once to make each 
 
 
 
-Now we need to sort the lists so we can do the pairwise difference in ascending order. There is a [sort](https://noogle.dev/f/lib/sort) function but it runs the comparison many times as it sorts so it can be slow (at least according to the docs...)
+Now we need to sort the lists so we can do the pairwise difference in ascending order. 
+There is a [sort](https://noogle.dev/f/lib/sort) function but it runs the comparison many times as it sorts so it can be slow (at least according to the docs...)
 
 So I used [sortOn](https://noogle.dev/f/lib/lists/sortOn) which takes a "key function" to transform each element of the list and that transformatoned input is used to sort
 
@@ -249,16 +261,17 @@ sortLst = lst: (lib.lists.sortOn (x: x) lst);
 so in my case i use the identity function `(x: x)` since i don't need to transform the numbers to sort.
 
 
-Now to actually compute the difference I have one last small hurdle. There doesnt seem to be an absolute value func in the std lib... So i made my own
+Now to actually compute the difference I have one last small hurdle. There doesn't seem to be an absolute value func in the std lib... So i made my own
 
 ```nix
 abs = x: if x < 0 then x * -1 else x;
 ```
 
-Theres probably smarter ways to do this but, again it works so who cares...
+Theres probably smarter ways to do this, but again it works so who cares...
 
 
-to combine it all together, I need to get the absolute difference of each pair of sorted elements in the left and right lists, then i need to sum up all the differences. This is basically a zip to combine the two sorted lists together, map them to get the difference, then reduce to add them all up
+to combine it all together, I need to get the absolute difference of each pair of sorted elements in the left and right lists, then i need to sum up all the differences. 
+This is basically a zip to combine the two sorted lists together, map them to get the difference, then reduce to add them all up
 
 this can be down with
 ```nix
@@ -274,7 +287,6 @@ and thats all we need for part one
 For part2 its not too much different. Now we need to see how often numbers in the left list appear in the right list.
 
 I factored out the parsing of the left and right lists into its own function
-
 
 ```nix
 parseInput = text:
@@ -306,7 +318,8 @@ scores = builtins.map scoreElem left
 answer = lib.lists.foldl' builtins.add 0 scores;
 ```
 
-but this just screams slow. Its an n^2 alg, we need to loop over the right list for each element of the left list. Also the same number can appear multiple times in the left list so we will need to re-do work for duplicates.
+but this just screams slow. Its an n^2 alg, we need to loop over the right list for each element of the left list. 
+Also the same number can appear multiple times in the left list so we will need to re-do work for duplicates.
 
 So instead I decided to "pre-compute" all scores in the right list. I did this with a [groupBy](https://noogle.dev/f/lib/groupBy')
 
@@ -315,7 +328,8 @@ elemScores = lib.lists.groupBy' builtins.add 0 (x: "${toString x}") right;
 ```
 
 so this groupby will walk over the right list and map the element to a string so it can be a key in an attr set (a dictionary/hashmap). 
-It will apply the `builtins.add` function to the old value for that key when their is a key collision. The scoring function the problem wants is to multiple the value by its count, so adding the values together on collision will end us up with the same result.
+It will apply the `builtins.add` function to the old value for that key when their is a key collision. 
+The scoring function the problem wants is to multiple the value by its count, so adding the values together on collision will end us up with the same result.
 
 now to pull it all together
 
@@ -333,11 +347,15 @@ and with that day 1 is done.
 [puzzle link](https://adventofcode.com/2024/day/2)
 
 
-This seems to be a common format of "split input by lines and do a check". So i'll skip a little bit of the parsing details (look at the code if you are curious)
+This seems to be a common format of "split input by lines and do a check". So i'll skip a little bit of the parsing details 
+(look at the [code](https://github.com/JRMurr/AdventOfCode2024/blob/792eaa82d877e848e40d6713e04989cce21a1e5a/day02/default.nix#L6) if you are curious)
 
 ## Part 1
 
-For the first part we need to see if a line (list of nums) is safe if it is all increasing or all decrasing and each adjacent change is in `1 <= change <= 3`.
+For the first part we need to see if a line (list of nums) is safe if it is all increasing or all deceasing and each adjacent change is in 
+```
+1 <= change <= 3
+```
 
 The main challenge here is figuring out how to easily look at all adjacent pairs. Skimming through the std lib I don't see an obvious way so ill make this helper
 
@@ -412,7 +430,8 @@ isSafe = nums:
 trace: { diffs = [ -2 -3 -1 -2 ]; nums = [ 1 3 6 7 9 ]; res = false; }
 ```
 
-I forgot to look at the absolute difference in `(diff > 3 || diff < 1)` so it was failing thinking the diff was too small. I can re-use my abs function from day 1 and update the check func to be 
+I forgot to look at the absolute difference in `(diff > 3 || diff < 1)` so it was failing thinking the diff was too small. 
+I can re-use my abs function from day 1 and update the check func to be 
 ```nix
 checkDiff = diff:
   let
@@ -427,17 +446,19 @@ and part 1 is done.
 
 ## Part 2
 
-Part 2 adds a small twist where a row can be safe is removing at most 1 number from the original list makes the remaining numbers appear safe.
+Part 2 adds a small twist where a row can be safe by removing at most 1 number from the original list makes the remaining numbers appear safe.
 
-The most straightforward way to do this would be brute force, go through the list and remove numbers to see if it becomes safe. This would probably not complete in a timely fashion on the real input so im not going to consider it.
+The most straightforward way to do this would be brute force, go through the list and remove numbers to see if it becomes safe. 
+This would probably not complete in a timely fashion on the real input so im not going to consider it.
 
 
-I think a slightly better approach would be to first check if removing 1 single number could even help. If we think it could try the brute force approach on the numbers we think could impact.
+I think a slightly better approach would be to first check if removing 1 single number could even help. 
+If we think it could try the brute force approach on the numbers we think could impact.
 
 To do this we can track the indices of failed diffs.
 
 - No failures, return true
-- If theres a single failure, try to remove both numbers to see if the rest would be safe
+- If theres a single failure, try to remove both numbers that made that diff to see if the rest would be safe
 - If there are 2 failures and the indices are adjacent, we can remove the number in both those diffs to see if the rest of the list would be safe
 - otherwise still return false
 
@@ -445,7 +466,9 @@ I think the above 2 conditions are sufficient but I will add in one extra check 
 
 - If there are `>= (len diffs - 2)` failures, try removing the first two numbers.
 
-Im adding this since i check if all diffs are increasing or decreasing by comparing with the first diff. If the first diff is the outlier in increasing or decreasing my impl would count the rest of the diffs as failing. I need the `-2` since if the second number is the orignal list is whats causing the sadness its possible the first 2 diffs are good but the rest fail.
+Im adding this since i check if all diffs are increasing or decreasing by comparing with the first diff. 
+If the first diff is the outlier in increasing or decreasing my impl would count the rest of the diffs as failing. 
+I need the `-2` since if the second number is the original list is whats causing the sadness its possible the first 2 diffs are good but the rest fail.
 
 
 So with that sorta weird logic here is an updated `isSafe` func for part 2 (i just copied a new one)
@@ -537,7 +560,6 @@ idxsToRemove =
     (
       let
         failureIdx = (builtins.head failures).idx;
-
       in
       [ failureIdx (failureIdx + 1) ]
     )
@@ -547,15 +569,18 @@ idxsToRemove =
         firstFailureIdx = (builtins.head failures).idx;
         secondFailureIdx = (lib.lists.last failures).idx;
       in
-      if firstFailureIdx + 1 == secondFailureIdx then [
-        secondFailureIdx
-      ] else [ ]
+      if firstFailureIdx + 1 == secondFailureIdx then [secondFailureIdx] else [ ]
     )
   else if (numFailures >= (builtins.length diffs - 2)) then [ 0 1 ]
-  else [ ];
+  else [ ]; # removing any number would not help since too many failures exist
 ```
 
-this a little spooky looking but its just following the logic i described above. This returns indicies to attempt to remove to see if the remaining list would be safe
+this a little spooky looking but its just following the logic i described above. 
+This returns indices to attempt to remove to see if the remaining list would be safe. 
+One key point to see is for a given index `i` in the list of diffs, the original numbers that caused that diff would be at index `i` and `i +1`. 
+This lets us map back to the original list to try to remove numbers.
+
+finally we can check if those indices help make the list safe with
 
 ```nix
 checkWithRemoved = removeIdx:
@@ -567,21 +592,20 @@ checkWithRemoved = removeIdx:
 couldRemove = lib.lists.any checkWithRemoved idxsToRemove;
 ```
 
-loops over the possible removes and `couldRemove` would be true if any of them would make the list safe.
+This loops over the possible removes and `couldRemove` would be true if any of them would make the list safe.
 
 
 And with that it works!
 
 
 
-So far nix has not been too annoying to do the problems in. The main challenge is just thinking of a good answer to the actual problem... Thats mostly because the first days are easy but also that AOC are decent problems that usually don't have answers you can just grab from a std lib.
+So far nix has not been too annoying to do the problems in. The main challenge is just thinking of a good answer to the actual problem...
+Thats mostly because the first days are easy but also that AOC are decent problems that usually don't have answers you can just grab from a std lib.
 
 
 
 # Day 03
 [puzzle link](https://adventofcode.com/2024/day/3)
-
-
 
 So looking at day 3, I take back what I just said above...
 
@@ -649,10 +673,15 @@ part0 = { text, filePath }:
   matches;
 ```
 
-here we use [runCommandLocal](https://nixos.org/manual/nixpkgs/unstable/#trivial-builder-runCommand) to let us write a basic bash script to have nix call ripgrep on the specified input file. I pipe the output of `rg` to `$out` which is the nice special var for where to place any outputs of a derivation. The path will be something like `nix/store/<hash>-call-rg`, and that path is what `runCommand` "returns" back to the nix evaluation system. When we use `builtins.readFile` we are doing IFD to cause the nix evaluator to pause while it realizes the derivation to get the results of the rip grep call. 
+here we use [runCommandLocal](https://nixos.org/manual/nixpkgs/unstable/#trivial-builder-runCommand) to let us write a basic bash script to have nix call ripgrep
+on the specified input file. I pipe the output of `rg` to `$out` which is the nice special var for where to place any outputs of a derivation.
+The path will be something like `nix/store/<hash>-call-rg`, and that path is what `runCommand` "returns" back to the nix evaluation system.
+When we use `builtins.readFile` we are doing IFD to cause the nix evaluator to pause while it realizes the derivation to get the results of the ripgrep call. 
 
 <Note>
-One cool thing of doing IFD for this is the actual call to rip-grep is cached across runs, nix knows that the run-command only depends on the text of the run-command script, rip-grep, and the value of `filePath`, so since we aren't changing it we just get the same result back almost instantly.
+One cool thing of doing IFD for this is the actual call to ripgrep is cached across runs, 
+nix knows that the run-command only depends on the text of the run-command script, ripgrep, and the value of `filePath`, 
+so since we aren't changing it we just get the same result back almost instantly.
 </Note>
 
 on the example input `matches` ends up being `"mul(2,4)\nmul(5,5)\nmul(11,8)\nmul(8,5)\n"` which we can now manipulate using pure nix pretty easily.
@@ -686,14 +715,17 @@ Here i used [lib.trivial.pipe](https://noogle.dev/f/lib/trivial/pipe) to avoid h
 
 And it works! 
 
-Its hard to say exactly how much a perf impact IFD has here, the real answer completed in about 500ms, if i add a space to the rip-grep runCommand to cause a cache miss its about 700ms.
+<Note>
+Its hard to say exactly how much a perf impact IFD has here, the real answer completed in about 500ms,
+if i add a space to the ripgrep runCommand to cause a cache miss its about 700ms.
+</Note>
 
 
 ## Part 2
 
 Only a small twist for part 2, you need to also look for `do()|don't()`. If theres a `don't` you need to ignore the muls until the next `do`.
 
-I think we can just modify the rip-grep call to also look for those and handle this logic in nix.
+I think we can just modify the ripgrep call to also look for those and handle this logic in nix.
 
 ```nix
 callRgP2 = filePath:
@@ -724,14 +756,19 @@ part1 = { text, filePath }:
   (lib.lists.foldl' builtins.add 0 muls);
 ```
 
-here I updated the regex to include the do and don't lines. Before doing the same multiplication logic as before i fold over the list of matches and track if im currently allowing adds or not. If the command is a do i set addAllowed to true, if its don't i set it false, otherwise i leave it alone. I then only add mul lines if im in add mode. 
+here I updated the regex to include the `do()` and `don't()` commands. 
+Before doing the same multiplication logic as before i fold over the list of matches and track if im currently allowing adds or not. 
+If the command is `do` I set `addAllowed` to true, if its `don't` I set it false, otherwise I leave it alone. I then only add mul lines if im in add mode. 
 
-I can then basically do the same logic as part 1 and im good to go
+I can then basically do the same logic as part 1 and I'm good to go
 
 
-This was a fun solution, using riprep made my life so much nicer on this day that i might just allow myself more IFD going forward.... Feel free to yell at me on twitter if you think I should not...
 
-For now this is where ill stop this post of the series. Ill keep going for at least the next few days of AOC but will probably stay a few days behind and group a few days together into a single post.
+This was a fun solution, using riprep made my life so much nicer on this day that i might just allow myself more IFD going forward.... 
+Feel free to yell at me on twitter, github, mastadon, bluesky,etc if you think I should not...
+
+For now this is where ill stop this post of the series. 
+Ill keep going for at least the next few days of AOC but will probably stay a few days behind and group a few days together into a single post.
 
 # Nix Tips
 
