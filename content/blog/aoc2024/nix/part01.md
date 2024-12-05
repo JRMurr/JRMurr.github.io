@@ -1,6 +1,6 @@
 ---
 title: Advent Of Code 2024 in Nix - Day 01-03
-date: 2024-12-04T00:58:00.978Z
+date: 2024-12-05T14:11:26.836Z
 seriesTitle: Day 01-03
 slug: aoc2024/nix/part01
 tags: ["nix","advent-of-code"]
@@ -14,16 +14,17 @@ layout: PostSimple
 
 
 This year has been a long one for me, I gave my first talk, got married (a few days ago as write this on my honeymoon...), and I'm expecting my first kid in May. 
-Now that the stress of wedding planning is over, and im still childless, its time to add a new kind of pain to my life.
+Now that the stress of wedding planning is over, and I'm still childless, it's time to add a new kind of pain to my life.
 
 **Doing Advent of Code in pure nix**
 
 <Note>
-If your lazy, you can see my code [here](https://github.com/JRMurr/AdventOfCode2024) and If your nix curious I included some nix tips at the end
+If you're lazy, you can see my code [here](https://github.com/JRMurr/AdventOfCode2024) and if you're nix curious I included some nix tips at the end
 </Note>
 
 
-By "pure nix" I mean only using the nix evaluation language. TLDR i will require that `nix eval <my code>` returns the answer to each problem for advent of code. This definition allows for [IFD or import from derivation](https://nix.dev/manual/nix/2.23/language/import-from-derivation), this is somewhat intentional. You technically need IFD to import nix pkgs which is fine. The kind of IFD thats bad is doing something like
+By "pure nix" I mean only using the nix evaluation language. TLDR i will require that `nix eval <my code>` returns the answer to each problem for advent of code. This definition allows for [IFD or import from derivation](https://nix.dev/manual/nix/2.23/language/import-from-derivation), this is somewhat intentional. You technically need IFD to import nix pkgs which is fine. 
+The kind of IFD that's bad is doing something like
 
 ```nix
 let
@@ -39,13 +40,13 @@ in
 
 here the nix evaluation would need to build the derivation drv to finish evaluation, this is something you generally want to avoid since nix blocks the eval thread while this derivation is being built. 
 
-For my case in AOC, this is probably fine but goes against the sprit of my self imposed challenge. But after a few days of doing this I might give up and allow myself using derivations as poor mans caching or to use some coreutil programs to simplify my nix logic.
+For my case in AOC, this is probably fine but goes against the spirit of my self imposed challenge. But after a few days of doing this I might give up and allow myself using derivations as poor mans caching or to use some coreutil programs to simplify my nix logic.
 
 
 This series of posts will assume you sorta understand nix's syntax but if you understand any functional lang it shouldn't be too hard to follow.
 
 
-# Is Nix Lang Good?
+# Is Nix Language Good?
 
 One of my hottest takes is that the nix language is actually pretty good for its use case. That is defining declarative builds. It makes working with attrsets (hashmaps) really nice for common use cases like nested attributes, merging, and default missing values. Its lazy so you can write very declarative looking code and not worry that is all going to be run, only whats needed will be run. Its syntax is also pretty simple so if you know a functional language you can probably pick it up in a few days (the rest of the nix ecosystem though is a different story...)
 
@@ -63,11 +64,11 @@ I'd add a small negative of limited std lib but its honestly decent for the main
 The error messages are the biggest pain issue. Once you do enough nix work you sorta get a vibe for a how to parse error messages, its generally the first or last that matters. If its a nixos module type error, I wish you the best....
 
 
-No types is also sad, nix is pretty heavily dynamic so not sure what kind of typescript would work well here. I think having something like python or typescript "optional" types would go a long to improve the editor expereince when its simple
+No types is also sad, nix is pretty heavily dynamic so not sure what kind of typescript would work well here. 
+I think having something like python or typescript "optional" types would go a long to improve the editor experience when its simple
 
-Sorta related to types, there is not a great LSP that "just works" for nix. The two I'be tried are [nil](https://github.com/oxalica/nil) and [nixd](https://github.com/nix-community/nixd). Both are make life way better for simple stuff but if you need to reference something defined in a different file they arent always useful. They both have promise to make life better so heres to hopping...
-
-
+Sorta related to types, there is not a great LSP that "just works" for nix. The two I'be tried are [nil](https://github.com/oxalica/nil) and [nixd](https://github.com/nix-community/nixd). Both are make life way better for simple stuff but if you need to reference something defined in a different file they arent always useful. 
+They both have promise to make life better so here's to hoping...
 
 
 
@@ -88,7 +89,8 @@ my common template is pretty simple, the main thing it adds is a flake with nixo
 
 ## Day Template
 
-Most puzzles for advent of code follow the same format. 2 parts and have an example input you can use to check your answer. So I like to make a template for each day with a standard structure to make my life easy, I just copy that folder to start a new day and im good to go. I selted on this structure
+Most puzzles for advent of code follow the same format. 2 parts and have an example input you can use to check your answer. So I like to make a template for each day with a standard structure to make my life easy, I just copy that folder to start a new day and im good to go. 
+I settled on this structure
 
 ```nix
 { pkgs ? import ../locked.nix }:
@@ -244,7 +246,7 @@ So I used [sortOn](https://noogle.dev/f/lib/lists/sortOn) which takes a "key fun
 sortLst = lst: (lib.lists.sortOn (x: x) lst);
 ```
 
-so in my case i use the identity function `(x: x)` since i dont need to transform the numbers to sort.
+so in my case i use the identity function `(x: x)` since i don't need to transform the numbers to sort.
 
 
 Now to actually compute the difference I have one last small hurdle. There doesnt seem to be an absolute value func in the std lib... So i made my own
@@ -348,7 +350,8 @@ getAdjPairs = lst:
 #  getAdjPairs [1 2 3 4 5] ==  [ [ 1 2 ] [ 2 3 ] [ 3 4 ] [ 4 5 ] ]
 ```
 
-so here we make a new list witch is the same as the given `lst` but with its first element removed (`tailLst`), we can then zip the orginal list with the tail list to see each adjacent pair.
+so here we make a new list which is the same as the given `lst` but with its first element removed (`tailLst`), 
+we can then zip the original list with the tail list to see each adjacent pair.
 
 
 Now we can just get the diff of all these pairs and with a basic `lib.lists.all` make sure all the safety checks apply. 
@@ -590,7 +593,7 @@ mul\((\d{1,3}),(\d{1,3})\)
 but nix only has [builtins.match](https://noogle.dev/f/builtins/match) which has regex support but requires the regex to exactly match the given string
 
 <Note>
-I might be doing somthing dumb but even this basic example doesn't seem to work
+I might be doing something dumb but even this basic example doesn't seem to work
 ```
 nix-repl> builtins.match "mul\(2,4\)" "mul(2,4)"
 null
@@ -740,4 +743,4 @@ So if you want to get better at nix here are some tips
 - Get a good language server, I currently use [nil](https://github.com/oxalica/nil) but [nixd](https://github.com/nix-community/nixd) is good too
   - Adds basic autocomplete (sometimes...)
   - Jump to def...
-- When you have a stack trace try to avoid the verbsoe stack trace at first, generally the issue is usally the first line of the trace or the last line
+- When you have a stack trace try to avoid the verbose stack trace at first, generally the issue is usually the first line of the trace or the last line
