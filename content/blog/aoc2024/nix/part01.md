@@ -1,7 +1,7 @@
 ---
-title: Advent Of Code 2024 in Nix
+title: Advent Of Code 2024 in Nix - Day 01-03
 date: 2024-12-04T00:58:00.978Z
-seriesTitle: Part 1
+seriesTitle: Day 01-03
 slug: aoc2024/nix/part01
 tags: ["nix","advent-of-code"]
 draft: false
@@ -13,7 +13,7 @@ layout: PostSimple
 <TOCInline toc={props.toc} asDisclosure />
 
 
-This year has been a long one for me, I gave my first talk, got married (last week...), and I'm expecting my first kid in May. 
+This year has been a long one for me, I gave my first talk, got married (a few days ago as write this on my honeymoon...), and I'm expecting my first kid in May. 
 Now that the stress of wedding planning is over, and im still childless, its time to add a new kind of pain to my life.
 
 **Doing Advent of Code in pure nix**
@@ -23,7 +23,7 @@ If your lazy, you can see my code [here](https://github.com/JRMurr/AdventOfCode2
 </Note>
 
 
-By "pure nix" I mean only using the nix evaluation language. TLDR i will require that `nix eval <my code>` returns the answer to each problem for advent of code. This definition allows for [IFD or import from derivation](https://nix.dev/manual/nix/2.23/language/import-from-derivation), this is somewhat intentional. You need technically need IFD to import nix pkgs which is fine. The kind of IFD thats bad is doing something like
+By "pure nix" I mean only using the nix evaluation language. TLDR i will require that `nix eval <my code>` returns the answer to each problem for advent of code. This definition allows for [IFD or import from derivation](https://nix.dev/manual/nix/2.23/language/import-from-derivation), this is somewhat intentional. You technically need IFD to import nix pkgs which is fine. The kind of IFD thats bad is doing something like
 
 ```nix
 let
@@ -39,7 +39,7 @@ in
 
 here the nix evaluation would need to build the derivation drv to finish evaluation, this is something you generally want to avoid since nix blocks the eval thread while this derivation is being built. 
 
-For my case in AOC, this is probably fine but goes against the spirt of my self imposed challenge. But after a few days of doing this I might give up and allow myself using derivations as poor mans caching or to use some coreutil programs to simplify my nix logic.
+For my case in AOC, this is probably fine but goes against the sprit of my self imposed challenge. But after a few days of doing this I might give up and allow myself using derivations as poor mans caching or to use some coreutil programs to simplify my nix logic.
 
 
 This series of posts will assume you sorta understand nix's syntax but if you understand any functional lang it shouldn't be too hard to follow.
@@ -47,7 +47,7 @@ This series of posts will assume you sorta understand nix's syntax but if you un
 
 # Is Nix Lang Good?
 
-One of my hottest takes is that the nix language is actually pretty good for its use case. That is defining declarative builds. Working with attrsets (hashmaps) is really nice for common use cases like nested attributes, merging, and default missing values.
+One of my hottest takes is that the nix language is actually pretty good for its use case. That is defining declarative builds. It makes working with attrsets (hashmaps) really nice for common use cases like nested attributes, merging, and default missing values. Its lazy so you can write very declarative looking code and not worry that is all going to be run, only whats needed will be run. Its syntax is also pretty simple so if you know a functional language you can probably pick it up in a few days (the rest of the nix ecosystem though is a different story...)
 
 The main issues with the language IMO are 
 
@@ -86,7 +86,7 @@ nix flake --refresh init --template github:JRMurr/NixOsConfig#common
 my common template is pretty simple, the main thing it adds is a flake with nixos-unstable as the pkgs input and [flake-utils](https://github.com/numtide/flake-utils). It also adds an `.envrc` for [direnv](https://direnv.net/) to load the flake. Finally it includes [just](https://github.com/casey/just) which is a nice command runner, I don't always need it but its nice to have.
 
 
-## Day template
+## Day Template
 
 Most puzzles for advent of code follow the same format. 2 parts and have an example input you can use to check your answer. So I like to make a template for each day with a standard structure to make my life easy, I just copy that folder to start a new day and im good to go. I selted on this structure
 
@@ -190,10 +190,6 @@ One thing to note if your doing AOC, please gitignore you puzzle input files, se
 
 Day 1 is usually pretty easy and this year is no different. TLDR you are a file with 2 columns of numbers and you need to parse each column into its own list.
 
-<Note>
-I wrote this after I finished day 1 so it doesn't include some of the sadness I hit along the way, will try to write as I go for the rest.
-</Note>
-
 ## Part 1
 
 
@@ -202,7 +198,7 @@ In part 1 we need to sort each list and find the differences between the numbers
 
 To get started I pulled up [noogle](https://noogle.dev/), its the best way to search/find nix functions in the std lib. You can search by name or by input/output types of functions. Its not as good as [hoogle](https://hoogle.haskell.org/) but given nix's lack of static types its the best we got.
 
-I first came across [splitString] (https://noogle.dev/f/lib/strings/splitString) which lets me split each of input with
+I first came across [splitString](https://noogle.dev/f/lib/strings/splitString) which lets me split each of input with
 ```nix
 # text here is the input file as a string
 lib.strings.splitString "\n" text
@@ -732,7 +728,7 @@ I can then basically do the same logic as part 1 and im good to go
 
 This was a fun solution, using riprep made my life so much nicer on this day that i might just allow myself more IFD going forward.... Feel free to yell at me on twitter if you think I should not...
 
-For now this is where ill stop this post of the series. Ill keep going for at least the next few days of AOC but will probably stay a few days behind..
+For now this is where ill stop this post of the series. Ill keep going for at least the next few days of AOC but will probably stay a few days behind and group a few days together into a single post.
 
 # Nix Tips
 
