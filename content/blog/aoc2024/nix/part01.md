@@ -1,5 +1,5 @@
 ---
-title: Advent Of Code in Nix
+title: Advent Of Code 2024 in Nix
 date: 2024-12-04T00:58:00.978Z
 seriesTitle: Part 1
 slug: aoc2024/nix/part01
@@ -13,10 +13,14 @@ layout: PostSimple
 <TOCInline toc={props.toc} asDisclosure />
 
 
-This year has been a long one for me, I gave my first talk, got married (2 days ago as i write this..), and I'm expecting my first kid in May. 
+This year has been a long one for me, I gave my first talk, got married (last week...), and I'm expecting my first kid in May. 
 Now that the stress of wedding planning is over, and im still childless, its time to add a new kind of pain to my life.
 
 **Doing Advent of Code in pure nix**
+
+<Note>
+If your lazy, you can see my code [here](https://github.com/JRMurr/AdventOfCode2024) and If your nix curious I included some nix tips at the end
+</Note>
 
 
 By "pure nix" I mean only using the nix evaluation language. TLDR i will require that `nix eval <my code>` returns the answer to each problem for advent of code. This definition allows for [IFD or import from derivation](https://nix.dev/manual/nix/2.23/language/import-from-derivation), this is somewhat intentional. You need technically need IFD to import nix pkgs which is fine. The kind of IFD thats bad is doing something like
@@ -49,13 +53,25 @@ The main issues with the language IMO are
 
 - Confusing error messages
 - No static types
+- No top tier LSP (yet..)
 
 
 <Note>
 I'd add a small negative of limited std lib but its honestly decent for the main use case of defining builds, its only really gonna bite me in this challenge. 
 </Note>
 
+The error messages are the biggest pain issue. Once you do enough nix work you sorta get a vibe for a how to parse error messages, its generally the first or last that matters. If its a nixos module type error, I wish you the best....
 
+
+No types is also sad, nix is pretty heavily dynamic so not sure what kind of typescript would work well here. I think having something like python or typescript "optional" types would go a long to improve the editor expereince when its simple
+
+Sorta related to types, there is not a great LSP that "just works" for nix. The two I'be tried are [nil](https://github.com/oxalica/nil) and [nixd](https://github.com/nix-community/nixd). Both are make life way better for simple stuff but if you need to reference something defined in a different file they arent always useful. They both have promise to make life better so heres to hopping...
+
+
+
+
+
+Enough yapping lets go into it
 
 
 # Repo setup
@@ -172,6 +188,10 @@ One thing to note if your doing AOC, please gitignore you puzzle input files, se
 
 Day 1 is usually pretty easy and this year is no different. TLDR you are a file with 2 columns of numbers and you need to parse each column into its own list.
 
+<Note>
+I wrote this after I finished day 1 so it doesn't include some of the sadness I hit along the way, will try to write as I go for the rest.
+</Note>
+
 ## Part 1
 
 
@@ -195,7 +215,7 @@ splitPair = str:
   in
   {
     left = lib.strings.toIntBase10 (builtins.head split);
-    right = lib.strings.toIntBase10 (lib.last split); #lib.last is more efficient than tail since tail walks the whole list
+    right = lib.strings.toIntBase10 (lib.last split);
   }
 ;
 ```
@@ -308,10 +328,257 @@ answer = lib.lists.foldl' builtins.add 0 scores;
 
 and with that day 1 is done.
 
+
+# Day 02
+
+This seems to be a common format of "split input by lines and do a check". So i'll skip a little bit of the parsing details (look at the code if you are curious)
+
+## Part 1
+
+For the first part we need to see if a line (list of nums) is safe if it is all increasing or all decrasing and each adjacent change is in `1 <= change <= 3`.
+
+The main challenge here is figuring out how to easily look at all adjacent pairs. Skimming through the std lib I don't see an obvious way so ill make this helper
+
+```nix
+getAdjPairs = lst:
+    let
+      tailLst = lib.lists.drop 1 lst;
+    in
+    lib.lists.zipListsWith (a: b: [ a b ]) lst tailLst;
+#  getAdjPairs [1 2 3 4 5] ==  [ [ 1 2 ] [ 2 3 ] [ 3 4 ] [ 4 5 ] ]
+```
+
+so here we make a new list witch is the same as the given `lst` but with its first element removed (`tailLst`), we can then zip the orginal list with the tail list to see each adjacent pair.
+
+
+Now we can just get the diff of all these pairs and with a basic `lib.lists.all` make sure all the safety checks apply. 
+
+
+```nix
+diffPair = pair: builtins.head pair - lib.lists.last pair;
+
+isPos = num: num > 0;
+
+
+isSafe = nums:
+  let
+    diffs = builtins.map diffPair (getAdjPairs nums);
+    # true if the first diff is positive
+    firstDiffDir = isPos (builtins.head diffs);
+
+    checkDiff = diff: if (diff > 3 || diff < 1) then false else
+    (
+      # make sure direction is same as first diff
+      firstDiffDir == isPos diff
+    );
+  in
+  builtins.all checkDiff diffs;
+
+part0 = text:
+    let
+      lines = builtins.map parseLine (lib.strings.splitString "\n" (lib.strings.trim text));
+    in
+    lib.lists.count isSafe lines;
+```
+
+This mostly seems good but when I ran on the example input I got a `1` instead of `2` so I was messing up my safety check somehow.
+
+I updated the `isSafe` func with some debugging info
+
+```nix
+isSafe = nums:
+  let
+    diffs = builtins.map diffPair (getAdjPairs nums);
+    # true if the first diff is positive
+    firstDiffDir = isPos (builtins.head diffs);
+
+    checkDiff = diff: if (diff > 3 || diff < 1) then false else
+    (
+      # make sure direction is same as first diff
+      firstDiffDir == isPos diff
+    );
+
+    res = builtins.all checkDiff diffs;
+  in
+  lib.debug.traceSeq { inherit res nums diffs; } res;
+```
+
+`lib.debug.traceSeq` logs the first value (deeply) and returns the second value, when i ran again i noticed I was getting this on the last example input
+
+```
+trace: { diffs = [ -2 -3 -1 -2 ]; nums = [ 1 3 6 7 9 ]; res = false; }
+```
+
+I forgot to look at the absolute difference in `(diff > 3 || diff < 1)` so it was failing thinking the diff was too small. I can re-use my abs function from day 1 and update the check func to be 
+```nix
+checkDiff = diff:
+  let
+    absDiff = abs diff;
+  in
+  if (absDiff > 3 || absDiff < 1) 
+  then false 
+  else firstDiffDir == isPos diff;
+```
+
+and part 1 is done.
+
+## Part 2
+
+Part 2 adds a small twist where a row can be safe is removing at most 1 number from the original list makes the remaining numbers appear safe.
+
+The most straightforward way to do this would be brute force, go through the list and remove numbers to see if it becomes safe. This would probably not complete in a timely fashion on the real input so im not going to consider it.
+
+
+I think a slightly better approach would be to first check if removing 1 single number could even help. If we think it could try the brute force approach on the numbers we think could impact.
+
+To do this we can track the indices of failed diffs.
+
+- No failures, return true
+- If theres a single failure, try to remove both numbers to see if the rest would be safe
+- If there are 2 failures and the indices are adjacent, we can remove the number in both those diffs to see if the rest of the list would be safe
+- otherwise still return false
+
+I think the above 2 conditions are sufficient but I will add in one extra check due to how my current `checkDiff` impl works
+
+- If there are `>= (len diffs - 2)` failures, try removing the first two numbers.
+
+Im adding this since i check if all diffs are increasing or decreasing by comparing with the first diff. If the first diff is the outlier in increasing or decreasing my impl would count the rest of the diffs as failing. I need the `-2` since if the second number is the orignal list is whats causing the sadness its possible the first 2 diffs are good but the rest fail.
+
+
+So with that sorta weird logic here is an updated `isSafe` func for part 2 (i just copied a new one)
+
+```nix
+isSafeP2 = nums:
+    let
+      diffs = builtins.map diffPair (getAdjPairs nums);
+      # true if the first diff is positive
+      firstDiffDir = isPos (builtins.head diffs);
+
+      checkDiff = diff:
+        let
+          absDiff = abs diff;
+        in
+        if (absDiff > 3 || absDiff < 1) then false else
+        (
+          # make sure direction is same as first diff
+          firstDiffDir == isPos diff
+        );
+
+      resWithIdx = lib.lists.imap0 (idx: diff: { inherit idx diff; safe = checkDiff diff; }) diffs;
+
+      failures = builtins.filter (x: !x.safe) resWithIdx;
+
+      numFailures = builtins.length failures;
+
+      isNoFailure = numFailures == 0;
+
+      idxsToRemove =
+        if (numFailures == 1)
+        then
+          (
+            let
+              failureIdx = (builtins.head failures).idx;
+
+            in
+            [ failureIdx (failureIdx + 1) ]
+          )
+        else if (numFailures == 2) then
+          (
+            let
+              firstFailureIdx = (builtins.head failures).idx;
+              secondFailureIdx = (lib.lists.last failures).idx;
+            in
+            if firstFailureIdx + 1 == secondFailureIdx then [
+              secondFailureIdx
+            ] else [ ]
+          )
+        else if (numFailures >= (builtins.length diffs - 2)) then [ 0 1 ]
+        else [ ];
+
+
+      checkWithRemoved = removeIdx:
+        let
+          removedLst = removeAtIndex removeIdx nums;
+        in
+        isSafe removedLst;
+
+      couldRemove = lib.lists.any checkWithRemoved idxsToRemove;
+
+
+      res = isNoFailure || couldRemove;
+    in
+    res;
+```
+
+
+this is a little gross but thanks to laziness of nix it doesn't always evaluate everything.
+
+The first main change is 
+
+```nix
+resWithIdx = lib.lists.imap0 (idx: diff: { inherit idx diff; safe = checkDiff diff; }) diffs;
+```
+
+Here i map over the diffs with `imap0` to get the 0 based index for each diff, i return an attrset of `{idx, diff, safe}`. The `diff` is not used but its nice for debugging.
+
+I can then get only the failures with 
+```nix
+failures = builtins.filter (x: !x.safe) resWithIdx;
+```
+
+now the most complicated part
+```nix
+idxsToRemove =
+  if (numFailures == 1)
+  then
+    (
+      let
+        failureIdx = (builtins.head failures).idx;
+
+      in
+      [ failureIdx (failureIdx + 1) ]
+    )
+  else if (numFailures == 2) then
+    (
+      let
+        firstFailureIdx = (builtins.head failures).idx;
+        secondFailureIdx = (lib.lists.last failures).idx;
+      in
+      if firstFailureIdx + 1 == secondFailureIdx then [
+        secondFailureIdx
+      ] else [ ]
+    )
+  else if (numFailures >= (builtins.length diffs - 2)) then [ 0 1 ]
+  else [ ];
+```
+
+this a little spooky looking but its just following the logic i described above. This returns indicies to attempt to remove to see if the remaining list would be safe
+
+```nix
+checkWithRemoved = removeIdx:
+    let
+      removedLst = removeAtIndex removeIdx nums;
+    in
+    isSafe removedLst;
+
+couldRemove = lib.lists.any checkWithRemoved idxsToRemove;
+```
+
+loops over the possible removes and `couldRemove` would be true if any of them would make the list safe.
+
+
+And with that it works!
+
+
+
+So far nix has not been too annoying to do the problems in. The main challenge is just thinking of a good answer to the actual problem... Thats mostly because the first days are easy but also that AOC are decent problems that usually don't have answers you can just grab from a std lib.
+
+
 # Nix Tips
 
 So if you want to get better at nix here are some tips
 
+- [Noogle](https://noogle.dev/) is fantastic
 - Look over everything in the [lib.debug namespace](https://nixos.org/manual/nixpkgs/unstable/#sec-functions-library-debug)
   - [traceSeq](https://nixos.org/manual/nixpkgs/unstable/#function-library-lib.debug.traceSeq) is very useful for "printf debugging"
 - Get a good language server, I currently use [nil](https://github.com/oxalica/nil) but [nixd](https://github.com/nix-community/nixd) is good too

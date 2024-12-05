@@ -102,12 +102,6 @@ function getSeriesInfo(slug: string[]): SeriesInfo | null {
 
   const seriesInfo = seriesDescriptions.find((s) => s.slug === seriesSlug)
 
-  console.log('page.tsx:102')
-  console.dir(
-    { seriesDescriptions, seriesSlug, seriesInfo },
-    { depth: null, showHidden: true, colors: true }
-  )
-
   if (!seriesInfo) {
     return null
   }
