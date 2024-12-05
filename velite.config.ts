@@ -124,10 +124,10 @@ export const blogs = defineCollection({
 
 const seriesDescriptions = defineCollection({
   name: 'SeriesDescriptions',
-  pattern: 'blog/**/info.yml',
+  pattern: 'blog/**/**/info.yml',
   schema: s.object({
     title: s.string().max(99),
-    slug: s.slug('series'),
+    slug: mySlug('series'),
   }),
 })
 

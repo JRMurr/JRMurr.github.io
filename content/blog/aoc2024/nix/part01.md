@@ -1,7 +1,7 @@
 ---
 title: Advent Of Code in Nix
 date: 2024-12-04T00:58:00.978Z
-seriesTitle: Part 1 - Day 1 to ...
+seriesTitle: Part 1
 slug: aoc2024/nix/part01
 tags: ["nix","advent-of-code"]
 draft: false
@@ -41,7 +41,21 @@ For my case in AOC, this is probably fine but goes against the spirt of my self 
 This series of posts will assume you sorta understand nix's syntax but if you understand any functional lang it shouldn't be too hard to follow.
 
 
-So no more yapping lets get into it
+# Is Nix Lang Good?
+
+One of my hottest takes is that the nix language is actually pretty good for its use case. That is defining declarative builds. Working with attrsets (hashmaps) is really nice for common use cases like nested attributes, merging, and default missing values.
+
+The main issues with the language IMO are 
+
+- Confusing error messages
+- No static types
+
+
+<Note>
+I'd add a small negative of limited std lib but its honestly decent for the main use case of defining builds, its only really gonna bite me in this challenge. 
+</Note>
+
+
 
 
 # Repo setup

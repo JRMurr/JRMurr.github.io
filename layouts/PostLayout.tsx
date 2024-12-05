@@ -41,7 +41,7 @@ export default function PostLayout({
   series,
   children,
 }: LayoutProps) {
-  const { path, slug,realPath, date, title, tags } = content // @MIGRATE TODO: real file path?
+  const { path, slug, realPath, date, title, tags } = content // @MIGRATE TODO: real file path?
   const basePath = path.split('/')[0]
 
   return (

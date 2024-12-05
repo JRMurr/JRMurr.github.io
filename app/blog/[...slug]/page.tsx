@@ -97,9 +97,16 @@ function getSeriesInfo(slug: string[]): SeriesInfo | null {
     return null
   }
 
-  const seriesSlug = slug[0]
+  // get all but the last path param to get the serie
+  const seriesSlug = slug.slice(0, -1).join('/')
 
   const seriesInfo = seriesDescriptions.find((s) => s.slug === seriesSlug)
+
+  console.log('page.tsx:102')
+  console.dir(
+    { seriesDescriptions, seriesSlug, seriesInfo },
+    { depth: null, showHidden: true, colors: true }
+  )
 
   if (!seriesInfo) {
     return null

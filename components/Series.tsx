@@ -13,6 +13,11 @@ const Series = ({ series, currSlug }: Props) => {
 
   const { title, posts } = series
 
+  if (posts.length <= 1) {
+    // hide dropdown until at least 2 posts exist
+    return null
+  }
+
   return (
     <div className="pb-2">
       <p>This article is part of the {title} series.</p>
