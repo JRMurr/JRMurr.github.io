@@ -185,6 +185,8 @@ One thing to note if your doing AOC, please gitignore you puzzle input files, se
 
 
 # Day 01
+[puzzle link](https://adventofcode.com/2024/day/1)
+
 
 Day 1 is usually pretty easy and this year is no different. TLDR you are a file with 2 columns of numbers and you need to parse each column into its own list.
 
@@ -330,6 +332,8 @@ and with that day 1 is done.
 
 
 # Day 02
+[puzzle link](https://adventofcode.com/2024/day/2)
+
 
 This seems to be a common format of "split input by lines and do a check". So i'll skip a little bit of the parsing details (look at the code if you are curious)
 
@@ -573,6 +577,162 @@ And with that it works!
 
 So far nix has not been too annoying to do the problems in. The main challenge is just thinking of a good answer to the actual problem... Thats mostly because the first days are easy but also that AOC are decent problems that usually don't have answers you can just grab from a std lib.
 
+
+
+# Day 03
+[puzzle link](https://adventofcode.com/2024/day/3)
+
+
+
+So looking at day 3, I take back what I just said above...
+
+The problem for today is basically a parser. At least for part1 I could probably do something like a regex match all with
+```
+mul\((\d{1,3}),(\d{1,3})\)
+```
+
+but nix only has [builtins.match](https://noogle.dev/f/builtins/match) which has regex support but requires the regex to exactly match the given string
+
+<Note>
+I might be doing somthing dumb but even this basic example doesn't seem to work
+```
+nix-repl> builtins.match "mul\(2,4\)" "mul(2,4)"
+null
+```
+probably something with posix regex syntax that im not used too..
+</Note>
+
+
+So im at a crossroads, I could do one of the following
+
+- Do some manual parsing, maybe split on `mul` and see if can figure out anything useful
+- Cry
+- Use IFD to use ripgrep to do the regex match for me
+
+
+I think I will go the IFD route mostly because 
+
+- Its probably more interesting for you to see
+- I really don't want to do the string parsing myself...
+
+I'll be a good boi and only use IFD for finding matches, I'll try to do the rest in pure nix
+
+## Part 1
+
+So first we need to figure out how to properly call ripgrep to return all the matches, this seems to be what we want
+
+```shell
+$ rg --only-matching --no-line-number "mul\((\d{1,3}),(\d{1,3})\)" day03/in.example
+mul(2,4)
+mul(5,5)
+mul(11,8)
+mul(8,5)
+```
+
+I could do more to only return the capturing groups but I don't want this only to be a ripgrep solution...
+
+Now we can wrap this up in its own derivation to use in nix
+
+```nix
+callRg = filePath:
+  let
+    rgPath = "${pkgs.ripgrep}/bin/rg";
+  in
+  pkgs.runCommandLocal "call-rg" { } ''
+    ${rgPath} --only-matching --no-line-number "mul\((\d{1,3}),(\d{1,3})\)" ${filePath} > $out
+  '';
+
+part0 = { text, filePath }:
+  let
+    matches = builtins.readFile (callRg filePath);
+
+  in
+  matches;
+```
+
+here we use [runCommandLocal](https://nixos.org/manual/nixpkgs/unstable/#trivial-builder-runCommand) to let us write a basic bash script to have nix call ripgrep on the specified input file. I pipe the output of `rg` to `$out` which is the nice special var for where to place any outputs of a derivation. The path will be something like `nix/store/<hash>-call-rg`, and that path is what `runCommand` "returns" back to the nix evaluation system. When we use `builtins.readFile` we are doing IFD to cause the nix evaluator to pause while it realizes the derivation to get the results of the rip grep call. 
+
+<Note>
+One cool thing of doing IFD for this is the actual call to rip-grep is cached across runs, nix knows that the run-command only depends on the text of the run-command script, rip-grep, and the value of `filePath`, so since we aren't changing it we just get the same result back almost instantly.
+</Note>
+
+on the example input `matches` ends up being `"mul(2,4)\nmul(5,5)\nmul(11,8)\nmul(8,5)\n"` which we can now manipulate using pure nix pretty easily.
+
+```nix
+# mulStr should look like "mul(2,4)"
+doMul = mulStr:
+  lib.trivial.pipe mulStr [
+    # clean the string to remove the non-digit chars
+    (lib.strings.removePrefix "mul(")
+    (lib.strings.removeSuffix ")")
+    # split the numbers
+    (lib.strings.splitString ",")
+    # convert to an actual number
+    (builtins.map lib.strings.toIntBase10)
+
+    # do the multiplication (fold with acc as 1 to make it easy)
+    (lib.lists.foldl' (x: y: x * y) 1)
+  ];
+
+part0 = { text, filePath }:
+  let
+    matches = builtins.readFile (callRg filePath);
+    matchLines = (lib.strings.splitString "\n" (lib.strings.trim matches));
+    muls = builtins.map doMul matchLines;
+  in
+  (lib.lists.foldl' builtins.add 0 muls);
+```
+
+Here i used [lib.trivial.pipe](https://noogle.dev/f/lib/trivial/pipe) to avoid having to make a bunch of intermediate variables for cleaning and transforming the `mulStrs` 
+
+And it works! 
+
+Its hard to say exactly how much a perf impact IFD has here, the real answer completed in about 500ms, if i add a space to the rip-grep runCommand to cause a cache miss its about 700ms.
+
+
+## Part 2
+
+Only a small twist for part 2, you need to also look for `do()|don't()`. If theres a `don't` you need to ignore the muls until the next `do`.
+
+I think we can just modify the rip-grep call to also look for those and handle this logic in nix.
+
+```nix
+callRgP2 = filePath:
+  let
+    rgPath = "${pkgs.ripgrep}/bin/rg";
+  in
+  pkgs.runCommandLocal "call-rg" { } ''
+    ${rgPath} --only-matching --no-line-number "(mul\((\d{1,3}),(\d{1,3})\))|(do\(\))|(don't\(\))" ${filePath} > $out 
+  '';
+
+part1 = { text, filePath }:
+  let
+    matches = builtins.readFile (callRgP2 filePath);
+    matchLines = (lib.strings.splitString "\n" (lib.strings.trim matches));
+
+    trimFn = { lst, addAllowed }: x:
+      let
+        command = builtins.head (lib.strings.splitString "(" x);
+        addAllowed' = if command == "do" then true else if command == "don't" then false else addAllowed;
+        lst' = if command == "mul" && addAllowed then (lst ++ [ x ]) else lst;
+      in
+      { lst = lst'; addAllowed = addAllowed'; };
+
+    trimmedMuls = (lib.lists.foldl' trimFn { lst = [ ]; addAllowed = true; } matchLines).lst;
+
+    muls = builtins.map doMul trimmedMuls;
+  in
+  (lib.lists.foldl' builtins.add 0 muls);
+```
+
+here I updated the regex to include the do and don't lines. Before doing the same multiplication logic as before i fold over the list of matches and track if im currently allowing adds or not. If the command is a do i set addAllowed to true, if its don't i set it false, otherwise i leave it alone. I then only add mul lines if im in add mode. 
+
+I can then basically do the same logic as part 1 and im good to go
+
+
+This was a fun solution, using riprep made my life so much nicer on this day that i might just allow myself more IFD going forward.... Feel free to yell at me on twitter if you think I should not...
+
+For now this is where ill stop this post of the series. Ill keep going for at least the next few days of AOC but will probably stay a few days behind..
 
 # Nix Tips
 
