@@ -1,7 +1,7 @@
 ---
-title: Advent Of Code 2024 in Nix - Day 01-03
+title: Advent Of Code 2024 in Nix - Days 01-03
 date: 2024-12-05T14:11:26.836Z
-seriesTitle: Day 01-03
+seriesTitle: Days 01-03
 slug: aoc2024/nix/part01
 tags: ["nix","advent-of-code"]
 draft: false
@@ -40,7 +40,7 @@ in
 "${builtins.readFile drv} world"
 ```
 
-here the nix evaluation would need to build the derivation `drv` to finish evaluation, 
+here the nix evaluator would need to build the derivation `drv` to finish evaluation,
 this is something you generally want to avoid since nix blocks the eval thread while this derivation is being built. 
 
 For my case in AOC, this is probably fine but goes against the spirit of my self imposed challenge.
@@ -71,7 +71,7 @@ I'd add a small negative of limited std lib but its honestly decent for the main
 The error messages are the biggest pain issue. Once you do enough nix work you sorta get a vibe for a how to parse error messages, its generally the first or last that matters. If its a nixos module type error, I wish you the best....
 
 
-No types is also sad, nix is pretty heavily dynamic so not sure what kind of typescript would work well here. 
+No types is also sad, nix is pretty heavily dynamic so not sure what kind of type system would work well here. 
 I think having something like python or typescript "optional" types would go a long to improve the editor experience when its simple
 
 Sorta related to types, there is not a great LSP that "just works" for nix. The two I'be tried are [nil](https://github.com/oxalica/nil) and [nixd](https://github.com/nix-community/nixd). Both are make life way better for simple stuff but if you need to reference something defined in a different file they arent always useful. 
