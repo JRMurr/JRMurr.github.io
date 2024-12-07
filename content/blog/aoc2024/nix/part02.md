@@ -30,6 +30,8 @@ So if you're here for "smart" algorithms, im sorry.... I can only provide meme n
 
 
 # Day 04
+[puzzle link](https://adventofcode.com/2024/day/4)
+
 
 This is an interesting one, you basically need to find all occurences of the string `XMAS` in the puzzle input, it can appear horizontal, vertical, diagonal, backwards, and overlapping.
 
@@ -296,3 +298,216 @@ lib.lists.count isXmas AIdxs;
 
 and we are done with day 4!
 
+
+I didn't feel too limited by nix for this problem. 
+Having a good type system would probably have helped a bit but its simple enough for now to handle without.
+
+
+
+# Day 05
+[puzzle link](https://adventofcode.com/2024/day/5)
+
+
+This feels like one of those problems that can take forver to compute if you don't think hard enough. It doesnt seem to horrible though so first lets parse...
+
+## Part 01
+
+Another common input format I've seen in AOC is the input having different "sections" separated by an empty line.
+So I'm gonna start making my own helper lib file if this format shows up in a future day.
+
+```nix
+splitEmptyLine = text:
+let
+  lines = (lib.strings.splitString "\n" (lib.strings.trim text));
+
+  addIfNonEmpty = { acc, lst }:
+    if builtins.length lst > 0 then acc ++ [ lst ] else acc;
+
+  reducer = { currLst, acc }: line:
+    if line == "" then {
+      currLst = [ ];
+      acc = addIfNonEmpty { inherit acc; lst = currLst; };
+    } else {
+      inherit acc;
+      currLst = currLst ++ [ line ];
+    };
+
+  reduced = builtins.foldl' reducer { currLst = [ ]; acc = [ ]; } lines;
+
+in
+addIfNonEmpty { acc = reduced.acc; lst = reduced.currLst; };
+```
+
+The core of this is the reducer that goes over each line, it builds up a lists of each line it sees. 
+When it gets to an empty line it will add it to a bigger list `acc` of each section of the input.
+I need to do one last add to the `acc` list after reducing if we were in the middle of parsing the final section still.
+
+
+### Handling the Rules
+
+I think to do this problem efficiently you need to transform the ordering pairs into an actual ordered list of all the numbers.
+Suprisingly, the std lib has [lib.toposort](https://noogle.dev/f/lib/toposort) which does a topological sort that should get us are sorted list
+(I hope). It says is an `n^2` implementation so it might bite me later but we can cross that when we get to it.
+
+So first we need to parse the rules some more, we don't need to do anything crazy at first
+```nix
+parseRule = ruleStr:
+  let
+    numStrs = lib.strings.splitString "|" ruleStr;
+  in
+  {
+    less = builtins.head numStrs;
+    greater = lib.last numStrs;
+  };
+```
+
+Im leaving the numbers as strings since I plan on making them keys in an attr set and conversion can make that annoying.
+
+
+Now to make it easier to lookup the rules I want to group them together in a structure like this 
+
+```
+{
+  <aNum>  = <Nums the key is less than>
+}
+```
+
+This should allow for easier lookup of the rules than iterating over each pair.
+
+To do that we can use [groupBy'](https://noogle.dev/f/lib/groupBy%27)
+```nix
+rules = builtins.map parseRule ruleLines;
+
+# attr set where key is a number, the values are the numbers its less than
+ruleMap = lib.lists.groupBy' (lst: x: lst ++ [ x.greater ]) [ ] (x: x.less) rules;
+
+getOrDefault = { key, default, attrs }:
+    if builtins.hasAttr key attrs then builtins.getAttr key attrs else default;
+
+getMapping = x: getOrDefault { key = x; attrs = ruleMap; default = [ ]; };
+```
+
+The groupby call with group by the `less` field of each rule, on collisions it will 
+append the `greater` field to the list of other `greater`s we saw for that key already.
+
+The `getMapping` func is a helper that lets lookup a key in an attrset and get a default value if its not set.
+
+I can than use this to make my own partial comparison func
+
+```nix
+compare = a: b:
+  let
+    aLessThans = getMapping a;
+    bLessThans = getMapping b;
+  in
+  # a is less than b
+  if (builtins.elem b aLessThans) then true else
+  # b is less than a
+  if (builtins.elem a bLessThans) then false else
+  # we don't know the ordering
+  null
+;
+```
+
+Here we get the mappings for both values. If we have a hit for this pair we can now for sure the ordering relation. If not we return null.
+
+### Sorting
+
+My initial idea was to sort all the numbers in the `ruleMap` into a list using [lib.toposort](https://noogle.dev/f/lib/toposort) 
+and than use that to help check if the update lists are sorted. My assumption was doing the sort once would be faster than sorting each list.
+This ran into a problem on the real puzzle input, it looks like the rules can have cycles! This caused toposort to return an error and not be able to sort.
+
+So instead I changed my approach to toposort each update list to see if its already sorted correctly.
+
+
+```nix
+isValidUpdate = { updateLst, compareFn }:
+let
+  sortRes = lib.toposort compareFn updateLst;
+  sorted = if builtins.hasAttr "result" sortRes then sortRes.result else throw "invalid topo call";
+in
+sorted == updateLst;
+```
+
+this func uses toposort to sort the input list and return true if it matches the what was given (ie it was sorted already).
+
+One thing to note is toposort when successful will return something like `{result = <sorted lst>}`, if there were cycles it would return info on that.
+So if we dont have `result` I throw an error.
+
+
+We can than pull it all together with
+
+```nix
+part0 = { text, filePath }:
+let
+  inherit (parseInput text) updates compareFn;
+
+  validUpdates = builtins.filter (updateLst: isValidUpdate { inherit updateLst compareFn; }) updates;
+
+  middleNums = builtins.map (lst: lib.strings.toIntBase10 (getMiddle lst)) validUpdates;
+
+  sum = myLib.sumList middleNums;
+in
+sum;
+```
+and part 1 is done!
+
+<Note>
+Im starting to build up `myLib` which is just a bunch of helper funcs I've used a few times.
+
+I'll start skipping over the details on those if I feel its not interesting, 
+code lives [here](https://github.com/JRMurr/AdventOfCode2024/blob/main/myLib/default.nix) if you want to see them
+</Note>
+
+## Part 02
+
+We are setup for success on part 2. We need to sort the invalid lists and do the same middle number summing.
+
+My impl almost does all this already so we only need a few small changes.
+
+```nix
+isValidUpdate = { updateLst, compareFn }:
+  let
+    sortRes = lib.toposort compareFn updateLst;
+    sorted = if builtins.hasAttr "result" sortRes then sortRes.result else throw "invalid topo call";
+    isSorted = sorted == updateLst;
+  in
+  { inherit isSorted sorted; };
+```
+
+now `isValidUpdate` returns if it was already sorted and the sorted list. This way we can grab the invalid lists and get them sorted more easily.
+
+and we can mostly copy the part0 func to get the invalid updates
+
+```nix
+part1 = { text, filePath }:
+let
+  inherit (parseInput text) updates compareFn;
+
+  sortedWithChecks = builtins.map (updateLst: (isValidUpdate { inherit updateLst compareFn; })) updates;
+
+  invalidUpdates = builtins.filter (x: !x.isSorted) sortedWithChecks;
+
+  sortedInvalids = builtins.map (x: x.sorted) invalidUpdates;
+
+  middleNums = builtins.map (lst: lib.strings.toIntBase10 (getMiddle lst)) sortedInvalids;
+
+  sum = myLib.sumList middleNums;
+in
+sum;
+```
+
+and day 05 is done!
+
+
+Honestly very surprised how easy this turned out to be. topoSort helped a lot, it somewhat makes sense nix has this in the std lib.
+The example showed up dealing with file system paths which probably has a lot of uses in nixpkgs and nixos.
+
+
+
+# Day 06
+
+## Part 01
+
+
+## Part 02
