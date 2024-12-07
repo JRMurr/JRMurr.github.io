@@ -215,5 +215,84 @@ part0 = { text, filePath }:
   numMatches;
 ```
 
-and it works! I should really start making my own "lib" for things like `lib.lists.foldl' builtins.add 0 <lst>` I've done that like 5 times now...
+and it works!
+I should really start making my own "lib" for things like `lib.lists.foldl' builtins.add 0 <lst>` I've done that like 5 times now...
+
+## Part 02
+
+Part 02 mixes it up a bit you now need to find sections of the input that make an X of `MAS`...
+
+I think I could adapt my ray approach but probably more effort than it worth...
+
+My current idea is to just scan the input for any `A`, than ill look at the "corners" 
+of the A to see if its the center of a valid X shape.
+
+At the very least I can keep the same parsing logic to not start completely over..
+
+
+First we need to get all the valid `A` indicies. 
+We only need to check `A`s not on the edge of the input since any on the edge could not be the center of an X.
+
+```nix
+coordToIndex = { x, y, width }:
+    x + (y * width);
+
+xVals = lib.lists.range 1 (width - 2);
+yVals = lib.lists.range 1 (height - 2);
+
+
+coordsToCheck = lib.cartesianProduct { x = xVals; y = yVals; };
+idxsToCheck = builtins.map ({ x, y }: coordToIndex { inherit x y width; }) coordsToCheck;
+
+AIdxs = builtins.filter (idx: builtins.elemAt lst idx == "A") idxsToCheck;
+```
+
+The main workhorse here is [lib.cartesianProduct](https://noogle.dev/f/lib/cartesianProduct). I give it all the X cords not on and edge and same for Y cords. 
+It will combine all them together in a list of `{x,y}` pairs. Using my `coordToIndex` helper, I get the index back,
+then we can finally filter down to just As by doing a lookup on all those indices.
+
+
+Then to check if its the right looking X we can do the following
+
+
+```nix
+NWSECorners = [
+  (-width - 1)
+  (width + 1)
+];
+NESWCorners = [
+  (-width + 1)
+  (width - 1)
+];
+
+cornerPairs = [ NWSECorners NESWCorners ];
+
+validPairs = [ [ "M" "S" ] [ "S" "M" ] ];
+
+
+# assumes idx is not on the edge of the input and is an A
+isXmas = idx:
+  let
+    evalOffset = offsets: builtins.map (x: builtins.elemAt lst (x + idx)) offsets;
+
+    cornerIsValid = cornerOffset:
+      let
+        evaled = evalOffset cornerOffset;
+      in
+      builtins.elem evaled validPairs;
+  in
+  builtins.all cornerIsValid cornerPairs;
+```
+
+Here I do similar logic to the rays from part 1 were i have a list of index offsets to get the corners around the center point.
+I only need to make sure each diagonal is the correct shape so i track each separately. Once I eval the offsets 
+I can make sure its a valid corner pair with `builtins.elem evaled validPairs` to make sure its either `[ "M" "S" ]` or ` [ "S" "M" ] `
+
+Finally we do 
+
+```nix
+lib.lists.count isXmas AIdxs;
+```
+
+and we are done with day 4!
 
