@@ -504,10 +504,21 @@ Honestly very surprised how easy this turned out to be. topoSort helped a lot, i
 The example showed up dealing with file system paths which probably has a lot of uses in nixpkgs and nixos.
 
 
-
 # Day 06
 
+I spoiled myself on this one a bit. I saw some memes on the AOC subreddit saying how long the brute force solution for part 2 can take.
+So while I don't know what part 2 is yet (as write this) I'm gonna try and think ahead a bit as I solve part 1 more than usual.
+
+
+So another 2d grid problem...the guard `^` has simple rules they follow and we need to figure out all the spots they hit 
+before going off the edge of the map. I have a sinking feeling part 2 will involve cycles or something but lets focus on what we have for now
+
 ## Part 01
+
+### Parsing the grid
+
+Im gonna steal my logic from day 4 to parse the grid into a 1d list
+
 
 
 ## Part 02
