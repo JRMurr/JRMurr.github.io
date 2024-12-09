@@ -1,7 +1,7 @@
 ---
-title: Advent Of Code 2024 in Nix - Days 03-06
+title: Advent Of Code 2024 in Nix - Days 04-06
 date: 2024-12-09T04:27:04.470Z
-seriesTitle: Days 03-06
+seriesTitle: Days 04-06
 slug: aoc2024/nix/part02
 tags: ["nix","advent-of-code"]
 draft: false
