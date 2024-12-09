@@ -37,8 +37,6 @@ This is an interesting one, you basically need to find all occurences of the str
 
 ## Part 01
 
-
-
 My first idea is to walk over all points in the 2d grid of characters and look at the "rays" extending from that point in all directions. 
 If we make the rays have a length of 4 we can see if the ray contains `XMAS` or `SMAX`.
 This has the potential to be really slow so and has some issues with double counting hits (seeing `XMAS` or `SMAX` depending on the starting on X or S)
@@ -506,6 +504,8 @@ The example showed up dealing with file system paths which probably has a lot of
 
 # Day 06
 
+[puzzle link](https://adventofcode.com/2024/day/6)
+
 I spoiled myself on this one a bit. I saw some memes on the AOC subreddit saying how long the brute force solution for part 2 can take.
 So while I don't know what part 2 is yet (as write this) I'm gonna try and think ahead a bit as I solve part 1 more than usual.
 
@@ -515,10 +515,405 @@ before going off the edge of the map. I have a sinking feeling part 2 will invol
 
 ## Part 01
 
+<Note>
+I switched to fully using the new(ish) [nixfmt](https://github.com/NixOS/nixfmt) 
+on this day so the formatting is now a little different from before.
+
+This formatter should take over since its a part of [this rfc](https://github.com/NixOS/nixfmt/issues/153)
+</Note>
+
 ### Parsing the grid
 
-Im gonna steal my logic from day 4 to parse the grid into a 1d list
+Im gonna steal my logic from day 4 to parse the grid into a 1d list.
+
+I pulled that logic into a new lib file `grid.nix` that has a lot of random funcs i might need but parsing looks like
+
+```nix
+/**
+    type Grid<T> = {
+      lst: List<T>
+      width: number
+      height: number
+    }
+  */
+parse2dGrid =
+  text:
+  let
+    rowStrs = (lib.strings.splitString "\n" (lib.strings.trim text));
+    # 2d list of charcters
+    rows = builtins.map (lib.stringToCharacters) rowStrs;
+
+    width = builtins.length (builtins.head rows);
+    height = builtins.length rows;
+  in
+  {
+    inherit width height;
+    lst = lib.flatten rows;
+  };
+```
+
+Here I'm using my own grid "type" that holds the cells as a 1d list and the width and height of the grid.
+
+I made many other helpers for manipulating coords, look ups, "directions" and more, I won't explain it all
+but you can look at the code [here](https://github.com/JRMurr/AdventOfCode2024/blob/a76df74fb3ce1565e36f304598a29c7fcd472212/myLib/grid.nix)
 
 
+### Efficiently Tracking the Guard
+
+The core of this problem is figuring out the path the guard is walking.
+A naive approach is to just track the guards location and go one cell at a time. Each time you check if you are hitting a obstruction, or on the edge, etc.
+This works but is slow since you are doing checks more often than you should. 
+Since I saw some of the memes for part 2, I tried to avoid this approach. Though I did implement this to help my debugging later...
+
+The more efficient approach is to just "jump" from obstruction to obstruction. That way you do the checks much less often.
+
+So for example at the start we know the guard is going north, we can filter the locations of obstruction to the first one in front of the guard. 
+We then know the guard will touch all cells going to that obstruction, will turn east and then we can find the first obstruction east of the guard.
+
+While its simple in theory, implementing it got a little ugly. 
+I probably could have done it cleaner but I tried to go more verbose to make it easier to follow (at least thats what I tell myself to make me feel better...)
+
+first we need to get all the locations of the obstructions and the guard's starting position. 
+I use my fav func, [groupBy'](https://noogle.dev/f/lib/groupBy%27) again..
+
+```nix
+gridLib = myLib.grid; # my own grid helper funcs
+
+# gives a list of {x,y,value= "#"|"."|"^"}
+cellsWithCoord = gridLib.asList grid;
+# group by cell type to get all obstructions
+cellTypes = lib.lists.groupBy' (
+  lst: elem:
+  lst
+  ++ [
+    {
+      x = elem.x;
+      y = elem.y;
+    }
+  ]
+) [ ] (elem: elem.value) cellsWithCoord;
+
+obstructionLocations = builtins.getAttr "#" cellTypes;
+guardStart = builtins.head (builtins.getAttr "^" cellTypes);
+```
+
+here cellTypes is an attrset for each cell type to a list of coords, so the key `#` has all the obstruction locations;
+
+
+Now for the gross part
+
+```nix
+findNextObstruction =
+    {
+      grid, # grid<T>
+      guardLoc, # {x,y}
+      obstructionLocations, # list<{x,y}>
+      dir, # gridLib.direction, an enum for what direction the guard is going
+    }:
+    let
+      obstructionSelector =
+        if dir == directions.east then
+          {
+            filter = coord: coord.y == guardLoc.y && coord.x > guardLoc.x;
+            minimizer = coord: coord.x;
+            newDir = directions.south;
+            distToEdge = grid.width - guardLoc.x;
+            guardEnd = obsCoord: gridLib.movementFuncs.west obsCoord;
+            cellsCovered =
+              numCells:
+              builtins.genList (i: {
+                x = guardLoc.x + i;
+                y = guardLoc.y;
+              }) numCells;
+          }
+        else # other dirs ommited see https://github.com/JRMurr/AdventOfCode2024/blob/9a346b6bced1d4b6585761fe8bc9f18af82fa122/day06/default.nix#L41
+          throw "unhandled dir ${toString dir}";
+
+      validObstructions = builtins.filter obstructionSelector.filter obstructionLocations;
+      obstructionHit = minBy obstructionSelector.minimizer validObstructions;
+
+      isOverEdge = obstructionHit == null;
+
+      # these assume obstructionHit is not null
+      guardEndCoord = if isOverEdge then null else obstructionSelector.guardEnd obstructionHit;
+      hitDistance = gridLib.coordDist guardLoc obstructionHit;
+
+      dist = if isOverEdge then obstructionSelector.distToEdge else hitDistance;
+
+      cellsTouched = obstructionSelector.cellsCovered dist;
+
+    in
+    {
+      inherit guardEndCoord cellsTouched;
+      newDir = obstructionSelector.newDir;
+    };
+```
+
+Im sorry for the wall of text... at its core `findNextObstruction` will take in a guards pos and direction and find the next obstruction in its path or if the guard went off the edge.
+
+This gets a little gross since you need 
+- get all the obstructions on the row/col depending on the direction
+- get the "first" obstruction on that row/col, how you check also depends on direction
+- the guard will stop "before" the obstruction so you can't just set the end position to the obstruction
+- you need to return all the cells the guard would walk over on the way to the obstruction/edge (as i write this i probably could have used this to do the bullet above....)
+
+
+So my approach was depending on the direction return a bunch of funcs to do all the above steps.
+Theres many ways I could have tackled this, I don't love mine but it works...
+
+- `filter` filters down to just the obstructions in front of the guard
+- `minimizer` helps select the "first" obstruction in front of the guard
+- `guardEnd` a function that takes the obstruction coord and gives the coord the guard would stop at
+- `distToEdge` if the guard would make it to the edge how many cells would he touch
+- `cellsCovered` given the distance the guard would walk to the obstruction or edge what cells would the guard walk over
+
+
+I then use all those funcs to compute all the things I need and return
+
+The recursive bit is then handled in 
+
+```nix
+coveredCells =
+  {
+    grid,
+    guardLoc,
+    obstructionLocations,
+    dir,
+  }@args:
+  let
+    obstructionInfo = findNextObstruction args;
+  in
+  obstructionInfo.cellsTouched
+  ++ (
+    if obstructionInfo.guardEndCoord == null then
+      [ ]
+    else
+      coveredCells {
+        inherit grid obstructionLocations;
+        guardLoc = obstructionInfo.guardEndCoord;
+        dir = obstructionInfo.newDir;
+      }
+  );
+```
+
+This just does tail recursion (don't think nix does anything special in that case...) until `guardEndCoord` is null meaning we went over the edge.
+As we go we build up a list of all the cells we touched.
+
+We just need to remove duplicates and get the length of the list and part 1 is done!
+```nix
+cellsSeen = coveredCells {
+  inherit grid;
+  guardLoc = guardStart;
+  obstructionLocations = obstructionLocations;
+  dir = directions.north;
+};
+
+numSeen = builtins.length (lib.lists.unique cellsSeen);
+```
+
+This worked on the example input (after fixing a few easy issues), but when I ran on the real input my answer was too low...
+
+### Debugging
+
+I was at a bit of a loss of what went wrong. I started looking at solutions on the subreddit to see if I missed something obvious.
+
+When I came across this [haskell solution](https://old.reddit.com/r/adventofcode/comments/1h7tovg/2024_day_6_solutions/m0opi75/)
+I thought why not just try doing it the naive way since everyone else was doing it...
+
+I'll gloss over the impl a bit but this is what I came up with 
+
+```nix
+rightTurn =
+  dir:
+  if dir == directions.east then
+    directions.south
+  else if dir == directions.west then
+    directions.north
+  else if dir == directions.north then
+    directions.east
+  else if dir == directions.south then
+    directions.west
+  else
+    throw "unhandled dir ${toString dir}";
+
+walk =
+  {
+    grid, # grid<T>
+    guardLoc, # {x,y}
+    obstructionLocations, # list<{x,y}>
+    dir, # gridLib.direction
+  }:
+  let
+    outOfBounds = !(gridLib.isValidCoord ({ inherit grid; } // guardLoc));
+
+    newGuardLoc = (gridLib.movementForDir dir) guardLoc;
+
+    touchingObs = builtins.elem newGuardLoc obstructionLocations;
+  in
+  if outOfBounds then
+    [ ]
+  else if touchingObs then
+    walk {
+      inherit grid guardLoc obstructionLocations;
+      dir = rightTurn dir;
+    }
+  else
+    (
+      [ guardLoc ]
+      ++ (walk {
+        inherit grid dir obstructionLocations;
+        guardLoc = newGuardLoc;
+      })
+    );
+```
+
+this is mostly a translation of that haskell solution, but more verbose since we don't have stuff like `iterate` and `takeWhile`...
+
+This solution worked on the example and the real input. What I noticed was my efficient solution was only off by 1 (lower).
+So I used [subtractLists](https://noogle.dev/f/lib/subtractLists) to see what cell i missed. And it was the final cell when the guard went over the edge...
+
+I didn't try to hard to really think through it... I added a `+1` on the `distToEdge` and everything worked...
+
+success!
+
+<Note>
+I was a little surprised the naive solution was only about 100ms slower on the real input (about 600ms vs 500ms).
+Part of that is probably my efficient solution still being implemented not well...
+</Note>
 
 ## Part 02
+
+My assumption at the beginning was right. Now you need to figure out if you can make a cycle by adding obstructions to the grid.
+
+At its core this is just doing part 1 many times with a slight tweak to see if the guard returns to the same spot.
+
+I was very nervous my efficient solution would still suck... but only one way to find out..
+
+
+### Loop checking
+
+We only need to modify `findNextObstruction` to also track the positions the guard has been and if we return to the same one end early.
+Nix does not have a `Set` type so I use an attrset with dummy value to track
+
+```nix
+findNextObstruction =
+  {
+    grid, # grid<T>
+    guardLoc, # {x,y}
+    obstructionLocations, # list<{x,y}>
+    dir, # gridLib.direction
+    seen ? { }, # defaults to {} if arg is not passed
+  }:
+  let
+    seenKey = "${toString guardLoc.x}-${toString guardLoc.y}-${toString dir}";
+
+    looped = builtins.hasAttr seenKey seen;
+
+    # the same old logic from before
+
+  in 
+  {
+    inherit guardEndCoord cellsTouched looped;
+    newDir = obstructionSelector.newDir;
+    # merge in this position to the seen attrset
+    seen = seen // {
+      "${seenKey}" = true;
+    };
+  };
+```
+
+the `seenKey` includes the guards coordinates and its direction since the guard can go to on old position in a different direction and not loop.
+
+
+The recursive check is mostly the same as before but now just returns a bool and checks if we looped
+
+```nix
+hasLoop =
+  {
+    grid, # grid<T>
+    guardLoc, # {x,y}
+    obstructionLocations, # list<{x,y}>
+    dir, # gridLib.direction
+    seen ? { },
+  }@args:
+  let
+    obstructionInfo = findNextObstruction args;
+  in
+  if obstructionInfo.looped then
+    true
+  else if obstructionInfo.guardEndCoord == null then
+    false
+  else
+    hasLoop {
+      inherit grid obstructionLocations;
+      guardLoc = obstructionInfo.guardEndCoord;
+      dir = obstructionInfo.newDir;
+      seen = obstructionInfo.seen;
+    };
+```
+
+One insight is we only need to check for new obstructions along the guards initial path we found in the first part. 
+The guard would not interact with any other obstruction we place.
+
+```nix
+part1 =
+  { text, filePath }:
+  let
+    grid = gridLib.parse2dGrid (lib.strings.trim text);
+
+    cellsWithCoord = gridLib.asList grid;
+    # group by cell type to get all obstructions
+    cellTypes = lib.lists.groupBy' (
+      lst: elem:
+      lst
+      ++ [
+        {
+          x = elem.x;
+          y = elem.y;
+        }
+      ]
+    ) [ ] (elem: elem.value) cellsWithCoord;
+
+    obstructionLocations = builtins.getAttr "#" cellTypes;
+    guardStart = builtins.head (builtins.getAttr "^" cellTypes);
+
+    guardPath = lib.lists.unique (coveredCells {
+      inherit grid;
+      guardLoc = guardStart;
+      obstructionLocations = obstructionLocations;
+      dir = directions.north;
+    });
+
+    guardPathNoStart = builtins.filter (x: x != guardStart) guardPath;
+
+    updatedObstructions = builtins.map (x: obstructionLocations ++ [ x ]) guardPathNoStart;
+
+    numLooped = lib.lists.count (
+      obstructions:
+      hasLoop {
+        inherit grid;
+        guardLoc = guardStart;
+        obstructionLocations = obstructions;
+        dir = directions.north;
+      }
+    ) updatedObstructions;
+  in
+  numLooped;
+```
+
+this part 
+
+```nix
+guardPathNoStart = builtins.filter (x: x != guardStart) guardPath;
+
+# List<List<{x,y}>>
+updatedObstructions = builtins.map (x: obstructionLocations ++ [ x ]) guardPathNoStart;
+```
+
+will make a list of obstructins to test in `updatedObstructions` then we just check how many of those cause a loop
+
+
+thankfully this worked first try! It only took about 30ish sec which honestly suprised me given that the guardPath is almost 5k cells long.
+
+
+
