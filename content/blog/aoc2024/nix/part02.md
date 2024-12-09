@@ -103,11 +103,6 @@ So the rays I need to track are
 - `[0 6 12 18]` NorthWest to SouthEast diagonal
 - `[0 4 8 12]` NorthEast to SouthWest Diagonal
 
-<Note>
-This only work for width 5 but can be easily derived for any width
-</Note>
-
-
 So heres how I generate rays
 
 ```nix
@@ -115,7 +110,6 @@ So heres how I generate rays
   a % b
 */
 modulo = a: b: a - b * builtins.floor (a / b);
-
 
 /** 
   A ray is an attrset with
@@ -177,7 +171,6 @@ evalRay = { lst, ray, startIdx }:
     builtins.map (x: builtins.elemAt lst (x + startIdx)) offsets
   else [ ];
 
-
 validStrings = [ [ "X" "M" "A" "S" ] [ "S" "A" "M" "X" ] ];
 
 rayIsMatch = { lst, ray, startIdx }@args:
@@ -201,7 +194,6 @@ part0 = { text, filePath }:
     parsed = parseToList text;
     inherit (parsed) width lst height;
     rays = getRays { inherit width height; };
-
 
     numHitsAtIdx = lib.imap0
       (i: v: if v != "X" && v != "S" then 0 else
@@ -240,7 +232,6 @@ coordToIndex = { x, y, width }:
 xVals = lib.lists.range 1 (width - 2);
 yVals = lib.lists.range 1 (height - 2);
 
-
 coordsToCheck = lib.cartesianProduct { x = xVals; y = yVals; };
 idxsToCheck = builtins.map ({ x, y }: coordToIndex { inherit x y width; }) coordsToCheck;
 
@@ -268,7 +259,6 @@ NESWCorners = [
 cornerPairs = [ NWSECorners NESWCorners ];
 
 validPairs = [ [ "M" "S" ] [ "S" "M" ] ];
-
 
 # assumes idx is not on the edge of the input and is an A
 isXmas = idx:
@@ -385,10 +375,9 @@ getOrDefault = { key, default, attrs }:
 getMapping = x: getOrDefault { key = x; attrs = ruleMap; default = [ ]; };
 ```
 
-The groupby call with group by the `less` field of each rule, on collisions it will 
-append the `greater` field to the list of other `greater`s we saw for that key already.
+The groupby call will combine all the rules with the same `less` field and merge all the `greater`s into a list
 
-The `getMapping` func is a helper that lets lookup a key in an attrset and get a default value if its not set.
+The `getMapping` func is a helper that lets lookup a key in an attrset and gets a default value if its not set.
 
 I can than use this to make my own partial comparison func
 
@@ -916,5 +905,14 @@ will make a list of obstructions to test in `updatedObstructions` then we just c
 thankfully this worked first try! 
 It only took about 30ish sec which honestly surprised me given that the guardPath is almost 5k cells long.
 
+I think this problem the only nix pain was just it being slow due to being interpreted. 
+In the future if this starts becoming the bottle neck I'll try using [nix-eval-jobs](https://github.com/nix-community/nix-eval-jobs)
+to allow for parallel evaluation.
 
 
+
+
+# Thoughts so far
+
+6 days in and so far haven't felt too limited by nix yet. The problems have mostly been actual problem solving and not nix solving.
+Though once more graph problems start popping up I might be in pain for performance...
