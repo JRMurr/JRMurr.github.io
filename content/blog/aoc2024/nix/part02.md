@@ -33,7 +33,7 @@ So if you're here for "smart" algorithms, im sorry.... I can only provide meme n
 [puzzle link](https://adventofcode.com/2024/day/4)
 
 
-This is an interesting one, you basically need to find all occurences of the string `XMAS` in the puzzle input, it can appear horizontal, vertical, diagonal, backwards, and overlapping.
+This is an interesting one, you basically need to find all occurrences of the string `XMAS` in the puzzle input, it can appear horizontal, vertical, diagonal, backwards, and overlapping.
 
 ## Part 01
 
@@ -52,7 +52,7 @@ If we track the width we can treat the 1d list as a 2d list which should be slig
 parseToList = text:
     let
       rowStrs = (lib.strings.splitString "\n" (lib.strings.trim text));
-      # 2d list of charcters
+      # 2d list of characters
       rows = builtins.map (lib.stringToCharacters) rowStrs;
 
       width = builtins.length (builtins.head rows);
@@ -151,7 +151,7 @@ getRays = { width, height }:
   };
 ```
 
-This is a little complicated but basically i treat a ray as an attsert with an `offsets` field and an `allowed` field. 
+This is a little complicated but basically i treat a ray as an attrset with an `offsets` field and an `allowed` field. 
 
 The `offsets` field is a list of index offsets to add to a given cell to get the cells that ray hits when starting at that index.
 I use [builtins.genList](https://noogle.dev/f/builtins/genList) to generate the offsets. `genList fn n` is like doing this in haskell
@@ -190,7 +190,7 @@ rayIsMatch = { lst, ray, startIdx }@args:
 the `evalRay` func takes the lst of all cells, the ray, and the star pos. It will check if it can send the ray, 
 then it will lookup the chars at the given offsets and return it back. 
 
-`rayisMatch` just checks if the result of `evalRay` is one of the two we want in `validStrings`.
+`rayIsMatch` just checks if the result of `evalRay` is one of the two we want in `validStrings`.
 
 
 We can then pull it all together with 
@@ -230,7 +230,7 @@ of the A to see if its the center of a valid X shape.
 At the very least I can keep the same parsing logic to not start completely over..
 
 
-First we need to get all the valid `A` indicies. 
+First we need to get all the valid `A` indices. 
 We only need to check `A`s not on the edge of the input since any on the edge could not be the center of an X.
 
 ```nix
@@ -306,7 +306,7 @@ Having a good type system would probably have helped a bit but its simple enough
 [puzzle link](https://adventofcode.com/2024/day/5)
 
 
-This feels like one of those problems that can take forver to compute if you don't think hard enough. It doesnt seem to horrible though so first lets parse...
+This feels like one of those problems that can take forever to compute if you don't think hard enough. It doesn't seem to horrible though so first lets parse...
 
 ## Part 01
 
@@ -344,7 +344,7 @@ I need to do one last add to the `acc` list after reducing if we were in the mid
 ### Handling the Rules
 
 I think to do this problem efficiently you need to transform the ordering pairs into an actual ordered list of all the numbers.
-Suprisingly, the std lib has [lib.toposort](https://noogle.dev/f/lib/toposort) which does a topological sort that should get us are sorted list
+Surprisingly, the std lib has [lib.toposort](https://noogle.dev/f/lib/toposort) which does a topological sort that should get us are sorted list
 (I hope). It says is an `n^2` implementation so it might bite me later but we can cross that when we get to it.
 
 So first we need to parse the rules some more, we don't need to do anything crazy at first
@@ -430,7 +430,7 @@ sorted == updateLst;
 this func uses toposort to sort the input list and return true if it matches the what was given (ie it was sorted already).
 
 One thing to note is toposort when successful will return something like `{result = <sorted lst>}`, if there were cycles it would return info on that.
-So if we dont have `result` I throw an error.
+So if we don't have `result` I throw an error.
 
 
 We can than pull it all together with
@@ -540,7 +540,7 @@ parse2dGrid =
   text:
   let
     rowStrs = (lib.strings.splitString "\n" (lib.strings.trim text));
-    # 2d list of charcters
+    # 2d list of characters
     rows = builtins.map (lib.stringToCharacters) rowStrs;
 
     width = builtins.length (builtins.head rows);
@@ -626,7 +626,7 @@ findNextObstruction =
                 y = guardLoc.y;
               }) numCells;
           }
-        else # other dirs ommited see https://github.com/JRMurr/AdventOfCode2024/blob/9a346b6bced1d4b6585761fe8bc9f18af82fa122/day06/default.nix#L41
+        else # other dirs omitted see https://github.com/JRMurr/AdventOfCode2024/blob/9a346b6bced1d4b6585761fe8bc9f18af82fa122/day06/default.nix#L41
           throw "unhandled dir ${toString dir}";
 
       validObstructions = builtins.filter obstructionSelector.filter obstructionLocations;
@@ -910,10 +910,11 @@ guardPathNoStart = builtins.filter (x: x != guardStart) guardPath;
 updatedObstructions = builtins.map (x: obstructionLocations ++ [ x ]) guardPathNoStart;
 ```
 
-will make a list of obstructins to test in `updatedObstructions` then we just check how many of those cause a loop
+will make a list of obstructions to test in `updatedObstructions` then we just check how many of those cause a loop
 
 
-thankfully this worked first try! It only took about 30ish sec which honestly suprised me given that the guardPath is almost 5k cells long.
+thankfully this worked first try! 
+It only took about 30ish sec which honestly surprised me given that the guardPath is almost 5k cells long.
 
 
 
