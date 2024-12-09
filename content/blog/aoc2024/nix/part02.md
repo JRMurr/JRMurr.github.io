@@ -910,9 +910,10 @@ In the future if this starts becoming the bottle neck I'll try using [nix-eval-j
 to allow for parallel evaluation.
 
 
-
-
 # Thoughts so far
 
 6 days in and so far haven't felt too limited by nix yet. The problems have mostly been actual problem solving and not nix solving.
 Though once more graph problems start popping up I might be in pain for performance...
+
+My goal is to complete at least 15 days.
+Thats usually when I've tapped out in the past so making it there would be "completing" in my eyes.
