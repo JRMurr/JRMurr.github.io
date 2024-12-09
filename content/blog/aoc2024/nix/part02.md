@@ -14,7 +14,7 @@ layout: PostSimple
 <TOCInline toc={props.toc} asDisclosure />
 
 
-Ill avoid a lot of the spiel I had in the first post but TLDR this post is going over my attempt to do [Advent of Code](https://adventofcode.com/2024)
+I'll avoid a lot of the spiel I had in the first post but TLDR this post is going over my attempt to do [Advent of Code](https://adventofcode.com/2024)
 in "pure nix" ie the nix eval lang (though I might do some IFD here and there to keep my sanity)
 
 <Note>
@@ -915,5 +915,5 @@ to allow for parallel evaluation.
 6 days in and so far haven't felt too limited by nix yet. The problems have mostly been actual problem solving and not nix solving.
 Though once more graph problems start popping up I might be in pain for performance...
 
-My goal is to complete at least 15 days.
+My goal is to complete at least 15 days (but hope to do the whole thing).
 Thats usually when I've tapped out in the past so making it there would be "completing" in my eyes.
