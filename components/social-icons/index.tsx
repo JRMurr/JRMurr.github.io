@@ -9,6 +9,7 @@ import {
   Threads,
   Instagram,
   Rss,
+  Bluesky,
 } from './icons'
 
 const components = {
@@ -19,6 +20,7 @@ const components = {
   linkedin: Linkedin,
   twitter: Twitter,
   mastodon: Mastodon,
+  bsky: Bluesky,
   threads: Threads,
   instagram: Instagram,
   rss: Rss,

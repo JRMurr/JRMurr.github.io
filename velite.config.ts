@@ -142,6 +142,7 @@ const authors = defineCollection({
     twitter: s.string(),
     email: s.string(),
     mastodon: s.string(),
+    bsky: s.string(),
     body: s.mdx(),
   }),
 })

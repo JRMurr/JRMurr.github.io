@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function AuthorLayout({ children, content }: Props) {
-  const { name, avatar, /*occupation, company*/ email, twitter, github, mastodon } = content
+  const { name, avatar, /*occupation, company*/ email, twitter, github, mastodon, bsky } = content
 
   return (
     <>
@@ -38,6 +38,7 @@ export default function AuthorLayout({ children, content }: Props) {
               <SocialIcon kind="github" href={github} />
               {/* <SocialIcon kind="linkedin" href={linkedin} /> */}
               <SocialIcon kind="twitter" href={twitter} />
+              <SocialIcon kind="bsky" href={bsky} />
               <SocialIcon kind="mastodon" href={mastodon} />
             </div>
           </div>
