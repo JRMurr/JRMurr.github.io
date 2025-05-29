@@ -169,6 +169,9 @@ async function createRss(blogs: Blogs) {
 }
 
 const isProduction = process.env.NODE_ENV === 'production'
+
+console.log('isProduction:', isProduction)
+
 function createTagCount(blogs) {
   const tagCount: Record<string, number> = {}
   blogs.forEach((file) => {

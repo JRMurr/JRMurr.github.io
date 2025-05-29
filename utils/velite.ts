@@ -45,6 +45,8 @@ export function coreContent<T extends MDXDocument>(x: T) {
 
 const isProduction = process.env.NODE_ENV === 'production'
 
+console.log('isProduction2: ', isProduction)
+
 export function allCoreContent<T extends MDXDocument>(x: T[]) {
   const cleaned = x.map(coreContent)
 

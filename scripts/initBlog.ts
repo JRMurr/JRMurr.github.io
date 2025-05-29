@@ -10,10 +10,18 @@ const genFrontMatter = (answers) => {
   const tagArray: string[] = answers.tags.split(',').map((x) => x.trim())
   const tagStr = JSON.stringify(tagArray)
 
+  // Remove special characters and replace space with -
+  const fileName = answers.title
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9 ]/g, '')
+    .replace(/ /g, '-')
+    .replace(/-+/g, '-')
+
   const frontMatter = dedent`
   ---
   title: ${answers.title ? answers.title : 'Untitled'}
   date: ${date.toISOString()}
+  slug: ${fileName}
   tags: ${tagStr}
   draft: ${answers.draft === 'yes' ? true : false}
   summary: ${answers.summary ? answers.summary : ' '}
@@ -21,13 +29,6 @@ const genFrontMatter = (answers) => {
   layout: PostSimple
   ---
   `
-
-  // Remove special characters and replace space with -
-  const fileName = answers.title
-    .toLowerCase()
-    .replace(/[^a-zA-Z0-9 ]/g, '')
-    .replace(/ /g, '-')
-    .replace(/-+/g, '-')
 
   return { frontMatter, fileName }
 }
