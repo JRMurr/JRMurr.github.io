@@ -50,15 +50,37 @@ layout: PostSimple
     - definitions can be mutually dependent so in those case those names will need to be inferred together
     - Can figure out the ordering by getting the [Strongly Connected Components](https://en.wikipedia.org/wiki/Strongly_connected_component) of the dependency graph
       - [petgraph](https://docs.rs/petgraph/latest/petgraph/algo/fn.tarjan_scc.html) did this for me
-  - Inference
-    - TODO: probably explain the type representation before?
-    - TODO: explain unification before?
+  - Type Representation: [code](https://github.com/JRMurr/tix/blob/d106515c936bbef5130bef1e30cb893a44fb5d7f/crates/lang_ty/src/lib.rs#L21) 
+    - Every expression will be assigned a unique `TyID`, this will eventually be mapped to its actual type like `Int`, `String`, `Attrset{...}`, etc. But starts as a `TyVar(<TyID>)` (ie a "unknown" variable with the same int id as its key)
+    - During inference (explained more later) when we see two expression need to be the same type, we `Unify` the two `TyId`s together.
+      - Unification is the "core" of the the type inference and where most of the type errors will arise
+      - Unification will make it so the two `TyID`s point to the same underlying type.
+      - For example if you unify `TyId 2 = List(TyId 4 = TyVar(4))` with `TyID 3 = List(TyId 5 = String)`, after unification `TyId` 2 and 3 will both be `List(String)`. Also `TyId` 4 will also be mapped to a `String`
+      - If you try to unify `List(Int)` with `List(String)` you will get a type error
+    - We store the mapping of `TyId`s to there actual types in a [Union Find data structure](https://en.wikipedia.org/wiki/Disjoint-set_data_structure)
+      - When two Ids are merged this makes it so there is only 1 source of truth for the actual type to make mutation easier and all `TyId`s will map to it
+      - This allows multiple different keys to map to the same value so you don't need to update references in old types
+      - The [union_find](https://crates.io/crates/union-find) crate does a lot of the work for this
+  - Generalization
+    - This is where a lot of complexity of the implementation comes from but its what makes hindley milner style type inference so good
+    - The basic idea is you do typechecking "bottom up", when you get to a binding site of a variable you see if you need to generalize the type the variable is bound to
+    - Ie if you have something like
+    ```nix
+    let 
+      foo = x: builtins.map (elem: builtins.toString elem) x; 
+    in
+      (foo [1 2 3]) ++ (foo ["a" "b" "c"])
+    ```
+    - foo is a generic func that has the type `[a] -> [String]`. The flattened type rep would look something like `Lambda { param: List(TyVar(5)), body: List(String) }`.
+    - So after we do inference on the value of foo we would scan it for any parts of its type that still reference `TyVars`, these are "FreeVars` ie they have no constraint on what they should be and therefore are generic
+    - So generalization basically means when we reference foo we need to make a new copy of it at each call site since the FreeVars in it will depend on how its called.
+    - In the example above it would be instantiated once with its free var as an int and a second time with its free var as a string
+  - Inference (TODO: OLD UPDATE)
     - For each group of definitions (from above)
       - Get the expression where the definition is made
       - Walk the expression to generate constraints
         - Each expression has a `TyId` which should eventually resolve to a concrete or generic type, starts out as `Unknown`
         - A constraint would be something like `Eq(1,2)` which means the `TyId`s `1` and `2` should be the same type
-        - The [union_find](https://crates.io/crates/union-find) crate is used to store all the `TyId`s, its use will make more sense in the solving phase
       - After generating constraints "solve them"
         - Iteratively walk through constraints and try to solve all that can, any invalid use will be a type error
         - After a full loop of constraints without being able to solve them need to "defer" the constraint (this is let generalization)
