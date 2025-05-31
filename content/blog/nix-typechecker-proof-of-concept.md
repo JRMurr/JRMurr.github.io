@@ -86,3 +86,11 @@ layout: PostSimple
         - After a full loop of constraints without being able to solve them need to "defer" the constraint (this is let generalization)
           - This basically means we don't have enough info to fully infer some types which means the unbound types are now generic types
           - TODO: explain generalization
+- Testing
+  - For solo projects I don't usually go too hard testing since it usally is just me and I can keep a lot of it in my head as a dev (but obviously this fails when i leave the project...)
+  - I wanted to do a Property Based Testing approach since my Day Job at [Antithesis](antithesis.com) made me a PBT shill...
+  - I used the [proptest](https://github.com/proptest-rs/proptest) crate to get PBT setup
+  - The rough approach i took is implement the [Arbitrary trait](https://docs.rs/proptest/latest/proptest/arbitrary/trait.Arbitrary.html) for my type representation
+  - Then given an arbitrary type "ast" i convert it into a nix string. [code here](https://github.com/JRMurr/tix/blob/d106515c936bbef5130bef1e30cb893a44fb5d7f/crates/lang_check/src/pbt/mod.rs#L152)
+  - Then i verify running the checker/inference on the generated text gives back the same arbitrary type generated at the start
+  - This worked really well. Most of the complexity was getting my head wrapped around how prop test works but once i understood I found a lot of bugs, many in the pbt related code but a few in the actual type checker
