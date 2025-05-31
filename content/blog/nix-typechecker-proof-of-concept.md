@@ -67,13 +67,13 @@ layout: PostSimple
     - Ie if you have something like
     ```nix
     let 
-      foo = x: builtins.map (elem: builtins.toString elem) x; 
+      foo = x: builtins.map (elem: builtins.toString elem) x;
     in
       (foo [1 2 3]) ++ (foo ["a" "b" "c"])
     ```
     - foo is a generic func that has the type `[a] -> [String]`. The flattened type rep would look something like `Lambda { param: List(TyVar(5)), body: List(String) }`.
-    - So after we do inference on the value of foo we would scan it for any parts of its type that still reference `TyVars`, these are "FreeVars` ie they have no constraint on what they should be and therefore are generic
-    - So generalization basically means when we reference foo we need to make a new copy of it at each call site since the FreeVars in it will depend on how its called.
+    - So after we do inference on the value of foo we would scan it for any parts of its type that still reference `TyVars`, these are "FreeVars" ie we don't know exactly what type it is so it will become a generic param
+    - So generalization basically means when we reference foo we need to make a new copy of it at each call site since the FreeVar in it will depend on how its called.
     - In the example above it would be instantiated once with its free var as an int and a second time with its free var as a string
   - Inference (TODO: OLD UPDATE)
     - For each group of definitions (from above)
