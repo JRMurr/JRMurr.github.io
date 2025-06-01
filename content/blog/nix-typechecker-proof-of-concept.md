@@ -12,8 +12,8 @@ layout: PostSimple
 <TOCInline toc={props.toc} asDisclosure />
 
 <Note>
-    Disclosure up front. This typechecker is very much experimental. It kinda works on simple nix files but I have not tested on nixpkgs.
-    Overlays/overrides *should* work in theory but will probably need some manual annotations
+    Disclosure up front. This typechecker is very much experimental and not finished. It works on simple nix files but I have not tested on nixpkgs.
+    Overlays/overrides *should* eventually work in theory but will probably need some manual annotations
 </Note>
 
 - Intro
@@ -22,12 +22,37 @@ layout: PostSimple
   - I learned on the fly
 - High Level Design
   - goal of "typescript for nix"
-    - Ideally normal nix code should work, just like the promise of typescript to javascript
-    - Just like typescript that promise is only half true and you will probably need some amount of annotations
+    - Ideally normal nix code should "just work",like the promise of typescript to javascript
+    - Just like typescript that promise is only half true and you will probably need some amount of annotations (done by comments for now)
   - used https://github.com/oxalica/nil as a base since it had some basic hindley milner like type inference already
-  - https://bernsteinbear.com/blog/type-inference/ was a great overview of hindley milner
-  - Hindley milner is good but does not natively support polymorphism without things like tagged unions or type classes (which i don't want to add since i want mostly base nix to work)
-  - Support basic union types in the same vein as typescript unions (ie you don't "need" to tag them but better if you do)
+  - https://bernsteinbear.com/blog/type-inference/ was a great overview of hindley milner implementation
+  - Hindley milner is great and its ability to generate the "principal types" always is really great developer experince
+  - However I want to add union types as well (like typescript) which caused me great pain with naive hindley milner (that im still in the process of getting it to work...)
+- Type Representation: [code](https://github.com/JRMurr/tix/blob/d106515c936bbef5130bef1e30cb893a44fb5d7f/crates/lang_ty/src/lib.rs#L21) 
+    - Every expression will be assigned a unique `TyID`, this will eventually be mapped to its actual type like `Int`, `String`, `Attrset{...}`, etc. But starts as a `TyVar(<TyID>)` (ie a "unknown" variable with the same int id as its key)
+    - During inference (explained more later) when we see two expression need to be the same type, we `Unify` the two `TyId`s together.
+      - Unification is the "core" of the the type inference and where most of the type errors will arise
+      - Unification will make it so the two `TyID`s point to the same underlying type.
+      - For example if you unify `TyId 2 = List(TyId 4 = TyVar(4))` with `TyID 3 = List(TyId 5 = String)`, after unification `TyId` 2 and 3 will both be `List(String)`. Also `TyId` 4 will also be mapped to a `String`
+      - If you try to unify `List(Int)` with `List(String)` you will get a type error
+    - We store the mapping of `TyId`s to there actual types in a [Union Find data structure](https://en.wikipedia.org/wiki/Disjoint-set_data_structure)
+      - When two Ids are merged this makes it so there is only 1 source of truth for the actual type to make mutation easier and all `TyId`s will map to it
+      - This allows multiple different keys to map to the same value so you don't need to update references in old types
+      - The [union_find](https://crates.io/crates/union-find) crate does a lot of the work for this
+- Generalization
+  - This is where a lot of complexity of the implementation comes from but its what makes hindley milner style type inference so good
+  - The basic idea is you do typechecking "bottom up", when you get to a binding site of a variable you see if you need to generalize the type the variable is bound to
+  - Ie if you have something like
+  ```nix
+  let 
+    foo = x: builtins.map (elem: builtins.toString elem) x;
+  in
+    (foo [1 2 3]) ++ (foo ["a" "b" "c"])
+  ```
+  - foo is a generic func that has the type `[a] -> [String]`. The flattened type rep would look something like `Lambda { param: List(TyVar(5)), body: List(String) }`.
+  - So after we do inference on the value of foo we would scan it for any parts of its type that still reference `TyVar`s, these are "FreeVars" ie we don't know exactly what type it is so it will become a generic param
+  - So generalization basically means when we reference foo we need to make a new copy of it at each call site since the FreeVar in it will depend on how its called.
+  - In the example above it would be instantiated once with its free var as an int and a second time with its free var as a string
 - Impl
   - https://github.com/salsa-rs/salsa to structure the pipeline of checking
     - Based on code from rust-analyzer
@@ -47,31 +72,21 @@ layout: PostSimple
     - definitions can be mutually dependent so in those case those names will need to be inferred together
     - Can figure out the ordering by getting the [Strongly Connected Components](https://en.wikipedia.org/wiki/Strongly_connected_component) of the dependency graph
       - [petgraph](https://docs.rs/petgraph/latest/petgraph/algo/fn.tarjan_scc.html) did this for me
-  - Type Representation: [code](https://github.com/JRMurr/tix/blob/d106515c936bbef5130bef1e30cb893a44fb5d7f/crates/lang_ty/src/lib.rs#L21) 
-    - Every expression will be assigned a unique `TyID`, this will eventually be mapped to its actual type like `Int`, `String`, `Attrset{...}`, etc. But starts as a `TyVar(<TyID>)` (ie a "unknown" variable with the same int id as its key)
-    - During inference (explained more later) when we see two expression need to be the same type, we `Unify` the two `TyId`s together.
-      - Unification is the "core" of the the type inference and where most of the type errors will arise
-      - Unification will make it so the two `TyID`s point to the same underlying type.
-      - For example if you unify `TyId 2 = List(TyId 4 = TyVar(4))` with `TyID 3 = List(TyId 5 = String)`, after unification `TyId` 2 and 3 will both be `List(String)`. Also `TyId` 4 will also be mapped to a `String`
-      - If you try to unify `List(Int)` with `List(String)` you will get a type error
-    - We store the mapping of `TyId`s to there actual types in a [Union Find data structure](https://en.wikipedia.org/wiki/Disjoint-set_data_structure)
-      - When two Ids are merged this makes it so there is only 1 source of truth for the actual type to make mutation easier and all `TyId`s will map to it
-      - This allows multiple different keys to map to the same value so you don't need to update references in old types
-      - The [union_find](https://crates.io/crates/union-find) crate does a lot of the work for this
-  - Generalization
-    - This is where a lot of complexity of the implementation comes from but its what makes hindley milner style type inference so good
-    - The basic idea is you do typechecking "bottom up", when you get to a binding site of a variable you see if you need to generalize the type the variable is bound to
-    - Ie if you have something like
-    ```nix
-    let 
-      foo = x: builtins.map (elem: builtins.toString elem) x;
-    in
-      (foo [1 2 3]) ++ (foo ["a" "b" "c"])
-    ```
-    - foo is a generic func that has the type `[a] -> [String]`. The flattened type rep would look something like `Lambda { param: List(TyVar(5)), body: List(String) }`.
-    - So after we do inference on the value of foo we would scan it for any parts of its type that still reference `TyVars`, these are "FreeVars" ie we don't know exactly what type it is so it will become a generic param
-    - So generalization basically means when we reference foo we need to make a new copy of it at each call site since the FreeVar in it will depend on how its called.
-    - In the example above it would be instantiated once with its free var as an int and a second time with its free var as a string
+  - Inference (TODO: maybe reference alg W/J or w/e (maybe as just a note that i never quite understood the difference between any of them....))
+    - for group in SCCs (from above)
+      - for def in group
+        - get expression for the def
+        - walk the expression tree to generate constraints
+          - A constraint would look something like `Eq(TyId, TyId)` which will eventually just be a unification of the two `TyId`
+          - The rest of the constraints are "deferrable", these constraints can be "deferred" if one of the `TyIds` mentioned is a free var
+          - These are for things like Binary operators (since many different combos of params can be used), attr set merging (since the attrsets can have many different fields), and negation (float or an int)
+      - After generating constraints we try to "solve" them
+        - For a `Eq` constraint its just doing unification (and will either work or fail type checking entirely)
+        - A "deferrable" constraint has the chance of us not having enough info to solve it IE both operands of the bin op are currently TyVars. If we solve other constraints we might have enough info though
+        - So keep looping over constraints and stop if we do a loop without solving anything
+        - All unsolved constraints will be tracked and used in the next group of type checking
+    - This generate than solve approach (TODO: I think is alg J? (maybe just link that talk by simon)) is really nice conceptually since the code is very clear for both ends. Also eventually will make tracking errors nicer since you have a more "global" view instead of just stopping at the first error
+    - My current approach to inference with the "deferred" constraints seems to work but I could see having a lot of perf issues as I try to check bigger nix programs
 - Testing
   - For solo projects I don't usually go too hard testing since it usally is just me and I can keep a lot of it in my head as a dev (but obviously this fails when i leave the project...)
   - I wanted to do a Property Based Testing approach since my Day Job at [Antithesis](antithesis.com) made me a PBT shill...
@@ -82,16 +97,3 @@ layout: PostSimple
   - This worked really well. Most of the complexity was getting my head wrapped around how prop test works but once i understood I found a lot of bugs, many in the pbt related code but a few in the actual type checker
   - The main challenge is asserting that two types are the same ie they are [Alpha Equivalent](https://en.wikipedia.org/wiki/Lambda_calculus#Alpha_equivalence)
     - For example `foo = x: builtins.toString x` and `bar = y: builtins.toString y` should both be `a -> String` but my type inference (in more complciated examples) might return `b -> String` so i needed to do a lot of work to make sure I always normalize types in the same way
-
-OLD BELOW
-  - Inference
-    - For each group of definitions (from above)
-      - Get the expression where the definition is made
-      - Walk the expression to generate constraints
-        - Each expression has a `TyId` which should eventually resolve to a concrete or generic type, starts out as `Unknown`
-        - A constraint would be something like `Eq(1,2)` which means the `TyId`s `1` and `2` should be the same type
-      - After generating constraints "solve them"
-        - Iteratively walk through constraints and try to solve all that can, any invalid use will be a type error
-        - After a full loop of constraints without being able to solve them need to "defer" the constraint (this is let generalization)
-          - This basically means we don't have enough info to fully infer some types which means the unbound types are now generic types
-          - TODO: explain generalization
