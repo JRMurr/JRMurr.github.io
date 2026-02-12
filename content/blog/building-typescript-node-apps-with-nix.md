@@ -11,6 +11,20 @@ layout: PostSimple
 
 <TOCInline toc={props.toc} asDisclosure />
 
+<Note>
+
+2026 update
+
+This post is 3.5 years old and getting node apps to run in nix has gotten much easier.
+
+[Build Npm Package](https://nixos.org/manual/nixpkgs/stable/#javascript-buildNpmPackage) is the easiest way to get node code building with nix.
+
+For a "real" user case feel free to see how i used it to build a Svelte typescript app [here](https://github.com/JRMurr/xxko/blob/dcdb8e593cba021fdd14a03cc3731d81274483cf/site/default.nix#L34).
+
+I'll make a post about that at some point... but for now feel free to read the rest of the post for general nix help...
+
+</Note>
+
 ## Being a Nix Stan
 
 I recently accepted that I am obsessed with Nix. Ask any remotely technical person with a pulse, and they can probably mention at least 10 times I've told them "But with nix X is way easier/a nonissue" (same with rust, but that's for another day...).
