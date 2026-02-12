@@ -19,7 +19,7 @@ This post is 3.5 years old and getting node apps to run in nix has gotten much e
 
 [Build Npm Package](https://nixos.org/manual/nixpkgs/stable/#javascript-buildNpmPackage) is the easiest way to get node code building with nix.
 
-For a "real" user case feel free to see how i used it to build a Svelte typescript app [here](https://github.com/JRMurr/xxko/blob/dcdb8e593cba021fdd14a03cc3731d81274483cf/site/default.nix#L34).
+For a "real" use case feel free to see how i used it to build a Svelte typescript app [here](https://github.com/JRMurr/xxko/blob/dcdb8e593cba021fdd14a03cc3731d81274483cf/site/default.nix#L34).
 
 I'll make a post about that at some point... but for now feel free to read the rest of the post for general nix help...
 
