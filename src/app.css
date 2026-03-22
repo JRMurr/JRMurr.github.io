@@ -1,0 +1,60 @@
+@import '@fontsource-variable/space-grotesk';
+@import 'katex/dist/katex.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Task list styling */
+.task-list-item::before {
+	@apply hidden;
+}
+
+.task-list-item {
+	@apply list-none;
+}
+
+/* Footnotes */
+.footnotes {
+	@apply mt-12 border-t border-gray-200 pt-8 dark:border-gray-700;
+}
+
+.data-footnote-backref {
+	@apply no-underline;
+}
+
+.csl-entry {
+	@apply my-5;
+}
+
+/* Webkit autofill fix */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+	transition:
+		background-color 600000s 0s,
+		color 600000s 0s;
+}
+
+/* KaTeX overflow */
+.katex-display {
+	overflow: auto hidden;
+}
+
+/* Shiki dark mode */
+html.dark .shiki,
+html.dark .shiki span {
+	color: var(--shiki-dark) !important;
+	background-color: var(--shiki-dark-bg) !important;
+	font-style: var(--shiki-dark-font-style) !important;
+	font-weight: var(--shiki-dark-font-weight) !important;
+	text-decoration: var(--shiki-dark-text-decoration) !important;
+}
+
+/* Code title styling */
+.remark-code-title {
+	@apply rounded-t bg-gray-50 px-5 py-3 font-mono text-sm font-bold dark:bg-gray-800 dark:text-gray-200;
+}
+
+.remark-code-title + div > pre {
+	@apply mt-0 rounded-t-none;
+}
