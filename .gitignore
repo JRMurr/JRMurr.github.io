@@ -17,6 +17,15 @@
 /.svelte-kit
 /build
 
+# Old Next.js artifacts
+/.next/
+/.velite/
+/app/tag-data.json
+/public/feed.xml
+/public/gen/
+/public/search.json
+/public/tags/
+
 # misc
 .DS_Store
 

@@ -1,5 +1,4 @@
 import type { Component } from 'svelte';
-import readingTime from 'reading-time';
 import { load as yamlLoad } from 'js-yaml';
 
 // ==============================================================================
@@ -22,7 +21,7 @@ export interface PostMetadata {
 export interface Post {
 	metadata: PostMetadata;
 	component: Component;
-	readingTime: { text: string; minutes: number; words: number };
+	readingTime: { text: string; minutes: number };
 }
 
 export type PostSummary = Omit<Post, 'component'>;
@@ -31,6 +30,22 @@ export interface SeriesInfo {
 	title: string;
 	slug: string;
 	posts: Post[];
+}
+
+// ==============================================================================
+// Reading Time (simple word count, avoids Node.js stream dependency)
+// ==============================================================================
+
+function estimateReadingTime(text: string): { text: string; minutes: number } {
+	const wordsPerMinute = 200;
+	// Strip frontmatter, code blocks, and HTML tags for a rough word count
+	const cleaned = text
+		.replace(/---[\s\S]*?---/, '') // frontmatter
+		.replace(/```[\s\S]*?```/g, '') // code blocks
+		.replace(/<[^>]+>/g, ''); // HTML tags
+	const words = cleaned.split(/\s+/).filter((w) => w.length > 0).length;
+	const minutes = Math.max(1, Math.ceil(words / wordsPerMinute));
+	return { text: `${minutes} min read`, minutes };
 }
 
 // ==============================================================================
@@ -69,12 +84,12 @@ function buildPosts(): Post[] {
 		if (isProduction && metadata.draft) continue;
 
 		const raw = rawPosts[path] || '';
-		const rt = readingTime(raw);
+		const rt = estimateReadingTime(raw);
 
 		posts.push({
 			metadata,
 			component: module.default,
-			readingTime: { text: rt.text, minutes: rt.minutes, words: rt.words },
+			readingTime: rt,
 		});
 	}
 
@@ -145,7 +160,7 @@ export function getPostsByTag(tag: string): Post[] {
 
 function buildSeriesDescriptions(): Array<{ title: string; slug: string }> {
 	const descriptions: Array<{ title: string; slug: string }> = [];
-	for (const [path, raw] of Object.entries(seriesFiles)) {
+	for (const [, raw] of Object.entries(seriesFiles)) {
 		const parsed = yamlLoad(raw) as { title: string; slug: string };
 		descriptions.push(parsed);
 	}
