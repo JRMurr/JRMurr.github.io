@@ -29,8 +29,12 @@
 			forcedAspectRatio: 11 / 8,
 		};
 
+		// Emscripten's generated JS references `global` (Node.js), polyfill for browser
+		if (typeof globalThis.global === 'undefined') {
+			(globalThis as any).global = globalThis;
+		}
+
 		// Load the Emscripten JS glue from static assets at runtime
-		// Use import() with a URL string so Vite doesn't try to bundle it
 		const zigfishUrl = new URL('/zigfish/zigfish.js', window.location.origin).href;
 		const zigfishModule = await import(/* @vite-ignore */ zigfishUrl);
 		const updatedModule = await zigfishModule.default(wasmModule);
