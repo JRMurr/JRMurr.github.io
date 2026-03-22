@@ -3,6 +3,7 @@
 	import headerNavLinks from '$lib/config/headerNavLinks';
 	import ThemeSwitch from './ThemeSwitch.svelte';
 	import MobileNav from './MobileNav.svelte';
+	import SearchModal from './SearchModal.svelte';
 </script>
 
 <header class="flex items-center justify-between py-10">
@@ -24,6 +25,7 @@
 				{link.title}
 			</a>
 		{/each}
+		<SearchModal />
 		<ThemeSwitch />
 		<MobileNav />
 	</div>
