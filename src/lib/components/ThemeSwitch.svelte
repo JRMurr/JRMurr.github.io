@@ -1,18 +1,17 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 
 	let isDark = $state(false);
 	let mounted = $state(false);
 
-	function getIsDark(): boolean {
-		if (!browser) return false;
+	onMount(() => {
 		const theme = localStorage.getItem('theme');
-		if (theme) return theme === 'dark';
-		return window.matchMedia('(prefers-color-scheme: dark)').matches;
-	}
-
-	$effect(() => {
-		isDark = getIsDark();
+		if (theme) {
+			isDark = theme === 'dark';
+		} else {
+			isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+		}
 		mounted = true;
 	});
 

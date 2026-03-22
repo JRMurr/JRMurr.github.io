@@ -1,7 +1,7 @@
 ---
 name: John Murray
 slug: default
-avatar: me.jpg
+avatar: /images/me.jpg
 occupation: Software Engineer
 github: https://github.com/JRMurr
 twitter: https://twitter.com/JRMurrCodes
