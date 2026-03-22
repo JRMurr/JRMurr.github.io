@@ -18,11 +18,6 @@
 	async function loadWasm() {
 		const savedTitle = document.title; // WASM overwrites this
 
-		// Emscripten's generated JS references `global` (Node.js), polyfill for browser
-		if (typeof globalThis.global === 'undefined') {
-			(globalThis as any).global = globalThis;
-		}
-
 		const wasmModule: any = {
 			print: (text: string) => console.log('[WASM] ' + text),
 			printErr: (text: string) => console.log('[WASM-ERROR] ' + text),

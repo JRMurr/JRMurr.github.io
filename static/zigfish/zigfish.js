@@ -111,8 +111,8 @@ var ENVIRONMENT_IS_PTHREAD = ENVIRONMENT_IS_WORKER && self.name == "em-pthread";
 // refer to Module (if they choose; they can also define Module)
 // include: /build/source/wasm-templates/prepend.js
 // https://github.com/emscripten-core/emscripten/issues/19996
-if (!global.window) {
-  global.window = {
+if (!globalThis.window) {
+  globalThis.window = {
     encodeURIComponent: encodeURIComponent,
     location: location
   };
