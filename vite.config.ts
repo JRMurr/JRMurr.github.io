@@ -1,16 +1,22 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
+
+// Vite plugin that adds COEP/COOP headers to ALL dev server responses
+// (both SSR pages and static files). Required for SharedArrayBuffer
+// which the chess WASM engine needs.
+function coepPlugin(): Plugin {
+	return {
+		name: 'coep-headers',
+		configureServer(server) {
+			server.middlewares.use((_req, res, next) => {
+				res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+				res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+				next();
+			});
+		},
+	};
+}
 
 export default defineConfig({
-	plugins: [sveltekit()],
-	server: {
-		headers: {
-			// Required for SharedArrayBuffer (used by the chess WASM engine).
-			// In production, Cloudflare Pages applies these via static/_headers
-			// only on the chess post path. In dev, we apply them globally since
-			// there's no per-route header support in Vite's dev server.
-			'Cross-Origin-Embedder-Policy': 'require-corp',
-			'Cross-Origin-Opener-Policy': 'same-origin',
-		},
-	},
+	plugins: [coepPlugin(), sveltekit()],
 });

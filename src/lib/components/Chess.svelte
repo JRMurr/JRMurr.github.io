@@ -18,6 +18,11 @@
 	async function loadWasm() {
 		const savedTitle = document.title; // WASM overwrites this
 
+		// Emscripten's generated JS references `global` (Node.js), polyfill for browser
+		if (typeof globalThis.global === 'undefined') {
+			(globalThis as any).global = globalThis;
+		}
+
 		const wasmModule: any = {
 			print: (text: string) => console.log('[WASM] ' + text),
 			printErr: (text: string) => console.log('[WASM-ERROR] ' + text),
@@ -27,14 +32,10 @@
 			set canvas(_: any) {},
 			onRuntimeInitialized: () => console.log('WASM runtime initialized'),
 			forcedAspectRatio: 11 / 8,
+			locateFile: (path: string) => `/zigfish/${path}`,
 		};
 
-		// Emscripten's generated JS references `global` (Node.js), polyfill for browser
-		if (typeof globalThis.global === 'undefined') {
-			(globalThis as any).global = globalThis;
-		}
-
-		// Load the Emscripten JS glue from static assets at runtime
+		// Load the Emscripten ES module from static assets
 		const zigfishUrl = new URL('/zigfish/zigfish.js', window.location.origin).href;
 		const zigfishModule = await import(/* @vite-ignore */ zigfishUrl);
 		const updatedModule = await zigfishModule.default(wasmModule);
