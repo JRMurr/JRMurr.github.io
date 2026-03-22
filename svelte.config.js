@@ -7,6 +7,7 @@ import remarkMath from 'remark-math';
 import { remarkCodeTitles, remarkDefaultCodeLang, twoSlashInclude } from './src/lib/remarkPlugins/index.js';
 import { escapeMathPreprocessor } from './src/lib/remarkPlugins/escapeMath.js';
 import { injectComponentsPreprocessor } from './src/lib/remarkPlugins/injectComponents.js';
+import { shikiHighlighter } from './src/lib/remarkPlugins/shikiHighlighter.js';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -18,7 +19,9 @@ const config = {
 		injectComponentsPreprocessor(),
 		mdsvex({
 			extensions: ['.md'],
-			// Components are injected via injectComponentsPreprocessor instead of layout
+			highlight: {
+				highlighter: shikiHighlighter,
+			},
 			remarkPlugins: [
 				remarkMath,
 				remarkDefaultCodeLang,
