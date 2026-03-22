@@ -73,7 +73,7 @@
 	</ul>
 </div>
 
-{#if data.posts.length > 5}
+{#if data.totalPosts > 5}
 	<div class="flex justify-end text-base font-medium leading-6">
 		<a
 			href="/blog"

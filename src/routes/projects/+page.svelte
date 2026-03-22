@@ -14,6 +14,9 @@
 		>
 			Projects
 		</h1>
+		<p class="text-lg leading-7 text-gray-500 dark:text-gray-400">
+			A [small] selection of my projects, mostly out of date... maybe ill update some day...
+		</p>
 	</div>
 	<div class="container py-12">
 		<div class="-m-4 flex flex-wrap">

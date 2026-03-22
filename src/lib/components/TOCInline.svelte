@@ -14,7 +14,7 @@
 	let {
 		asDisclosure = false,
 		collapse = false,
-		fromHeading = 2,
+		fromHeading = 1,
 		toHeading = 4,
 		exclude = '',
 	}: Props = $props();
