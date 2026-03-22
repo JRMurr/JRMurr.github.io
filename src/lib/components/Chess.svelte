@@ -7,7 +7,7 @@
 	const width = cellSize * 11;
 	const height = cellSize * 8;
 
-	let canvasEl: HTMLCanvasElement;
+	let canvasEl = $state<HTMLCanvasElement>();
 	let moduleRef: any = null;
 	let isDesktop = $state(false);
 

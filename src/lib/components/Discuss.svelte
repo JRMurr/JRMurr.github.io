@@ -4,8 +4,8 @@
 
 	let { path }: { path: string } = $props();
 
-	const editUrl = `${siteMetadata.siteRepo}/blob/main/content/${path}.md`;
-	const discussUrl = `https://mobile.twitter.com/search?q=${encodeURIComponent(`${siteMetadata.siteUrl}/${path}`)}`;
+	const editUrl = $derived(`${siteMetadata.siteRepo}/blob/main/content/${path}.md`);
+	const discussUrl = $derived(`https://mobile.twitter.com/search?q=${encodeURIComponent(`${siteMetadata.siteUrl}/${path}`)}`);
 </script>
 
 <div>

@@ -4,7 +4,7 @@
 
 	let { data } = $props();
 
-	const sortedTags = Object.entries(data.tagCounts).sort(([, a], [, b]) => b - a);
+	const sortedTags = $derived(Object.entries(data.tagCounts).sort(([, a], [, b]) => b - a));
 </script>
 
 <svelte:head>

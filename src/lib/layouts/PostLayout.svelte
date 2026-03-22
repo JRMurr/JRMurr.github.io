@@ -30,7 +30,10 @@
 		children: Snippet;
 	} = $props();
 
-	const { slug, date, title, tags } = post.metadata;
+	const slug = $derived(post.metadata.slug);
+	const date = $derived(post.metadata.date);
+	const title = $derived(post.metadata.title);
+	const tags = $derived(post.metadata.tags);
 </script>
 
 <ScrollTopAndComment />
