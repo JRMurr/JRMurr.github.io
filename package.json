@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@fontsource-variable/space-grotesk": "^5.0.0",
+    "giscus": "^1.6.0",
     "github-slugger": "2.0.0",
     "reading-time": "^1.5.0",
     "unist-util-flatmap": "^1.0.0",

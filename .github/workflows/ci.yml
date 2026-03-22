@@ -13,8 +13,6 @@ jobs:
             - name: "Setup env"
               uses: JRMurr/direnv-nix-action@v2
 
-            # This only caches the npm cache dir not the actual node modules
-            # caching node modules is not recommended https://github.com/actions/cache/blob/main/examples.md#node---npm
             - name: Get npm cache directory
               id: npm-cache-dir
               run: |
@@ -22,7 +20,7 @@ jobs:
 
             - name: use npm cache
               uses: actions/cache@v3.0.11
-              id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
+              id: npm-cache
               with:
                   path: ${{ steps.npm-cache-dir.outputs.dir }}
                   key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -33,6 +31,10 @@ jobs:
               run: npm ci
               shell: bash
 
-            - name: type check
-              run: just type-check
+            - name: svelte check
+              run: just check
+              shell: bash
+
+            - name: build
+              run: just build
               shell: bash

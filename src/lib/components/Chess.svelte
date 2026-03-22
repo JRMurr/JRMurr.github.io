@@ -1,9 +1,84 @@
 <script lang="ts">
-	// Placeholder - Chess WASM component will be ported in Phase 5
+	import { onMount, onDestroy } from 'svelte';
+	import Note from './Note.svelte';
+
+	// 11x8 ratio
+	const cellSize = 90;
+	const width = cellSize * 11;
+	const height = cellSize * 8;
+
+	let canvasEl: HTMLCanvasElement;
+	let moduleRef: any = null;
+	let isDesktop = $state(false);
+
+	function updateMedia() {
+		isDesktop = window.innerWidth > 1280;
+	}
+
+	async function loadWasm() {
+		const savedTitle = document.title; // WASM overwrites this
+
+		const wasmModule: any = {
+			print: (text: string) => console.log('[WASM] ' + text),
+			printErr: (text: string) => console.log('[WASM-ERROR] ' + text),
+			get canvas() {
+				return canvasEl || undefined;
+			},
+			set canvas(_: any) {},
+			onRuntimeInitialized: () => console.log('WASM runtime initialized'),
+			forcedAspectRatio: 11 / 8,
+		};
+
+		// Load the Emscripten JS glue from static assets at runtime
+		// Use import() with a URL string so Vite doesn't try to bundle it
+		const zigfishUrl = new URL('/zigfish/zigfish.js', window.location.origin).href;
+		const zigfishModule = await import(/* @vite-ignore */ zigfishUrl);
+		const updatedModule = await zigfishModule.default(wasmModule);
+		moduleRef = updatedModule;
+
+		updatedModule.setCanvasSize(width, height, false);
+		document.title = savedTitle;
+	}
+
+	onMount(() => {
+		updateMedia();
+		window.addEventListener('resize', updateMedia);
+
+		return () => window.removeEventListener('resize', updateMedia);
+	});
+
+	// Load WASM when desktop and canvas available
+	$effect(() => {
+		if (isDesktop && canvasEl && !moduleRef) {
+			loadWasm();
+		}
+	});
+
+	onDestroy(() => {
+		if (moduleRef) {
+			try {
+				moduleRef.force_exit(0);
+				delete moduleRef['wasmMemory'];
+			} catch (_) {
+				/* empty */
+			}
+			console.debug('unloading chess wasm');
+		}
+	});
 </script>
 
-<div class="grid place-content-center">
-	<div class="rounded bg-gray-100 dark:bg-gray-800 p-4">
-		<p>Chess engine placeholder - WASM component will be added</p>
-	</div>
+<div>
+	{#if isDesktop}
+		<canvas
+			bind:this={canvasEl}
+			id="canvas"
+			oncontextmenu={(e) => e.preventDefault()}
+			tabindex="-1"
+		></canvas>
+	{:else}
+		<Note>
+			Looks like you are on a small screen. If you load this on a desktop you can play against my
+			engine in the browser!
+		</Note>
+	{/if}
 </div>

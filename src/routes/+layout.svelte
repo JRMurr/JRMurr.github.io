@@ -9,6 +9,13 @@
 
 <svelte:head>
 	<meta name="description" content={siteMetadata.description} />
+	{#if siteMetadata.analytics.plausibleAnalytics}
+		<script
+			defer
+			data-domain={siteMetadata.analytics.plausibleAnalytics.plausibleDataDomain}
+			src="https://plausible.io/js/plausible.js"
+		></script>
+	{/if}
 </svelte:head>
 
 <div class="mx-auto max-w-3xl px-4 sm:px-6 xl:max-w-5xl xl:px-0">
