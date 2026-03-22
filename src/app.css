@@ -1,5 +1,6 @@
 @import '@fontsource-variable/space-grotesk';
 @import 'katex/dist/katex.css';
+@import '@shikijs/twoslash/style-rich.css';
 
 @tailwind base;
 @tailwind components;

@@ -1,4 +1,5 @@
 import { getHighlighter as createShikiHighlighter } from 'shiki';
+import { transformerTwoslash } from '@shikijs/twoslash';
 import { escapeSvelte } from 'mdsvex';
 
 let highlighterPromise = null;
@@ -37,13 +38,51 @@ export async function shikiHighlighter(code, lang, meta) {
 		}
 	}
 
-	const html = highlighter.codeToHtml(code, {
-		lang: effectiveLang,
-		themes: {
-			light: 'github-light',
-			dark: 'github-dark',
-		},
-	});
+	// Enable twoslash transformer when meta contains 'twoslash'
+	const metaStr = meta || '';
+	const transformers = [];
+	if (metaStr.includes('twoslash')) {
+		transformers.push(
+			transformerTwoslash({
+				explicitTrigger: false,
+				twoslashOptions: {
+					compilerOptions: {
+						// Allow missing types (e.g. lodash) without failing
+						noEmit: true,
+						skipLibCheck: true,
+						moduleResolution: 100, // bundler
+					},
+					handbookOptions: {
+						errors: [], // Don't require @errors annotations
+					},
+				},
+			})
+		);
+	}
+
+	let html;
+	try {
+		html = highlighter.codeToHtml(code, {
+			lang: effectiveLang,
+			themes: {
+				light: 'github-light',
+				dark: 'github-dark',
+			},
+			transformers,
+			meta: metaStr ? { __raw: metaStr } : undefined,
+		});
+	} catch (e) {
+		// If twoslash fails (e.g. missing types), fall back to plain highlighting
+		if (transformers.length > 0) {
+			console.warn(`[shiki] Twoslash failed, falling back to plain highlight: ${e.message?.split('\n')[0]}`);
+			html = highlighter.codeToHtml(code, {
+				lang: effectiveLang,
+				themes: { light: 'github-light', dark: 'github-dark' },
+			});
+		} else {
+			throw e;
+		}
+	}
 
 	// escapeSvelte prevents { } and other Svelte special chars in the
 	// highlighted HTML from being interpreted as template expressions
