@@ -3,43 +3,19 @@
 
 # dependencies
 /node_modules
-/.pnp
-.pnp.js
-/.yarn/*
-!/.yarn/releases
-!/.yarn/plugins
-!/.yarn/sdks
-
-# testing
-/coverage
 
 # SvelteKit
 /.svelte-kit
 /build
-
-# Old Next.js artifacts
-/.next/
-/.velite/
-/app/tag-data.json
-/public/feed.xml
-/public/gen/
-/public/search.json
-/public/tags/
 
 # misc
 .DS_Store
 
 # debug
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # local env files
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 tsconfig.tsbuildinfo
