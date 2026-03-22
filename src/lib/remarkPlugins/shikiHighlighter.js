@@ -1,6 +1,21 @@
 import { getHighlighter as createShikiHighlighter } from 'shiki';
 import { transformerTwoslash } from '@shikijs/twoslash';
+import { twoslasher } from 'twoslash';
 import { escapeSvelte } from 'mdsvex';
+
+// Wraps the default twoslasher to suppress error validation.
+// Twoslash normally requires `// @errors: XXXX` annotations for every TS
+// error in the code block, which is impractical for blog posts that import
+// packages not available at build time.
+function lenientTwoslasher(code, lang, options) {
+	return twoslasher(code, lang, {
+		...options,
+		handbookOptions: {
+			...options?.handbookOptions,
+			noErrorValidation: true,
+		},
+	});
+}
 
 let highlighterPromise = null;
 
@@ -39,23 +54,14 @@ export async function shikiHighlighter(code, lang, meta) {
 	}
 
 	// Enable twoslash transformer when meta contains 'twoslash'
+	// mdsvex passes meta as the string after the language in the code fence
 	const metaStr = meta || '';
 	const transformers = [];
-	if (metaStr.includes('twoslash')) {
+	if (metaStr.includes('twoslash') && effectiveLang === 'ts') {
 		transformers.push(
 			transformerTwoslash({
 				explicitTrigger: false,
-				twoslashOptions: {
-					compilerOptions: {
-						// Allow missing types (e.g. lodash) without failing
-						noEmit: true,
-						skipLibCheck: true,
-						moduleResolution: 100, // bundler
-					},
-					handbookOptions: {
-						errors: [], // Don't require @errors annotations
-					},
-				},
+				twoslasher: lenientTwoslasher,
 			})
 		);
 	}
@@ -74,7 +80,7 @@ export async function shikiHighlighter(code, lang, meta) {
 	} catch (e) {
 		// If twoslash fails (e.g. missing types), fall back to plain highlighting
 		if (transformers.length > 0) {
-			console.warn(`[shiki] Twoslash failed, falling back to plain highlight: ${e.message?.split('\n')[0]}`);
+			console.warn(`[shiki] Twoslash failed for ${effectiveLang}, falling back to plain highlight:`, String(e).split('\n')[0]);
 			html = highlighter.codeToHtml(code, {
 				lang: effectiveLang,
 				themes: { light: 'github-light', dark: 'github-dark' },
