@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zigfish Chess</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #1a1a2e;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script type="module">
+      const cellSize = 90;
+      const width = cellSize * 11;
+      const height = cellSize * 8;
+      const canvas = document.getElementById('canvas');
+
+      const savedTitle = document.title;
+
+      const wasmModule = {
+        print: (text) => console.log('[WASM] ' + text),
+        printErr: (text) => console.log('[WASM-ERROR] ' + text),
+        get canvas() {
+          return canvas;
+        },
+        set canvas(_) {},
+        onRuntimeInitialized: () => console.log('WASM runtime initialized'),
+        forcedAspectRatio: 11 / 8,
+        locateFile: (path) => `/zigfish/${path}`,
+      };
+
+      const zigfishModule = await import('./zigfish.js');
+      const mod = await zigfishModule.default(wasmModule);
+      mod.setCanvasSize(width, height, false);
+      document.title = savedTitle;
+    </script>
+  </body>
+</html>
