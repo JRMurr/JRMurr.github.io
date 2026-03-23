@@ -31,13 +31,11 @@ I called it ZigFish since this will obviously match Stockfish in elo....
 
 # Try it out
 
-If you're on a desktop, you should see the engine below... (if not please go easy on me, wasm has caused me so much pain....).
+Click the link below to play the engine (can't embed for wasm reasons..)
 Play it and see how you do! If you give it more time to think (the slider) it will play better but its still just ok.
 I hope to add more improvements over time
 
 <Chess/>
-
-
 
 
 # How Does a Chess Engine Work?
