@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { formatDate } from '$lib/utils/formatDate';
+	import siteMetadata from '$lib/config/siteMetadata';
+
 	let { data } = $props();
 </script>
 
@@ -21,13 +24,9 @@
 						<dl>
 							<dt class="sr-only">Published on</dt>
 							<dd class="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
-								<time datetime={post.metadata.date}>
-									{new Date(post.metadata.date).toLocaleDateString('en-US', {
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric',
-									})}
-								</time>
+								<time datetime={post.metadata.date}
+									>{formatDate(post.metadata.date, siteMetadata.locale)}</time
+								>
 							</dd>
 						</dl>
 						<div class="space-y-5 xl:col-span-3">

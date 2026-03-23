@@ -6,10 +6,14 @@
 	let { data } = $props();
 
 	const sortedTags = $derived(Object.entries(data.tagCounts).sort(([, a], [, b]) => b - a));
+
+	function prevHref(page: number) {
+		return page === 2 ? '/blog' : `/blog/page/${page - 1}`;
+	}
 </script>
 
 <svelte:head>
-	<title>Blog | {siteMetadata.title}</title>
+	<title>Blog - Page {data.currentPage} | {siteMetadata.title}</title>
 </svelte:head>
 
 <div>
@@ -86,17 +90,31 @@
 			{#if data.totalPages > 1}
 				<div class="space-y-2 pb-8 pt-6 md:space-y-5">
 					<nav class="flex justify-between">
-						<button disabled class="cursor-auto disabled:opacity-50">Previous</button>
+						{#if data.currentPage > 1}
+							<a
+								href={prevHref(data.currentPage)}
+								rel="prev"
+								class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+							>
+								Previous
+							</a>
+						{:else}
+							<button disabled class="cursor-auto disabled:opacity-50">Previous</button>
+						{/if}
 						<span class="text-gray-500 dark:text-gray-400">
-							1 of {data.totalPages}
+							{data.currentPage} of {data.totalPages}
 						</span>
-						<a
-							href="/blog/page/2"
-							rel="next"
-							class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
-						>
-							Next
-						</a>
+						{#if data.currentPage < data.totalPages}
+							<a
+								href="/blog/page/{data.currentPage + 1}"
+								rel="next"
+								class="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+							>
+								Next
+							</a>
+						{:else}
+							<button disabled class="cursor-auto disabled:opacity-50">Next</button>
+						{/if}
 					</nav>
 				</div>
 			{/if}
