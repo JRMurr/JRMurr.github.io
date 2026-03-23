@@ -12,6 +12,11 @@
 		if (pagefind) return;
 		try {
 			const pagefindPath = '/pagefind/pagefind.js';
+			// Check that the pagefind script exists before importing — in dev mode it
+			// won't, and browsers (especially Firefox) throw uncatchable module-loader
+			// errors for non-JS responses.
+			const probe = await fetch(pagefindPath, { method: 'HEAD' });
+			if (!probe.ok) return;
 			pagefind = await import(/* @vite-ignore */ pagefindPath);
 			await pagefind.init();
 		} catch {
