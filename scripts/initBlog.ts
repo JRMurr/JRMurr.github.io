@@ -14,6 +14,7 @@ function slugify(title: string): string {
 
 function generateFrontMatter(opts: {
   title: string;
+  slug: string;
   summary: string;
   tags: string[];
 }) {
@@ -22,6 +23,7 @@ function generateFrontMatter(opts: {
 
   return `---
 title: ${opts.title || "Untitled"}
+slug: ${opts.slug}
 date: ${date}
 tags: ${tagStr}
 draft: true
@@ -46,7 +48,7 @@ async function main() {
     : [];
 
   const slug = slugify(title) || "untitled";
-  const frontMatter = generateFrontMatter({ title, summary, tags });
+  const frontMatter = generateFrontMatter({ title, slug, summary, tags });
   const filePath = path.join(BLOG_DIR, `${slug}.md`);
 
   if (fs.existsSync(filePath)) {

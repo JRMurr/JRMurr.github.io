@@ -74,6 +74,12 @@ const seriesFiles = import.meta.glob('/src/content/blog/**/info.yml', {
 
 const isProduction = import.meta.env.PROD;
 
+function slugFromPath(filePath: string): string {
+	// "/src/content/blog/some-post.md" → "some-post"
+	// "/src/content/blog/series/part01.md" → "series/part01"
+	return filePath.replace('/src/content/blog/', '').replace(/\.md$/, '');
+}
+
 function buildPosts(): Post[] {
 	const posts: Post[] = [];
 
@@ -82,6 +88,11 @@ function buildPosts(): Post[] {
 
 		// Skip drafts in production
 		if (isProduction && metadata.draft) continue;
+
+		// Derive slug from file path when not specified in frontmatter
+		if (!metadata.slug) {
+			metadata.slug = slugFromPath(path);
+		}
 
 		const raw = rawPosts[path] || '';
 		const rt = estimateReadingTime(raw);

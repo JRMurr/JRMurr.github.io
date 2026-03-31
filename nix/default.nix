@@ -1,4 +1,8 @@
-{ pkgs ? (import ./pinned_from_flake.nix { }).pkgs, nodejs ? pkgs."nodejs_20" }:
+{
+  # type: pkgs :: Pkgs
+  pkgs ? (import ./pinned_from_flake.nix { }).pkgs,
+  nodejs ? pkgs."nodejs_20",
+}:
 let
 
   src =
@@ -6,7 +10,13 @@ let
       fs = pkgs.lib.fileset;
       rootDir = ../.;
       trackedfiles = fs.gitTracked rootDir;
-      excluded = fs.unions [ ../.vscode ./. ../README.md ../TODO.md ../.github ];
+      excluded = fs.unions [
+        ../.vscode
+        ./.
+        ../README.md
+        ../TODO.md
+        ../.github
+      ];
 
       fileSet = fs.difference trackedfiles excluded;
     in
@@ -37,7 +47,6 @@ let
 
   # rootDir = builtins.toString ../.;
 
-
   # runNode2Nix = pkgs.writeShellScriptBin "runNode2Nix" ''
   #   ${pkgs.node2nix}/bin/node2nix -18 --development \
   #     --input ${rootDir}/package.json \
@@ -47,4 +56,6 @@ let
   #     --output ${rootDir}/nix/node/package.nix
   # '';
 in
-{ inherit node2nixOut nodeDependencies blogBuild; }
+{
+  inherit node2nixOut nodeDependencies blogBuild;
+}
