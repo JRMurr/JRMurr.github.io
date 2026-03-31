@@ -194,3 +194,5 @@ module pkgs {
 - a more detailed description of the core of the type checking impl (mainly how tyvars work/constraining)
 - list some gotchas for things like operator overloading and string interpolation
 - Might want to do another pass on stub file syntax before i launch for real. `val key :: type` is a lil weird
+- can pull some stuff from https://github.com/JRMurr/JRMurr.github.io/blob/767264b6c6b125a65db64d938b86e132d235317b/content/blog/nix-typechecker-proof-of-concept.md
+- 
