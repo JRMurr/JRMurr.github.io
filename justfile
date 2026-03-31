@@ -10,6 +10,9 @@ build:
 preview:
   npm run preview
 
+preview-cf: build
+  wrangler pages dev build
+
 check:
   npm run check
 

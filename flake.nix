@@ -29,7 +29,7 @@
       in
       {
         devShells = {
-          default = pkgs.mkShell { buildInputs = commonDeps ++ (with pkgs; [ ]); };
+          default = pkgs.mkShell { buildInputs = commonDeps ++ (with pkgs; [ wrangler ]); };
           CI = pkgs.mkShell { buildInputs = commonDeps; };
         };
         # packages = { };

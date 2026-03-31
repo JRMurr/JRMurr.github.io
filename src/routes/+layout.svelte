@@ -13,7 +13,8 @@
 		<script
 			defer
 			data-domain={siteMetadata.analytics.plausibleAnalytics.plausibleDataDomain}
-			src="https://plausible.io/js/script.js"
+			data-api="/api/event"
+			src="/js/script"
 		></script>
 	{/if}
 </svelte:head>
