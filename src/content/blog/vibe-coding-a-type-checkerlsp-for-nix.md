@@ -112,8 +112,7 @@ So to get useful types from nixpkgs and other large dependencies I took the decl
 They look like
 
 
-<!-- TODO: remember to update if I change the syntax -->
-
+<!-- TODO: reference nixdoc as syntax inspiration -->
 
 ```
 type NixosConfig = {
@@ -176,7 +175,7 @@ module pkgs {
 }
 ```
 
-<!-- TODO expand -->
+
 
 
 ## LSP
@@ -185,6 +184,17 @@ module pkgs {
 
 
 # The Vibe Coding Experience
+
+- Just using chat to ask questions about my understanding of papers was incredibly useful
+- I started using claude when i had a good hindley milner impl done
+- Claude was able to mostly on its own convert from HM to SimpleSub
+- When i noticed claude struggle (i read its output was not doing full agent orchestration), I would then focus on refactoring/re-architecting what it struggled with or added more tests
+- Without an automated test claude would not really do well
+- A type checker seems to be a really good fit for agents, well defined, good papers to reference, relatively straightforward to see if it worked
+- LSP features have been much harder for claude to handle well. I had to spend a lot of time manually testing to report issues and try my best to add tests to cover them
+- Red green TDD is the best, claude thinks it knows the issue but sees its wrong when making a repro often
+- In a similar vein claude is pretty bad at figuring out perf issues statically
+- Though its really good at doing print debugging to bisect to find the cause of issues
 
 
 # TODO
