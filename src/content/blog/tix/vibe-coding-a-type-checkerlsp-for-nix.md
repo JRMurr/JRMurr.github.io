@@ -23,6 +23,12 @@ Tix is based on Simple Sub (algebraic subtyping) + Negation types.
 My main goal was to make the LSP experience of Nix more on par with other modern languages.
 A typechecker helps track what can be autocompleted and where things are defined, so that felt like the right foundation.
 
+Tix is not the only Nix lsp. [Nil](https://github.com/oxalica/nil) and [Nixd](https://github.com/nix-community/nixd) are both great Nix LSPs. 
+My assumption was a good type checker could provide more features and hopefully still be performant.
+[TypeNix](https://github.com/ryanrasti/typenix) is a newer project with similar goals but a different approach — it translates Nix ASTs into TypeScript ASTs and reuses TypeScript's type checker.
+Honestly a really cool idea. Its LSP seems pretty good and seems to support overrides better than Tix currently does. 
+With that said my gut assumption is Tix might be easier to tailor specifically for nix.
+
 Here is what Tix can do
 
 - Give you type errors for bad nix code
@@ -368,13 +374,3 @@ Over time I made sure the tix cli and LSP shared as much logic as possible which
 
 Claude is pretty lazy. When planning features it tends to want to do the easiest thing instead of a potentially bigger refactor.
 At first I took its advice more seriously but after being burned a few times I usually went with what I thought would lead to a better code base and it seemed to work out.
-
-
-
-# TODO
-
-
-- mention Nil and Nixd
-- a more detailed description of the core of the type checking impl (mainly how tyvars work/constraining)
-- list some gotchas for things like operator overloading and string interpolation
-- can pull some stuff from https://github.com/JRMurr/JRMurr.github.io/blob/767264b6c6b125a65db64d938b86e132d235317b/content/blog/nix-typechecker-proof-of-concept.md
