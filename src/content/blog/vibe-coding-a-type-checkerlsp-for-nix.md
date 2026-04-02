@@ -12,7 +12,7 @@ I've started working on [Tix](https://github.com/JRMurr/tix) a custom type check
 I didn't really know what to expect but I felt like this should be possible.
 I wanted TypeScript for Nix. We can do a lot of inference to help and use type annotations for the really nasty parts.
 When I started, It was my first time really using LLMs to help with coding. At that time I only used chatgpt to help me find papers, ask questions about those papers, and write small functions.
-Most the code then was done by me.
+Most of the code then was done by me.
 
 I hit a wall and life happened so I put the the project down for the rest of the year. Now in 2026 I came back to Tix with agentic coding tools and we have done A LOT. Now most of the code has been written by claude.
 
@@ -32,7 +32,7 @@ If you have a negative opinion of vibe coding, I totally get it. I hope you can 
 Tix is a custom type checker/LSP for nix based on Simple Sub (algebraic subtyping) + Negation types.
 My main goal for Tix was to make the LSP experience of Nix more on par with other modern languages.
 To do that I figured the best way has to have a typechecker since it would help track what can be autocompleted and where things are defined.
-With that in mind I wanted a typechecker that has pretty inference and use type annotations on the parts that would be too hard to infer.
+With that in mind I wanted a typechecker that has strong inference and use type annotations on the parts that would be too hard to infer.
 
 I have used TypeScript for many years now and while its not perfect its a very pragmatic language so I wanted to bring that power to nix.
 
@@ -51,7 +51,7 @@ Smaller projects like my [nixos config](https://github.com/JRMurr/NixOsConfig) c
 ## The Type System
 
 A very common type system people pick for functional languages is Damas-Hindley-Milner (commonly called Hindley-Milner or HM).
-Its somewhat simple to implement, and it is "Complete" meaning that without any type annotations we can infer the most general type of the program passed.
+It's somewhat simple to implement, and it is "Complete" meaning that without any type annotations we can infer the most general type of the program passed.
 
 ### A Basic Implementation of HM
 
@@ -75,7 +75,7 @@ Other languages that use HM support some kind of tagged union to work around thi
 
 ### SimpleSub
 
-Thankfully, [SimpleSub](https://lptk.github.io/programming/2020/03/26/demystifying-mlsub.html) is basically and extension of HM that support sub typing.
+Thankfully, [SimpleSub](https://lptk.github.io/programming/2020/03/26/demystifying-mlsub.html) is basically an extension of HM that supports subtyping.
 It has the same high level idea of walk the ast and generate constraints. But instead of requiring unification you can encode a subtyping relationship. 
 For example in `let y = foo b`, instead of saying that b must be the same type as the arg of foo, b can be a subtype of the arg of foo.
 
@@ -254,9 +254,10 @@ Tix has 3 builtin contexts (user configurable ones are a lil under baked atm)
 
 For Nixos/HomeManager module we auto type the pkgs, lib, and config args.
 
-For `callPackage` we "splat out" pkgs on the files inner lambda so you should hopefully get types on all the inputs from the stubs.
+The `callPackage` context types files that are "callPackage"able (e.g. `{ stdenv, fetchurl, lib, ... }: <some derivation build>`).
+Here we use the types from the `pkgs` module in the stubs to type each lambda param.
 
-The context (and other tix config) can be set in a `tix.toml`. For example I have this in my nixos config repo
+The context (and other tix config) can be set in a `tix.toml`. For example I have this in my [nixos config repo](https://github.com/JRMurr/NixOsConfig/blob/main/tix.toml)
 
 ```toml
 [context.nixos]
@@ -300,18 +301,18 @@ includes = [
 stubs = ["@callpackage"]
 ```
 
-This will tell tix what files to apply what context too.
+This will tell tix what files to apply what context to.
 
 
 ## LSP
 
 
 The whole driving reason of making Tix was to have a really good lsp experience. 
-I started out with some inspiration from [nil](https://github.com/oxalica/nil) and based the core of the LSP/Tix on [salsa](https://github.com/salsa-rs/salsa) and incremental computation framework (its also what ty the python typechecker uses...).
+I started out with some inspiration from [nil](https://github.com/oxalica/nil) and based the core of the LSP/Tix on [salsa](https://github.com/salsa-rs/salsa), an incremental computation framework.
 
 TODO: should this salsa stuff be put somewhere else?
 
-The core idea is salsa would handle parsing, module resolution, etc and only re-run things when stuff has changed. It has mostly been good but it is not `Send` so doing things in parrell with it is kinda hard so the core of type checking does not use it but everything leading up to inference does.
+The core idea is salsa would handle parsing, module resolution, etc and only re-run things when stuff has changed. It has mostly been good but it is not `Send` so doing things in parallel with it is kinda hard so the core of type checking does not use it but everything leading up to inference does.
 
 The LSP support most things you would expect in an LSP
 
