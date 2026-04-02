@@ -340,16 +340,61 @@ it's easy to take that information on top to get a great LSP experience for not 
 
 # The Vibe Coding Experience
 
-- Just using chat to ask questions about my understanding of papers was incredibly useful
-- I started using claude when i had a good hindley milner impl done
-- Claude was able to mostly on its own convert from HM to SimpleSub
-- When i noticed claude struggle (i read its output was not doing full agent orchestration), I would then focus on refactoring/re-architecting what it struggled with or added more tests
-- Without an automated test claude would not really do well
-- A type checker seems to be a really good fit for agents, well defined, good papers to reference, relatively straightforward to see if it worked
-- LSP features have been much harder for claude to handle well. I had to spend a lot of time manually testing to report issues and try my best to add tests to cover them
-- Red green TDD is the best, claude thinks it knows the issue but sees its wrong when making a repro often
-- In a similar vein claude is pretty bad at figuring out perf issues statically
-- Though its really good at doing print debugging to bisect to find the cause of issues
+Tix is the first real project I used LLMs on. A year ago it was just chats but now it's full agents
+
+## Starting out
+
+When getting started on Tix, I was reading papers on type checking algorithms and just doing general research.
+At the time I mostly used ChatGpt to help find more papers, summarize them, compare different algorithms, and ask questions to solidify my understanding.
+
+It was a pretty good sweet spot, I was learning a lot, writing all the code, and laying out the ground work for a good architecture for the project.
+The most actual code assists I got was writing pseudo code of some common inference logic i would need and stubbing out some rust functions.
+
+I eventually hit a wall with hindley milner, I knew i would need some kind of core change so slowly lost the drive to keep going.
+
+
+## Agents
+
+A year later and basically everyone was glazing claude code so figured why not see what's going on.
+For me this [Jon Gjengset stream](https://youtu.be/vmKvw73V394?si=Txfqb4dzz9R-J66a) porting a Java tool to Rust with claude and multiple agents at once was a real game changer for me.
+I went from an AI agent skeptic to "AI Pilled" from almost entirely that video.
+
+So after watching that I wanted to try it out on something. I made some new projects but wasn't quite feeling fun. Then I remembered that I had some tedious work i could delegate in Tix.
+
+I told claude to help me research potential algorithms i could use in Tix. I knew of algebraic subtyping/SimpleSub from the first wave of research but not in detail.
+After a long planning session claude was able to do the work to switch the core from HM to SimpleSub in only 30ish min.
+It helped that I had a lot of tests (including PBT) already implemented so it could correct it self as it went
+
+I was addicted after that. I was spending almost every free moment I had having claude fix bugs and making new features.
+
+A type checker seems to be a really good fit for agents, it's well defined, good papers to reference, and relatively straightforward to see if it worked.
+
+
+## What worked well
+
+I mostly had one claude going at a time so I really paid attention to what claude seemed to be struggling on.
+After claude finishes its work I will then focus on the areas of the code it struggled on so the code base doesn't naturally go to spaghetti (It still did a bit, but it works at least....)
+
+If claude does not have a way to check itself, it gives pretty bad results or finishes before something is really done.
+Also claude will sometimes have assumptions on what the code is doing, without running code it might fix the wrong thing.
+The best way to deal with those two points is by telling claude to do Red Green TDD.
+That alone is usually enough to get claude to start every impl by making a failing test and only finish when the test passes.
+
+Claude is the best printf debugger I've ever seen. When debugging perf issues I had claude just add instrumentation/logs to see what was slow and using too much memory.
+It would take a while but I would let it run in a loop until it found the root cause.
+
+
+## What did not work well
+
+Claude is pretty lazy. When planning features it tends to want to do the easiest thing instead of a potentially bigger refactor.
+At first I took its advice more seriously but after being burned a few times I usually went with what I thought would lead to a better code base and it seemed to work out.
+
+The core of the type checker was pretty good to give claude a good harness on. I would find a repro of some type issue and claude could run in a loop until it fixed it.
+The LSP however was much more difficult. There was more variables and ephemeral state at play. Order of edits, file loading, auto complete in weird spots, 
+and I used it on more real code other than dummy test examples.
+I had to do a lot more manual testing of the LSP features to make sure they actually worked.
+Over time I made sure the tix cli and LSP shared as much logic as possible which helped a bit but I still don't feel as good about claude one shotting LSP work.
+
 
 
 # TODO
@@ -358,8 +403,4 @@ it's easy to take that information on top to get a great LSP experience for not 
 - mention Nil and Nixd
 - a more detailed description of the core of the type checking impl (mainly how tyvars work/constraining)
 - list some gotchas for things like operator overloading and string interpolation
-- Might want to do another pass on stub file syntax before i launch for real. `val key :: type` is a lil weird
 - can pull some stuff from https://github.com/JRMurr/JRMurr.github.io/blob/767264b6c6b125a65db64d938b86e132d235317b/content/blog/nix-typechecker-proof-of-concept.md
-- Should i have webms or something for lsp and showing types better?
-- Does nixos context not work if you have `config = lib.mkIf`?????
-- Where to call out auto stub gen works in tix toml
