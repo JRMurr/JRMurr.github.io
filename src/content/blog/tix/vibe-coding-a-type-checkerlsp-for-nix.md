@@ -12,40 +12,23 @@ layout: PostSimple
 <video src="/blog/tix/type-error.webm" loop muted playsinline controls style="max-width: 100%; max-height: 500px; display: block; margin: 0 auto;"></video>
 
 
-I started working on [Tix](https://github.com/JRMurr/tix) a custom type checker in early 2025.
-I didn't really know what to expect but I felt like this should be possible.
-I wanted TypeScript for Nix. We can do a lot of inference to help and use type annotations for the really nasty parts.
-When I started, it was my first time really using LLMs to help with coding. At that time I only used chatgpt to help me find papers, ask questions about those papers, and write small functions.
-Most of the code then was done by me.
-
-I hit a wall and life happened so I put the project down for the rest of the year. Now in 2026 I came back to Tix with agentic coding tools and we have done A LOT. Now most of the code has been written by claude.
-
-I split this post up into two main parts, an overview of Tix that will focus on the features of the LSP and type checker and some implementation details. 
-
-The second part is my thoughts/experience of using agentic coding tools since this project was my first real deep dive into them. 
-
-
-If you have a negative opinion of vibe coding, I totally get it. I hope you can still find tix useful.
-
+[Tix](https://github.com/JRMurr/tix) is a custom type checker/LSP for Nix.
+I wanted TypeScript for Nix — strong inference where possible, type annotations for the really nasty parts.
 
 <TOCInline asDisclosure />
 
-
 # Tix Overview
 
-Tix is a custom type checker/LSP for nix based on Simple Sub (algebraic subtyping) + Negation types.
-My main goal for Tix was to make the LSP experience of Nix more on par with other modern languages.
-To do that I figured the best way was to have a typechecker since it would help track what can be autocompleted and where things are defined.
-With that in mind I wanted a typechecker that has strong inference and uses type annotations on the parts that would be too hard to infer.
-
-I have used TypeScript for many years now and while it's not perfect it's a very pragmatic language so I wanted to bring that power to nix.
+Tix is based on Simple Sub (algebraic subtyping) + Negation types.
+My main goal was to make the LSP experience of Nix more on par with other modern languages.
+A typechecker helps track what can be autocompleted and where things are defined, so that felt like the right foundation.
 
 Here is what Tix can do
 
 - Give you type errors for bad nix code
 - Auto complete for pkgs in NixPkgs
 - Auto complete + inline docs for Nixos config values
-- Jump to def across files in your project <!-- TODO: make this work better for real -->
+- Jump to def across files in your project
 - Jump to def into Nixpkgs on pkgs + Nixos options
 
 
@@ -324,18 +307,8 @@ The expr can be any nix expression that resolves to the path of the nixpkgs/home
 <video src="/blog/tix/auto-jump.webm" loop muted playsinline controls style="max-width: 100%; max-height: 500px; display: block; margin: 0 auto;"></video>
 
 
-The LSP is the main reason I wanted to make Tix. The video above shows my favorite features
-
-- Types on hover
-- Docs on hover for nixos options
-- Autocomplete on `pkgs.` to instantly see what pkgs are in nixpkgs
-- Jump to def on pkgs in nixpkgs
-- Jump to def on nixos config values
-
-
-It's great that most of this somewhat falls out for free from all the type checking work. While the type checker does not care about docs or source locations,
-it's easy to take that information on top to get a great LSP experience for not too much work.
-
+Most of the LSP features fall out for free from the type checking work.
+The type checker doesn't care about docs or source locations, but it's easy to layer that information on top to get hover docs, jump-to-def into nixpkgs, and autocomplete with very little extra work.
 
 
 # The Vibe Coding Experience
@@ -383,17 +356,18 @@ That alone is usually enough to get claude to start every impl by making a faili
 Claude is the best printf debugger I've ever seen. When debugging perf issues I had claude just add instrumentation/logs to see what was slow and using too much memory.
 It would take a while but I would let it run in a loop until it found the root cause.
 
+The core of the type checker was pretty good to give claude a good harness on. I would find a repro of some type issue and claude could run in a loop until it fixed it.
 
 ## What did not work well
 
-Claude is pretty lazy. When planning features it tends to want to do the easiest thing instead of a potentially bigger refactor.
-At first I took its advice more seriously but after being burned a few times I usually went with what I thought would lead to a better code base and it seemed to work out.
-
-The core of the type checker was pretty good to give claude a good harness on. I would find a repro of some type issue and claude could run in a loop until it fixed it.
-The LSP however was much more difficult. There were more variables and ephemeral state at play. Order of edits, file loading, auto complete in weird spots, 
+The LSP was much more difficult to get a good harness. There were more variables and ephemeral state at play. Order of edits, file loading, auto complete in weird spots, 
 and I used it on more real code other than dummy test examples.
 I had to do a lot more manual testing of the LSP features to make sure they actually worked.
 Over time I made sure the tix cli and LSP shared as much logic as possible which helped a bit but I still don't feel as good about claude one shotting LSP work.
+
+
+Claude is pretty lazy. When planning features it tends to want to do the easiest thing instead of a potentially bigger refactor.
+At first I took its advice more seriously but after being burned a few times I usually went with what I thought would lead to a better code base and it seemed to work out.
 
 
 
