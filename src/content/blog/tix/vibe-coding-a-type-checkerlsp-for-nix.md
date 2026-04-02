@@ -325,6 +325,8 @@ TODO: A webm for all of those points
 
 The LSP is not super interesting from a technical perspective, just uses [tower-lsp](https://github.com/ebkalderon/tower-lsp) to expose it and relies on the type checking infrastructure for most of the interesting parts.
 
+<video src="/blog/tix/auto-jump.webm" autoplay loop muted playsinline></video>
+
 
 # The Vibe Coding Experience
 

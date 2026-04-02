@@ -298,7 +298,7 @@ This basically means lower Ranks (rows) have lower index and then each rank star
 
 Here are how the indexes are laid out (the indexes here correspond the `nth` bit in the `u64` backing the bit board)
 
-![Board Index Example](./sqaures.jpg)
+![Board Index Example](/blog/zig-chess/sqaures.jpg)
 
 
 So when if you look at the `u64` backing the bitboard, "lower" bits are near the bottom of the board. More concretely the least significant bit would be a1. The most significant bit would be h8.
