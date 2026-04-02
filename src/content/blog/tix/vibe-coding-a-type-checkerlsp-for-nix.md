@@ -8,20 +8,24 @@ summary: A new type checker for nix
 layout: PostSimple
 ---
 
+
+<video src="/blog/tix/type-error.webm" loop muted playsinline controls style="max-width: 100%; max-height: 500px; display: block; margin: 0 auto;"></video>
+
+
 I've started working on [Tix](https://github.com/JRMurr/tix) a custom type checker in early 2025.
 I didn't really know what to expect but I felt like this should be possible.
 I wanted TypeScript for Nix. We can do a lot of inference to help and use type annotations for the really nasty parts.
 When I started, It was my first time really using LLMs to help with coding. At that time I only used chatgpt to help me find papers, ask questions about those papers, and write small functions.
 Most of the code then was done by me.
 
-I hit a wall and life happened so I put the the project down for the rest of the year. Now in 2026 I came back to Tix with agentic coding tools and we have done A LOT. Now most of the code has been written by claude.
+I hit a wall and life happened so I put the project down for the rest of the year. Now in 2026 I came back to Tix with agentic coding tools and we have done A LOT. Now most of the code has been written by claude.
 
 I split this post up into two main parts, an overview of Tix that will focus on the features of the LSP and type checker and some implementation details. 
 
 The second part is my thoughts/experience of using agentic coding tools since this project was my first real deep dive into them. 
 
 
-If you have a negative opinion of vibe coding, I totally get it. I hope you can still find tix useful (IT SO GOOD).
+If you have a negative opinion of vibe coding, I totally get it. I hope you can still find tix useful.
 
 
 <TOCInline asDisclosure />
@@ -34,7 +38,7 @@ My main goal for Tix was to make the LSP experience of Nix more on par with othe
 To do that I figured the best way has to have a typechecker since it would help track what can be autocompleted and where things are defined.
 With that in mind I wanted a typechecker that has strong inference and use type annotations on the parts that would be too hard to infer.
 
-I have used TypeScript for many years now and while its not perfect its a very pragmatic language so I wanted to bring that power to nix.
+I have used TypeScript for many years now and while it's not perfect it's a very pragmatic language so I wanted to bring that power to nix.
 
 Here is what Tix can do
 
@@ -124,7 +128,7 @@ would not narrow x in the conditional branches.
 
 ## Stubs
 
-All of the type system stuff is great but inference can not realistically done on all of nixpkgs. It has a lot of fixed point logic and its just giant.
+All of the type system stuff is great but inference can't realistically be done on all of nixpkgs. It has a lot of fixed point logic and its just giant.
 
 So to get useful types from nixpkgs and other large dependencies I took the declaration file (`.d.ts`) idea from TypeScript and we support `tix` stub files. 
 
@@ -239,7 +243,6 @@ in
 # { drv: Derivation, greeting: string, identity: int, names: [string], src: Derivation }
 ```
 
-So annotations help give you a baseline of types to work with
 
 ## Tix context
 
@@ -303,29 +306,36 @@ stubs = ["@callpackage"]
 
 This will tell tix what files to apply what context to.
 
+### Stub generation
+
+To make sure the stubs for nixpkgs (and home manager) are correct for your specific checkout of nixpkgs, Tix can auto generate them. You can add this to your `tix.toml`:
+
+```toml
+[stubs.generate]
+nixpkgs = { expr = "(builtins.getFlake (toString ./.)).inputs.nixpkgs" }
+home-manager = { expr = "(builtins.getFlake (toString ./.)).inputs.home-manager" }
+```
+
+The expr can be any nix expression that resolves to the path of the nixpkgs/home manager checkout you have. `tix check` and the LSP will run the generation and cache the results.
+
 
 ## LSP
 
-
-The whole driving reason of making Tix was to have a really good lsp experience. 
-I started out with some inspiration from [nil](https://github.com/oxalica/nil) and based the core of the LSP/Tix on [salsa](https://github.com/salsa-rs/salsa), an incremental computation framework.
-
-TODO: should this salsa stuff be put somewhere else?
-
-The core idea is salsa would handle parsing, module resolution, etc and only re-run things when stuff has changed. It has mostly been good but it is not `Send` so doing things in parallel with it is kinda hard so the core of type checking does not use it but everything leading up to inference does.
-
-The LSP support most things you would expect in an LSP
-
-- Auto type checking on file edit
-- Hover for types/docs (stubs pull doc comments from nixpkgs)
-- Jump to def (across files and into nixpkgs itself)
-
-TODO: A webm for all of those points
+<video src="/blog/tix/auto-jump.webm" loop muted playsinline controls style="max-width: 100%; max-height: 500px; display: block; margin: 0 auto;"></video>
 
 
-The LSP is not super interesting from a technical perspective, just uses [tower-lsp](https://github.com/ebkalderon/tower-lsp) to expose it and relies on the type checking infrastructure for most of the interesting parts.
+The LSP is the main reason i wanted to make Tix. The video above shows my favorite features
 
-<video src="/blog/tix/auto-jump.webm" autoplay loop muted playsinline></video>
+- Types on hover
+- Docs on hover for nixos options
+- Autocomplete on `pkgs.` to instantly see what pkgs are in nixpkgs
+- Jump to def on pkgs in nixpkgs
+- Jump to def on nixos config values
+
+
+It's great that most of this somewhat falls out for free from all the type checking work. While the type checker does not care about docs or source locations,
+it's easy to take that information on top to get a great LSP experience for not too much work.
+
 
 
 # The Vibe Coding Experience
