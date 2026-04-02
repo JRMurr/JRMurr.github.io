@@ -98,8 +98,27 @@ Here the inferred type of `foo` would be `{name?: string | null } -> int`. Witho
 we would have a type error on builtins.stringLength name since its type only accepts string and not null.
 
 
-To do this I added "Negation types"
-<!-- TODO: add links and explain more -->
+To do this I added "Negation types". Basically in the type algebra we can track that something is `Not(<some inner type>)`. Then doing things like checking if something is not null or
+using the `builtins.is<Type>`, the type system can narrow the given type. For example
+
+```nix
+foo = x: # x here is a generic
+  if builtins.isString x
+  then { key = x; } # x here is properly treated as just a string
+  else x; # x here is ~string (Not(string))
+```
+
+This way you can properly handle narrowing down unions without needing a bunch of type casting.
+
+As of this first launch it only works within an expression, so something like
+
+```nix
+foo = x: let 
+  x_is_string = builtins.isString x;
+in if x_is_string then { key = x; } else x;
+```
+
+would not narrow x in the conditional branches.
 
 
 
@@ -107,12 +126,9 @@ To do this I added "Negation types"
 
 All of the type system stuff is great but inference can not realistically done on all of nixpkgs. It has a lot of fixed point logic and its just giant.
 
-So to get useful types from nixpkgs and other large dependencies I took the declaration file idea from TypeScript and we support `tix` stub files. 
+So to get useful types from nixpkgs and other large dependencies I took the declaration file (`.d.ts`) idea from TypeScript and we support `tix` stub files. 
 
 They look like
-
-
-<!-- TODO: reference nixdoc as syntax inspiration -->
 
 ```
 type NixosConfig = {
@@ -174,13 +190,139 @@ module pkgs {
   }
 }
 ```
+These are mostly intended to be auto generated when possible (`tix gen-stubs`). The syntax mostly matches [nixdoc](https://github.com/nix-community/nixdoc).
+
+These stubs allow you to do things like
+
+```nix
+let
+  /**
+      type: lib :: Lib
+  */
+  lib = import ./lib.nix;
+
+  # type: pkgs :: Pkgs
+  pkgs = import ./pkgs.nix;
+
+  greeting = lib.strings.concatStringsSep ", " [
+    "hello"
+    "world"
+  ];
+  identity = lib.id 42;
+  names = lib.lists.map (x: x.name) [
+    { name = "alice"; }
+    { name = "bob"; }
+  ];
+
+  drv = pkgs.stdenv.mkDerivation {
+    name = "my-package";
+    src = ./.;
+  };
+  src = pkgs.fetchFromGitHub {
+    owner = "NixOS";
+    repo = "nixpkgs";
+    rev = "abc123";
+    sha256 = "000";
+  };
+in
+{
+  inherit
+    greeting
+    identity
+    names
+    drv
+    src
+    ;
+}
+
+# returned type is inferred as 
+# { drv: Derivation, greeting: string, identity: int, names: [string], src: Derivation }
+```
+
+So annotations help give you a baseline of types to work with
+
+## Tix context
+
+Annotations are cool but are really annoying to add comments all over your code base.
+So Tix supports the idea of a "context" that for a given file will basically auto apply type annotations for you.
+
+Tix has 3 builtin contexts (user configurable ones are a lil under baked atm)
+- Nixos modules
+- Home manager modules
+- a "callPackage" file
 
 
+For Nixos/HomeManager module we auto type the pkgs, lib, and config args.
+
+For `callPackage` we "splat out" pkgs on the files inner lambda so you should hopefully get types on all the inputs from the stubs.
+
+The context (and other tix config) can be set in a `tix.toml`. For example I have this in my nixos config repo
+
+```toml
+[context.nixos]
+includes = [
+    "common/**/*.nix",
+    "hosts/**/default.nix",
+    "hosts/desktop/**/*.nix",
+    "hosts/framework/brightness/default.nix",
+    "hosts/framework/hardware-configuration.nix",
+    "hosts/framework/networking.nix",
+    "hosts/thicc-server/**/*.nix",
+]
+excludes = [
+    "common/default.nix",
+    # dropped for space
+]
+stubs = ["@nixos"]
+
+[context.home-manager]
+includes = [
+    "common/default.nix",
+    "common/homemanager/**/*.nix",
+    "common/users/jmurray/home.nix",
+    "common/users/jr/default.nix",
+    "hosts/framework/fingerprint-reader.nix",
+]
+excludes = [
+    "common/homemanager/cargo.nix",
+    # dropped for space
+]
+stubs = ["@home-manager"]
+
+[context.callpackage]
+includes = [
+    "pkgs/glance.nix",
+    "pkgs/happy-server.nix",
+    "pkgs/herdr.nix",
+    "pkgs/polybar-spotify/default.nix",
+    "templates/**/rust.nix",
+]
+stubs = ["@callpackage"]
+```
+
+This will tell tix what files to apply what context too.
 
 
 ## LSP
 
-<!-- TODO expand -->
+
+The whole driving reason of making Tix was to have a really good lsp experience. 
+I started out with some inspiration from [nil](https://github.com/oxalica/nil) and based the core of the LSP/Tix on [salsa](https://github.com/salsa-rs/salsa) and incremental computation framework (its also what ty the python typechecker uses...).
+
+TODO: should this salsa stuff be put somewhere else?
+
+The core idea is salsa would handle parsing, module resolution, etc and only re-run things when stuff has changed. It has mostly been good but it is not `Send` so doing things in parrell with it is kinda hard so the core of type checking does not use it but everything leading up to inference does.
+
+The LSP support most things you would expect in an LSP
+
+- Auto type checking on file edit
+- Hover for types/docs (stubs pull doc comments from nixpkgs)
+- Jump to def (across files and into nixpkgs itself)
+
+TODO: A webm for all of those points
+
+
+The LSP is not super interesting from a technical perspective, just uses [tower-lsp](https://github.com/ebkalderon/tower-lsp) to expose it and relies on the type checking infrastructure for most of the interesting parts.
 
 
 # The Vibe Coding Experience
@@ -205,4 +347,6 @@ module pkgs {
 - list some gotchas for things like operator overloading and string interpolation
 - Might want to do another pass on stub file syntax before i launch for real. `val key :: type` is a lil weird
 - can pull some stuff from https://github.com/JRMurr/JRMurr.github.io/blob/767264b6c6b125a65db64d938b86e132d235317b/content/blog/nix-typechecker-proof-of-concept.md
-- 
+- Should i have webms or something for lsp and showing types better?
+- Does nixos context not work if you have `config = lib.mkIf`?????
+- Where to call out auto stub gen works in tix toml
