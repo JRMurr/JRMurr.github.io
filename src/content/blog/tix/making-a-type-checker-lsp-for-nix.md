@@ -1,6 +1,6 @@
 ---
 title: Making a Type Checker/LSP for Nix
-date: 2026-03-31T02:11:40.537Z
+date: 2026-04-03
 slug: making-a-type-checker-lsp-for-nix
 tags: ["nix", "types"]
 draft: true
