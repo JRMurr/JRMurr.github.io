@@ -315,54 +315,11 @@ Most of the LSP features fall out for free from the type checking work.
 The type checker doesn't care about docs or source locations, but it's easy to layer that information on top to get hover docs, jump-to-def into nixpkgs, and autocomplete with very little extra work.
 
 
-# The Vibe Coding Experience
+## Testing
 
-Tix is the first real project I used LLMs on. A year ago it was just chats but now it's full agents.
+### Unit tests
 
-## Starting out
-
-When getting started on Tix, I was reading papers on type checking algorithms and just doing general research.
-At the time I mostly used ChatGPT to help find more papers, summarize them, compare different algorithms, and ask questions to solidify my understanding.
-
-It was a pretty good sweet spot, I was learning a lot, writing all the code, and laying out the groundwork for a good architecture for the project.
-The most actual code assists I got was writing pseudo code of some common inference logic I would need and stubbing out some rust functions.
-
-I eventually hit a wall with hindley milner, I knew i would need some kind of core change so slowly lost the drive to keep going.
-
-
-## Agents
-
-A year later and basically everyone was glazing claude code so figured why not see what's going on.
-For me this [Jon Gjengset stream](https://youtu.be/vmKvw73V394?si=Txfqb4dzz9R-J66a) porting a Java tool to Rust with claude and multiple agents at once was a real game changer for me.
-I went from an AI agent skeptic to "AI Pilled" from almost entirely that video.
-
-So after watching that I wanted to try it out on something. I made some new projects but wasn't quite feeling it. Then I remembered that I had some tedious work i could delegate in Tix.
-
-I told claude to help me research potential algorithms i could use in Tix. I knew of algebraic subtyping/SimpleSub from the first wave of research but not in detail.
-After a long planning session claude was able to do the work to switch the core from HM to SimpleSub in only 30ish min.
-It helped that I had a lot of tests (including PBT) already implemented so it could correct itself as it went
-
-I was addicted after that. I was spending almost every free moment I had having claude fix bugs and making new features.
-
-A type checker seems to be a really good fit for agents, it's well defined, good papers to reference, and relatively straightforward to see if it worked.
-
-
-## What worked well
-
-I mostly had one claude going at a time so I really paid attention to what claude seemed to be struggling on.
-After claude finishes its work I will then focus on the areas of the code it struggled on so the code base doesn't naturally go to spaghetti (It still did a bit, but it works at least....)
-
-If claude does not have a way to check itself, it gives pretty bad results or finishes before something is really done.
-Also claude will sometimes have assumptions on what the code is doing, without running code it might fix the wrong thing.
-The best way to deal with those two points is by telling claude to do Red Green TDD.
-That alone is usually enough to get claude to start every impl by making a failing test and only finish when the test passes.
-
-Claude is the best printf debugger I've ever seen. When debugging perf issues I had claude just add instrumentation/logs to see what was slow and using too much memory.
-It would take a while but I would let it run in a loop until it found the root cause.
-
-The core of the type checker was pretty good to give claude a good harness on. I would find a repro of some type issue and claude could run in a loop until it fixed it.
-
-For example, most type checker tests look like this:
+Most type checker tests look like this:
 
 ```rust
 test_case!(
@@ -385,25 +342,68 @@ test_case!(
 );
 ```
 
-Simple code to have a nix snippet and expected output. Claude can write a failing case for a bug, run it, and loop until it passes.
+Nix snippet in, expected type out. The `test_case!` macro handles parsing, inference, and comparison.
+There are also `error_case!` and `diagnostic_msg!` macros for testing that bad code produces the right errors.
 
-On top of that, property-based tests (via [proptest](https://github.com/proptest-rs/proptest)) generate random (type, nix code) pairs — it builds a random type first, 
-then construct nix source code that should produce that type.
-These helped catch soo many bugs (before I even started using claude). PBT was the main thing that made me realize I needed to re-think HM since the first attempt at Union types kept finding more and more bugs in PBT.
-If you want to see more the PBT logic lives [here](https://github.com/JRMurr/tix/tree/main/crates/lang_check/src/pbt)
+### Property-based testing
+
+Unit tests are great for specific cases, but a type checker has a huge input space. 
+[Property-based tests](https://github.com/proptest-rs/proptest) help cover that by generating random (type, nix code) pairs and verifying that inference produces the expected type.
+
+The key idea is that the generator works *backwards* — it picks a random type first, then constructs nix source code that should produce that type.
+For example, to generate code that has type `[int]`, the generator might produce `[(42)]` or `[((7) + (-3))]`.
+
+Here's a simplified view of how the generator works:
+
+```rust
+fn arb_nix_text() -> impl Strategy<Value = (RawTy, NixTextStr)> {
+    // Leaf: pick a random primitive type, generate matching nix code
+    let leaf = any::<PrimitiveTy>()
+        .prop_flat_map(|prim| (Just(RawTy::Primitive(prim)), prim_ty_to_string(prim)));
+
+    // Recursively build more complex types from leaves
+    leaf.prop_recursive(depth, size, branch_size, |inner| {
+        let list_strat = inner.clone()
+            .prop_map(|(ty, text)| (RawTy::List(Box::new(ty)), format!("[({text})]")));
+
+        let union_strat = (inner.clone(), inner.clone())
+            .prop_map(|((a_ty, a_text), (b_ty, b_text))| {
+                let ty = RawTy::Union(vec![a_ty, b_ty]);
+                let text = format!("(if true then ({a_text}) else ({b_text}))");
+                (ty, text)
+            });
+
+        prop_oneof![
+            list_strat,
+            func_strat(inner.clone()),
+            attr_strat(inner.clone()),
+            union_strat,
+        ]
+    })
+}
+```
+
+It starts with random primitives (`42`, `true`, `"hello"`, etc.) and recursively wraps them in lists, attrsets, lambdas, and unions — always keeping the expected type in sync with the generated code.
+Unions are generated via `if true then <a> else <b>` since that's the simplest way to get the type checker to infer a union.
+
+The actual test is then straightforward:
+
+```rust
+proptest! {
+    #[test]
+    fn test_type_check((ty, text) in arb_nix_text()) {
+        let root_ty = get_inferred_root(&text).normalize_vars();
+        let expected = raw_to_root(&ty.normalize_vars());
+        prop_assert_eq!(root_ty, expected);
+    }
+}
+```
+
+PBT was the main thing that made me realize I needed to move away from HM — the first attempt at union types kept finding more and more edge cases in PBT that were fundamental to how HM worked.
+
+If you want to see the full PBT logic it lives [here](https://github.com/JRMurr/tix/tree/main/crates/lang_check/src/pbt).
 
 Small shill moment, need to convert these to [hegel](https://antithesis.com/blog/2026/hegel/) now that my job made a PBT framework....
-
-## What did not work well
-
-The LSP was much more difficult to get a good harness. There were more variables and ephemeral state at play. Order of edits, file loading, auto complete in weird spots, 
-and I used it on more real code other than dummy test examples.
-I had to do a lot more manual testing of the LSP features to make sure they actually worked.
-Over time I made sure the tix cli and LSP shared as much logic as possible which helped a bit but I still don't feel as good about claude one shotting LSP work.
-
-
-Claude is pretty lazy. When planning features it tends to want to do the easiest thing instead of a potentially bigger refactor.
-At first I took its advice more seriously but after being burned a few times I usually went with what I thought would lead to a better code base and it seemed to work out.
 
 # Try it out
 
