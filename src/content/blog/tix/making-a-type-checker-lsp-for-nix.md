@@ -42,6 +42,11 @@ Tix is also pretty fast. A full type check of nixpkgs can be done in around 20 s
 Smaller projects like my [nixos config](https://github.com/JRMurr/NixOsConfig) check in 5ish seconds.
 I have some ideas to make this even faster.....
 
+<Note>
+  I used claude pretty heavily while making Tix. It started "all natural" but is now almost all Claude.
+  If you feel strongly about that, I get it but hope you can still find Tix useful
+</Note>
+
 ## The Type System
 
 A very common type system people pick for functional languages is Damas-Hindley-Milner (commonly called Hindley-Milner or HM).
