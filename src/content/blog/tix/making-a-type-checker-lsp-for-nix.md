@@ -2,15 +2,13 @@
 title: Making a Type Checker/LSP for Nix
 date: 2026-03-31T02:11:40.537Z
 slug: making-a-type-checker-lsp-for-nix
-tags: ["nix","types"]
+tags: ["nix", "types"]
 draft: true
 summary: Building a TypeScript-style type checker and LSP for Nix with algebraic subtyping and negation types
 layout: PostSimple
 ---
 
-
 <video src="/blog/tix/type-error.webm" loop muted playsinline controls style="max-width: 100%; max-height: 500px; display: block; margin: 0 auto;"></video>
-
 
 [Tix](https://github.com/JRMurr/tix) is a custom type checker/LSP for Nix.
 I wanted TypeScript for Nix — strong inference where possible, type annotations for the really nasty parts.
@@ -23,10 +21,10 @@ Tix is based on Simple Sub (algebraic subtyping) + Negation types.
 My main goal was to make the LSP experience of Nix more on par with other modern languages.
 A typechecker helps track what can be autocompleted and where things are defined, so that felt like the right foundation.
 
-Tix is not the only Nix lsp. [Nil](https://github.com/oxalica/nil) and [Nixd](https://github.com/nix-community/nixd) are both great Nix LSPs. 
+Tix is not the only Nix lsp. [Nil](https://github.com/oxalica/nil) and [Nixd](https://github.com/nix-community/nixd) are both great Nix LSPs.
 My assumption was a good type checker could provide more features and hopefully still be performant.
-[TypeNix](https://github.com/ryanrasti/typenix) is a newer project with similar goals but a different approach — it translates Nix ASTs into TypeScript ASTs and reuses TypeScript's type checker.
-Honestly a really cool idea. Its LSP seems pretty good and seems to support overrides better than Tix currently does. 
+[TypeNix](https://github.com/ryanrasti/typenix) is a newer project with similar goals but a different approach, it translates Nix ASTs into TypeScript ASTs and reuses TypeScript's type checker.
+Honestly a really cool idea. Its LSP seems pretty good and seems to support overrides better than Tix currently does.
 With that said my gut assumption is Tix might be easier to tailor specifically for nix.
 
 Here is what Tix can do
@@ -36,7 +34,6 @@ Here is what Tix can do
 - Auto complete + inline docs for Nixos config values
 - Jump to def across files in your project
 - Jump to def into Nixpkgs on pkgs + Nixos options
-
 
 Tix is also pretty fast. A full type check of nixpkgs can be done in around 20 secs.
 Smaller projects like my [nixos config](https://github.com/JRMurr/NixOsConfig) check in 5ish seconds.
@@ -59,13 +56,12 @@ See [this post](https://bernsteinbear.com/blog/type-inference/) for a great impl
 It basically works like this (I am simplifying this heavily)
 
 - Walk the AST of the program
-  - As you walk assign unique type variables to each expression
-  - Generate constraints on those type variables
-    - EX: `let x = a` x and a must be the same type
-    - EX: `let y = foo b`, foo must be a function that takes b as its arg
-    - EX: `let z = bar.someKey` bar must be an attrset with at least the key `someKey`
+    - As you walk assign unique type variables to each expression
+    - Generate constraints on those type variables
+        - EX: `let x = a` x and a must be the same type
+        - EX: `let y = foo b`, foo must be a function that takes b as its arg
+        - EX: `let z = bar.someKey` bar must be an attrset with at least the key `someKey`
 - Solve all those generated constraints via unification, propagating the info gained from each constraint to the type variables involved.
-
 
 I implemented HM initially and it worked great until I wanted to support union types, types whose value could be a number of different types, ie `string | int | {key: string}`.
 When you do inference in HM you can only equate two unknown types to be the same type, there is no kind of subtyping relationship that unions need.
@@ -75,27 +71,25 @@ Other languages that use HM support some kind of tagged union to work around thi
 ### SimpleSub
 
 Thankfully, [SimpleSub](https://lptk.github.io/programming/2020/03/26/demystifying-mlsub.html) is basically an extension of HM that supports subtyping.
-It has the same high level idea of walk the ast and generate constraints. But instead of requiring unification you can encode a subtyping relationship. 
+It has the same high level idea of walk the ast and generate constraints. But instead of requiring unification you can encode a subtyping relationship.
 For example in `let y = foo b`, instead of saying that b must be the same type as the arg of foo, b can be a subtype of the arg of foo.
 
 This subtyping relationship is what makes union types fall out naturally.
-Type variables accumulate upper and lower bounds as constraints are solved — those bounds become intersections and unions in the inferred types.
+Type variables accumulate upper and lower bounds as constraints are solved, those bounds become intersections and unions in the inferred types.
 So if a value could be a `string` or an `int` depending on which branch was taken, that's not a type error — it's just a union type `string | int`.
-
 
 ### Narrowing
 
 Once SimpleSub was implemented the main challenge was now narrowing down unions to useful subsets when needed. For example
 
 ```nix
-let 
+let
     foo = {name ? null}: if name != null then builtins.stringLength name else 0;
 in foo {name = "John"}
 ```
 
-Here the inferred type of `foo` would be `{name?: string | null } -> int`. Without a way to "narrow" the union to the non null case at the type level 
+Here the inferred type of `foo` would be `{name?: string | null } -> int`. Without a way to "narrow" the union to the non null case at the type level
 we would have a type error on builtins.stringLength name since its type only accepts string and not null.
-
 
 To do this I added "Negation types". Basically in the type algebra we can track that something is `Not(<some inner type>)`. Then doing things like checking if something is not null or
 using the `builtins.is<Type>`, the type system can narrow the given type. For example
@@ -112,23 +106,21 @@ This way you can properly handle narrowing down unions without needing a bunch o
 As of this first launch it only works within an expression, so something like
 
 ```nix
-foo = x: let 
+foo = x: let
   x_is_string = builtins.isString x;
 in if x_is_string then { key = x; } else x;
 ```
 
 would not narrow x in the conditional branches.
 
-
-
 ## Stubs
 
 All of the type system stuff is great but inference can't realistically be done on most "real" nix code.
 As [The hard part of type-checking Nix](https://www.haskellforall.com/2022/03/the-hard-part-of-type-checking-nix.html) explains,
-the real challenge isn't typing Nix-the-language — it's what got built on top, Nixpkgs overlays and Nixos modules.
+the real challenge isn't typing Nix-the-language, it's what got built on top, Nixpkgs overlays and Nixos modules.
 Those are extremely dynamic and rely on fix points to resolve.
 
-So to get useful types from nixpkgs and other large dependencies I took the declaration file (`.d.ts`) idea from TypeScript and we support `tix` stub files. 
+So to get useful types from nixpkgs and other large dependencies I took the declaration file (`.d.ts`) idea from TypeScript and we support `tix` stub files.
 
 They look like
 
@@ -192,7 +184,8 @@ module pkgs {
   }
 }
 ```
-These are mostly intended to be auto generated when possible (`tix gen-stubs`). The syntax mostly matches [nixdoc](https://github.com/nix-community/nixdoc).
+
+These are mostly intended to be auto generated when possible (`tix stubs generate` which LSP calls for you). The syntax mostly matches [nixdoc](https://github.com/nix-community/nixdoc).
 
 These stubs allow you to do things like
 
@@ -237,15 +230,14 @@ in
     ;
 }
 
-# returned type is inferred as 
+# returned type is inferred as
 # { drv: Derivation, greeting: string, identity: int, names: [string], src: Derivation }
 ```
-
 
 ## Tix context
 
 Type annotations are useful but having to sprinkle comments on every file in your project is tedious.
-Most Nix projects follow a pattern where the same parameter names (`config`, `lib`, `pkgs`) always mean the same types depending on the kind of file — NixOS modules always get `config :: NixosConfig`, callPackage files always get their params from `pkgs`, etc.
+Most Nix projects follow a pattern where the same parameter names (`config`, `lib`, `pkgs`) always mean the same types depending on the kind of file, NixOS modules always get `config :: NixosConfig`, callPackage files always get their params from `pkgs`, etc.
 
 Context lets you declare that pattern once and Tix auto-applies the type annotations to the root lambda of every matching file.
 
@@ -265,8 +257,8 @@ Without context, you'd need annotations on every file:
 With context, you configure `tix.toml` once and those same files just work — no annotations needed.
 The file above would require no changes and would be able to do type inference correctly.
 
-
 Tix has 3 builtin contexts:
+
 - **NixOS modules** — types `config`, `lib`, and `pkgs` args
 - **Home Manager modules** — same idea, with `HomeManagerConfig` instead of `NixosConfig`
 - **callPackage** — for files like `{ stdenv, fetchurl, lib, ... }: <derivation>`, each param is typed from the `Pkgs` stub
@@ -313,15 +305,12 @@ home-manager = { expr = "(builtins.getFlake (toString ./.)).inputs.home-manager"
 
 The expr can be any nix expression that resolves to the path of the nixpkgs/home manager checkout you have. `tix check` and the LSP will run the generation and cache the results.
 
-
 ## LSP
 
 <video src="/blog/tix/auto-jump.webm" loop muted playsinline controls style="max-width: 100%; max-height: 500px; display: block; margin: 0 auto;"></video>
 
-
 Most of the LSP features fall out for free from the type checking work.
 The type checker doesn't care about docs or source locations, but it's easy to layer that information on top to get hover docs, jump-to-def into nixpkgs, and autocomplete with very little extra work.
-
 
 ## Testing
 
@@ -355,10 +344,10 @@ There are also `error_case!` and `diagnostic_msg!` macros for testing that bad c
 
 ### Property-based testing
 
-Unit tests are great for specific cases, but a type checker has a huge input space. 
+Unit tests are great for specific cases, but a type checker has a huge input space.
 [Property-based tests](https://github.com/proptest-rs/proptest) help cover that by generating random (type, nix code) pairs and verifying that inference produces the expected type.
 
-The key idea is that the generator works *backwards* — it picks a random type first, then constructs nix source code that should produce that type.
+The key idea is that the generator works _backwards_, it picks a random type first, then constructs nix source code that should produce that type.
 For example, to generate code that has type `[int]`, the generator might produce `[(42)]` or `[((7) + (-3))]`.
 
 Here's a simplified view of how the generator works:
@@ -416,6 +405,8 @@ Small shill moment, need to convert these to [hegel](https://antithesis.com/blog
 # Try it out
 
 If you want to give Tix a a try, check out the [docs](https://jrmurr.github.io/tix/) for installation and setup instructions.
-The [getting started guide](https://jrmurr.github.io/tix/getting-started.html) will walk you through adding Tix to your project.
+The [quick start guide](https://jrmurr.github.io/tix/quick-start.html) will walk you through adding Tix to your project.
 
 If you run into issues or have feature requests, feel free to open an issue on [GitHub](https://github.com/JRMurr/tix).
+It still has some bugs and issues but I've been using it on "real" projects for a while and its been working pretty well.
+Just need to fix all these type errors...
