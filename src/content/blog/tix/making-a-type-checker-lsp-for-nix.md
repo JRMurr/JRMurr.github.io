@@ -298,6 +298,9 @@ stubs = ["@callpackage"]
 
 Files matching the `includes` globs get typed params automatically — no per-file annotations required.
 
+Running `tix init` will generate a `tix.toml` for you with a guess of what `contexts`/globs your project needs.
+Its not perfect but better than starting from scratch.
+
 ### Stub generation
 
 To make sure the stubs for nixpkgs (and home manager) are correct for your specific checkout of nixpkgs, Tix can auto generate them. You can add this to your `tix.toml`:
@@ -412,7 +415,7 @@ Small shill moment, need to convert these to [hegel](https://antithesis.com/blog
 
 # Try it out
 
-If you want to give Tix a spin, check out the [docs](https://jrmurr.github.io/tix/) for installation and setup instructions.
+If you want to give Tix a a try, check out the [docs](https://jrmurr.github.io/tix/) for installation and setup instructions.
 The [getting started guide](https://jrmurr.github.io/tix/getting-started.html) will walk you through adding Tix to your project.
 
 If you run into issues or have feature requests, feel free to open an issue on [GitHub](https://github.com/JRMurr/tix).
