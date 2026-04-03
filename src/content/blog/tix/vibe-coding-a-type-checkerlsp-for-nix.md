@@ -361,6 +361,38 @@ It would take a while but I would let it run in a loop until it found the root c
 
 The core of the type checker was pretty good to give claude a good harness on. I would find a repro of some type issue and claude could run in a loop until it fixed it.
 
+For example, most type checker tests look like this:
+
+```rust
+test_case!(
+    overloaded_add,
+    "
+    let
+        add = a: b: a + b;
+    in
+        {
+            int = add 1 2;
+            float = add 3.14 2;
+            str = add \"hi\" ./test.nix;
+        }
+    ",
+    {
+        "int": (Int),
+        "float": (Float),
+        "str": (String)
+    }
+);
+```
+
+Simple code to have a nix snippet and expected output. Claude can write a failing case for a bug, run it, and loop until it passes.
+
+On top of that, property-based tests (via [proptest](https://github.com/proptest-rs/proptest)) generate random (type, nix code) pairs — it builds a random type first, 
+then construct nix source code that should produce that type.
+These helped catch soo many bugs (before I even started using claude). PBT was the main thing that made me realize I needed to re-think HM since the first attempt at Union types kept finding more and more bugs in PBT.
+If you want to see more the PBT logic lives [here](https://github.com/JRMurr/tix/tree/main/crates/lang_check/src/pbt)
+
+Small shill moment, need to convert these to [hegel](https://antithesis.com/blog/2026/hegel/) now that my job made a PBT framework....
+
 ## What did not work well
 
 The LSP was much more difficult to get a good harness. There were more variables and ephemeral state at play. Order of edits, file loading, auto complete in weird spots, 
