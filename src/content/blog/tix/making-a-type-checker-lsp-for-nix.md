@@ -76,7 +76,7 @@ For example in `let y = foo b`, instead of saying that b must be the same type a
 
 This subtyping relationship is what makes union types fall out naturally.
 Type variables accumulate upper and lower bounds as constraints are solved, those bounds become intersections and unions in the inferred types.
-So if a value could be a `string` or an `int` depending on which branch was taken, that's not a type error — it's just a union type `string | int`.
+So if a value could be a `string` or an `int` depending on which branch was taken, that's not a type error, just a union type `string | int`.
 
 ### Narrowing
 
