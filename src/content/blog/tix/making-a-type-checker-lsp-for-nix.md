@@ -1,10 +1,10 @@
 ---
-title: Vibe coding a Type Checker/LSP for Nix
+title: Making a Type Checker/LSP for Nix
 date: 2026-03-31T02:11:40.537Z
-slug: vibe-coding-a-type-checkerlsp-for-nix
-tags: ["nix","types","vibe coding"]
+slug: making-a-type-checker-lsp-for-nix
+tags: ["nix","types"]
 draft: true
-summary: Building a TypeScript-style type checker and LSP for Nix with algebraic subtyping, negation types, and vibes (coding)
+summary: Building a TypeScript-style type checker and LSP for Nix with algebraic subtyping and negation types
 layout: PostSimple
 ---
 
