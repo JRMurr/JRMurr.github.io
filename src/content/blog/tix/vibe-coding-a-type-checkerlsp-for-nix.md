@@ -4,7 +4,7 @@ date: 2026-03-31T02:11:40.537Z
 slug: vibe-coding-a-type-checkerlsp-for-nix
 tags: ["nix","types","vibe coding"]
 draft: true
-summary: A new type checker for nix
+summary: Building a TypeScript-style type checker and LSP for Nix with algebraic subtyping, negation types, and vibes (coding)
 layout: PostSimple
 ---
 
@@ -40,6 +40,7 @@ Here is what Tix can do
 
 Tix is also pretty fast. A full type check of nixpkgs can be done in around 20 secs.
 Smaller projects like my [nixos config](https://github.com/JRMurr/NixOsConfig) check in 5ish seconds.
+I have some ideas to make this even faster.....
 
 ## The Type System
 
@@ -403,3 +404,10 @@ Over time I made sure the tix cli and LSP shared as much logic as possible which
 
 Claude is pretty lazy. When planning features it tends to want to do the easiest thing instead of a potentially bigger refactor.
 At first I took its advice more seriously but after being burned a few times I usually went with what I thought would lead to a better code base and it seemed to work out.
+
+# Try it out
+
+If you want to give Tix a spin, check out the [docs](https://jrmurr.github.io/tix/) for installation and setup instructions.
+The [getting started guide](https://jrmurr.github.io/tix/getting-started.html) will walk you through adding Tix to your project.
+
+If you run into issues or have feature requests, feel free to open an issue on [GitHub](https://github.com/JRMurr/tix).
