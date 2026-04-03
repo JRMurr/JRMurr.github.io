@@ -3,7 +3,7 @@ title: Making a Type Checker/LSP for Nix
 date: 2026-04-03
 slug: making-a-type-checker-lsp-for-nix
 tags: ["nix", "types"]
-draft: true
+draft: false
 summary: Building a TypeScript-style type checker and LSP for Nix with algebraic subtyping and negation types
 layout: PostSimple
 ---
