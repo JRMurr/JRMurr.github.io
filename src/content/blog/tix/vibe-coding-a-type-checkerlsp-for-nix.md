@@ -117,7 +117,10 @@ would not narrow x in the conditional branches.
 
 ## Stubs
 
-All of the type system stuff is great but inference can't realistically be done on all of nixpkgs. It has a lot of fixed point logic and it's just giant.
+All of the type system stuff is great but inference can't realistically be done on most "real" nix code.
+As [The hard part of type-checking Nix](https://www.haskellforall.com/2022/03/the-hard-part-of-type-checking-nix.html) explains,
+the real challenge isn't typing Nix-the-language — it's what got built on top, Nixpkgs overlays and Nixos modules.
+Those are extremely dynamic and rely on fix points to resolve.
 
 So to get useful types from nixpkgs and other large dependencies I took the declaration file (`.d.ts`) idea from TypeScript and we support `tix` stub files. 
 
@@ -235,21 +238,34 @@ in
 
 ## Tix context
 
-Annotations are cool but are really annoying to add comments all over your code base.
-So Tix supports the idea of a "context" that for a given file will basically auto apply type annotations for you.
+Type annotations are useful but having to sprinkle comments on every file in your project is tedious.
+Most Nix projects follow a pattern where the same parameter names (`config`, `lib`, `pkgs`) always mean the same types depending on the kind of file — NixOS modules always get `config :: NixosConfig`, callPackage files always get their params from `pkgs`, etc.
 
-Tix has 3 builtin contexts (user configurable ones are a lil under baked atm)
-- Nixos modules
-- Home manager modules
-- a "callPackage" file
+Context lets you declare that pattern once and Tix auto-applies the type annotations to the root lambda of every matching file.
+
+Without context, you'd need annotations on every file:
+
+```nix
+# type: config :: NixosConfig
+# type: lib :: Lib
+# type: pkgs :: Pkgs
+{ config, lib, pkgs, ... }:
+{
+  networking.firewall.enable = true;
+  services.nginx.enable = true;
+}
+```
+
+With context, you configure `tix.toml` once and those same files just work — no annotations needed.
+The file above would require no changes and would be able to do type inference correctly.
 
 
-For Nixos/HomeManager module we auto type the pkgs, lib, and config args.
+Tix has 3 builtin contexts:
+- **NixOS modules** — types `config`, `lib`, and `pkgs` args
+- **Home Manager modules** — same idea, with `HomeManagerConfig` instead of `NixosConfig`
+- **callPackage** — for files like `{ stdenv, fetchurl, lib, ... }: <derivation>`, each param is typed from the `Pkgs` stub
 
-The `callPackage` context types files that are "callPackage"able (e.g. `{ stdenv, fetchurl, lib, ... }: <some derivation build>`).
-Here we use the types from the `pkgs` module in the stubs to type each lambda param.
-
-The context (and other tix config) can be set in a `tix.toml`. For example I have this in my [nixos config repo](https://github.com/JRMurr/NixOsConfig/blob/main/tix.toml)
+The context is configured in `tix.toml` with glob patterns. For example from my [nixos config repo](https://github.com/JRMurr/NixOsConfig/blob/main/tix.toml):
 
 ```toml
 [context.nixos]
@@ -257,43 +273,24 @@ includes = [
     "common/**/*.nix",
     "hosts/**/default.nix",
     "hosts/desktop/**/*.nix",
-    "hosts/framework/brightness/default.nix",
-    "hosts/framework/hardware-configuration.nix",
-    "hosts/framework/networking.nix",
-    "hosts/thicc-server/**/*.nix",
 ]
-excludes = [
-    "common/default.nix",
-    # dropped for space
-]
+excludes = ["common/default.nix"]
 stubs = ["@nixos"]
 
 [context.home-manager]
 includes = [
     "common/default.nix",
     "common/homemanager/**/*.nix",
-    "common/users/jmurray/home.nix",
-    "common/users/jr/default.nix",
-    "hosts/framework/fingerprint-reader.nix",
 ]
-excludes = [
-    "common/homemanager/cargo.nix",
-    # dropped for space
-]
+excludes = ["common/homemanager/cargo.nix"]
 stubs = ["@home-manager"]
 
 [context.callpackage]
-includes = [
-    "pkgs/glance.nix",
-    "pkgs/happy-server.nix",
-    "pkgs/herdr.nix",
-    "pkgs/polybar-spotify/default.nix",
-    "templates/**/rust.nix",
-]
+includes = ["pkgs/*.nix"]
 stubs = ["@callpackage"]
 ```
 
-This will tell tix what files to apply what context to.
+Files matching the `includes` globs get typed params automatically — no per-file annotations required.
 
 ### Stub generation
 
