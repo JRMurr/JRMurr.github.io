@@ -37,7 +37,7 @@ So heres how you can get nix installed and some cool things you can do with it o
 passwd                                # you need a password setup if you havent already
 sudo steamos-readonly disable         # make root file system writable
 
-sudo mkdir -p /etc/tmpfiles.d         # SteamOS ships without it; the installer expects it
+sudo mkdir -p /etc/tmpfiles.d         # The installer expects this path to exist
 
 curl -fsSL -o nix-installer.sh https://artifacts.nixos.org/nix-installer
 less nix-installer.sh                 # give the install a spot check
@@ -99,6 +99,7 @@ Then to get home manager setup you can run
 nix build '.#homeConfigurations."steamos".activationPackage'
 HOME_MANAGER_BACKUP_EXT=backup ./result/activate
 ```
+(if you see an error see the Nested sessions section below)
 
 `HOME_MANAGER_BACKUP_EXT=backup` will backup any files (by renaming) that home manager will now manages. This will only really affect the default bashrc that steamos setups up.
 
@@ -111,6 +112,22 @@ home-manager switch --flake <path to flake>#steamos
 
 to update your config going forward.
 
+
+### Nested sessions
+
+One thing that will probably bite you when going to run home manager switch is the nested plasma session. TLDR (as far as i understand) the frame has two compositors running
+Gamescope and the plasma for the kde desktop. Gamescope is the "main" session, its running the steamos dashboard and the "vr stuff". Plasma is the normal desktop.
+
+When you launch programs from in the plasma session (and later with frametop) they inherit some nested `XDG_RUNTIME_DIR` vars. This can confuse/error home manager when it tries to setup user systemd units. 
+To fix you can prefix the switch cmd with something like
+
+```shell
+env XDG_RUNTIME_DIR=/run/user/1000 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus home-manager switch <.....>
+```
+
+This same thing will bite you if you try to do things like `systemctl --user` (but the same env override should work)
+
+This class of issue should not affect you if you connect over ssh or are able to launch a terminal from the steam os dashboard directly
 
 ## Managing system files
 
