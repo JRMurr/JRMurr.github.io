@@ -26,7 +26,7 @@ So heres how you can get nix installed and some cool things you can do with it o
 
 
 ## Nix
-```
+```shell
 passwd                                # you need a password setup if you havent already
 sudo steamos-readonly disable         # make root file system writable
 
