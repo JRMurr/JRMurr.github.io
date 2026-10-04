@@ -10,7 +10,14 @@ layout: PostSimple
 
 
 # TODO
-    - Talk about frametop install
+    - frametop specific oddities
+      - xdg session stuff
+      - copying config
+      - Figure out how to build the rest of frametop and get it setup
+    - Symlinking programs so they show up in the steam launcher
+    - mention https://github.com/lhns/steam-frame-nix (how does it handle the gpu stuff)
+    - Maybe figure out tailscale with steamos-etc?
+    - Cover build server stuff?
     - Fact check everything
 
 I got my steam frame and ofc the first thing i wanted to figure out is getting nix installed on it.
@@ -105,7 +112,7 @@ home-manager switch --flake <path to flake>#steamos
 to update your config going forward.
 
 
-# Managing system files
+## Managing system files
 
 When you run home-manager switch it will ask you to run
 
@@ -137,8 +144,22 @@ and it will make sure your user session waits for the nix mount.
 
 Then like the `non-nixos-gpu-setup` you run `steamos-etc` to actually setup the files. On homemanager switch a warning wil be displayed if there is any drift.
 
+# Frametop
 
+The thing that excited me the most about the steam frame in general was the fact that its a full linux machine. I wanted experiment with interesting development flows in vr.
 
+[frametop](https://github.com/DeeJanuz/frametop) greatly expands what you can do on the frame when it comes to managing desktops and programs in vr. 
+DeeJanuz is also working on eye tracking as a mouse and hand tracking so you can use your frame like a poor mans apple vision pro (i guess not that poor given the frames price....).
+
+To make it easy to manage frametop with home manager I created [frametop-nix](https://github.com/JRMurr/frametop-nix). 
+
+You can add that module to your home manager config and add
+
+```nix
+programs.frametop.enable = true;
+```
+
+and frametop should be fully installed.
 
 
 
