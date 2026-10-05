@@ -10,12 +10,6 @@ layout: PostSimple
 
 <TOCInline asDisclosure />
 
-
-# TODO
-    - Symlinking programs so they show up in the steam launcher
-    - mention https://github.com/lhns/steam-frame-nix (how does it handle the gpu stuff)
-
-
 I got my steam frame and ofc the first thing i wanted to figure out is getting nix installed on it.
 Thankfully since the steam deck is running a similar os setup as the frame all the work people did to get nix on the deck working basically made the frame "just work"
 
@@ -165,6 +159,58 @@ This same thing will bite you if you try to do things like `systemctl --user` (b
 
 This class of issue should not affect you if you connect over ssh or launch a terminal from the steam os dashboard directly, since Steam itself runs with the real `/run/user/1000` and bus.
 
+### Showing apps in the launcher
+
+Once you start installing GUI apps with home manager you will notice they don't show up in the VR "+" menu. Two things get in the way
+
+1. The "+" menu only reads `~/.local/share/applications`, it ignores `XDG_DATA_DIRS` (which is where home manager's `.desktop` files show up).
+2. The Steam session's `PATH` doesn't have `~/.nix-profile/bin`, so even if the entry showed up an `Exec=kitty` would fail to launch.
+
+So I link every `.desktop` file from my profile into `~/.local/share/applications`, with the command rewritten to an absolute path
+
+```nix
+{ config, pkgs, ... }:
+let
+  profileBin = "${config.home.profileDirectory}/bin";
+
+  # The profile's desktop entries with Exec/TryExec pointing at the profile's bin.
+  # The profile link rather than a store path, so entries don't change every generation.
+  entries = pkgs.runCommand "frame-desktop-entries" { } ''
+    mkdir -p $out
+
+    for src in ${config.home.path}/share/applications/*.desktop; do
+      awk -v bin=${config.home.path}/bin -v profile=${profileBin} '
+        match($0, /^(TryExec|Exec)=/) {
+          key = substr($0, 1, RLENGTH)
+          rest = substr($0, RLENGTH + 1)
+          split(rest, words, " ")
+          cmd = words[1]
+
+          if (cmd !~ /\// && system("test -e \"" bin "/" cmd "\"") == 0)
+            $0 = key profile "/" cmd substr(rest, length(cmd) + 1)
+        }
+        { print }
+      ' "$src" > "$out/$(basename "$src")"
+    done
+  '';
+in
+{
+  # Linked file by file (recursive) so Steam's own shortcuts in there stay.
+  xdg.dataFile."applications" = {
+    source = entries;
+    recursive = true;
+  };
+}
+```
+
+The plasma desktop has a similar `PATH` problem. It gets its environment from the systemd user manager, not a login shell, so you need
+
+```nix
+systemd.user.sessionVariables.PATH = "${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin\${PATH:+:$PATH}";
+```
+
+for launching from its menu to work
+
 ## Managing system files
 
 When you run home-manager switch it will ask you to run `non-nixos-gpu-setup`. This is needed to get gpu drivers working with nix built programs, since most of them look for gpu drivers in `/run/opengl-driver`.
@@ -294,7 +340,4 @@ and you get the multi-screen desktop + 3d mouse. 3d mouse im surprised is not bu
 Gaze mode, hand tracking, and remote desktop aren't packaged yet (but I will get it working soon™)
 
 Frametop is my current favorite thing on the frame. Since getting it setup I've only been using my frame for all my computer tasks.
-
-
-
 
