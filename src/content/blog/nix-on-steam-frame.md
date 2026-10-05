@@ -8,17 +8,13 @@ summary: Installing nix + home manager on steam frame
 layout: PostSimple
 ---
 
+<TOCInline asDisclosure />
+
 
 # TODO
-    - frametop specific oddities
-      - xdg session stuff
-      - copying config
-      - Figure out how to build the rest of frametop and get it setup
     - Symlinking programs so they show up in the steam launcher
     - mention https://github.com/lhns/steam-frame-nix (how does it handle the gpu stuff)
-    - Maybe figure out tailscale with steamos-etc?
-    - Cover build server stuff?
-    - Fact check everything
+
 
 I got my steam frame and ofc the first thing i wanted to figure out is getting nix installed on it.
 Thankfully since the steam deck is running a similar os setup as the frame all the work people did to get nix on the deck working basically made the frame "just work"
@@ -26,11 +22,7 @@ Thankfully since the steam deck is running a similar os setup as the frame all t
 
 So heres how you can get nix installed and some cool things you can do with it once its setup.
 
-
-
-
 # Install steps
-
 
 ## Nix
 ```shell
@@ -186,6 +178,10 @@ So to handle this I created a simple cli tool that lets me still declare some of
 
 I created this tool as its own home manager module that you can find [here](https://github.com/JRMurr/steamos-etc-nix).
 
+<Note> 
+I created steamos-etc-nix and frametop-nix (shown later) primarily with claude. You do not need them to use nix/home manager on the frame but they help with quality of life.
+</Note>
+
 The [example flake](#home-manager) above already has it as an input and imports the module, so in your `home.nix` you just need to add
 
 ```nix
@@ -214,6 +210,63 @@ It only asks for `sudo` when something actually changed. You don't need `steamos
 `steamos-etc` adds every file it manages to `/etc/atomic-update.conf.d/steamos-etc.conf` so they survive SteamOS updates.
 
 On home manager switch a warning will be displayed if there is any drift, like after a rollback or a SteamOS update resetting `/etc`.
+
+
+### Tailscale
+
+`steamos-etc` solves more problems than just the gpu drivers. You can use it to setup system services, written like home manager's `systemd.user.services`.
+It solves a similar problem as [system-manager](https://github.com/numtide/system-manager) but lets you stay in your home manager config and handles the SteamOS specific issues, `/nix` mounting late on boot and updates wiping `/etc`.
+
+For example here is how you can setup tailscale
+
+```nix
+{ pkgs, ... }:
+let
+  tailscale = pkgs.tailscale;
+in
+{
+  home.packages = [ tailscale ];
+
+  programs.steamos-etc.services.tailscaled = {
+    Unit = {
+      Description = "Tailscale node agent";
+      Documentation = "https://tailscale.com/docs/";
+      Wants = [ "network-pre.target" ];
+      After = [
+        "network-pre.target"
+        "NetworkManager.service"
+        "systemd-resolved.service"
+      ];
+    };
+
+    Service = {
+      # 41641 is the default port the nixos tailscale module uses
+      ExecStart = "${tailscale}/bin/tailscaled --state=/var/lib/tailscale/tailscaled.state --socket=/run/tailscale/tailscaled.sock --port=41641";
+      ExecStopPost = "${tailscale}/bin/tailscaled --cleanup";
+      Restart = "on-failure";
+      Type = "notify";
+
+      RuntimeDirectory = "tailscale";
+      RuntimeDirectoryMode = "0755";
+      StateDirectory = "tailscale";
+      StateDirectoryMode = "0700";
+      CacheDirectory = "tailscale";
+      CacheDirectoryMode = "0750";
+    };
+
+    Install.WantedBy = [ "multi-user.target" ];
+  };
+}
+```
+
+After a switch, `steamos-etc` installs the unit and starts it (because of `Install.WantedBy`, which also starts it on every boot). Then just login
+
+```shell
+sudo tailscale up --operator=steamos
+```
+
+and it should "just work". When the unit changes later (like a nixpkgs bump giving it a new tailscale), `steamos-etc` restarts it for you.
+
 
 # Frametop
 
