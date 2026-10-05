@@ -1,8 +1,8 @@
 ---
 title: Nix on the Steam Frame
 slug: nix-on-steam-frame
-date: 2026-10-04T15:56:21.818Z
-tags: ["nix"]
+date: 2026-10-05T02:16:39.000Z
+tags: ["nix", "home-manager", "steamos", "steam-frame"]
 draft: true
 summary: Installing nix + home manager on the Steam Frame
 layout: PostSimple
