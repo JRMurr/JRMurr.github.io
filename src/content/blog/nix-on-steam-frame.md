@@ -1,20 +1,19 @@
 ---
-title: Nix on steam frame
+title: Nix on the Steam Frame
 slug: nix-on-steam-frame
 date: 2026-10-04T15:56:21.818Z
 tags: ["nix"]
 draft: true
-summary: Installing nix + home manager on steam frame
+summary: Installing nix + home manager on the Steam Frame
 layout: PostSimple
 ---
 
 <TOCInline asDisclosure />
 
-I got my steam frame and ofc the first thing i wanted to figure out is getting nix installed on it.
-Thankfully since the steam deck is running a similar os setup as the frame all the work people did to get nix on the deck working basically made the frame "just work"
+I got my Steam Frame and ofc the first thing I wanted to figure out was getting nix installed on it.
+Thankfully the Steam Deck runs a similar OS setup, so all the work people did to get nix working on the deck basically made the frame "just work".
 
-
-So heres how you can get nix installed and some cool things you can do with it once its setup.
+So here's how you can get nix installed and some cool things you can do with it once it's set up.
 
 # Install steps
 
@@ -32,23 +31,20 @@ sh nix-installer.sh install steam-deck --enable-flakes
 sudo steamos-readonly enable          # go back to read only root
 ```
 
-
-After that nix should be setup. The official installer for the steam-deck works without issue on the frame and handles Steamos's immutable root for you.
+After that nix should be set up. The official installer's Steam Deck mode works without issue on the frame and handles SteamOS's immutable root for you.
 
 This works by keeping all of `/nix` at `/home/nix` (which survives SteamOS updates) and on boot bind mounting it to `/nix` with a `nix.mount` systemd unit.
 
 One thing to keep in mind, SteamOS updates replace the root file system. Your store and anything under `/home` is fine, but any edits you make to `/etc/nix/nix.conf` (like adding yourself to `trusted-users`) will need to be redone after an update.
 
-
 ## Home manager
 
-
 Just having nix installed is fine but the main reason I love nix so much is declarative config to manage all apps and settings. 
-Now nixos on the frame is a little crazy, I'm sure you could figure something out but just using home manager to manage dot files is a good balance for me.
+Running full NixOS on the frame would be a little crazy. I'm sure you could figure something out, but just using home manager to manage dotfiles is a good balance for me.
 
-There is not really too much frame specific home manager setup you need to do, the usual stand alone install methods for home manager will work.
+Installing home manager itself works the usual standalone way. Getting it to play nice with SteamOS takes a fair bit of frame specific config though (nested sessions, launcher entries, `/etc` files via steamos-etc), which is most of the rest of this post.
 
-I already have a nix flake for my nixos config, so i went with the flake install approach.
+I already have a nix flake for my [NixOS config](https://github.com/JRMurr/NixOsConfig), so I went with the flake install approach.
 
 Here is an example flake setup for the frame. It already has the inputs for the other modules I cover later in the post ([steamos-etc](#managing-system-files) and [frametop](#frametop)), you can drop them if you don't want them.
 
@@ -115,12 +111,12 @@ Then to get home manager setup you can run
 nix build '.#homeConfigurations."steamos".activationPackage'
 HOME_MANAGER_BACKUP_EXT=backup ./result/activate
 ```
-(if you see `User systemd daemon not running. Skipping reload.` in the output see the [Nested sessions section](#nested-sessions)
+(if you see `User systemd daemon not running. Skipping reload.` in the output, see the [Nested sessions section](#nested-sessions))
 
-`HOME_MANAGER_BACKUP_EXT=backup` will backup any files (by renaming) that home manager will now manage
+`HOME_MANAGER_BACKUP_EXT=backup` will back up (by renaming) any existing files that home manager will now manage.
 
-That specific command is only needed the first time to get home manager installed.
-After its setup you can run
+You only need to build and run `activate` like this the first time, to get home manager installed.
+After it's set up you can run
 
 ```shell
 home-manager switch --flake <path to flake>#steamos -b backup
@@ -128,10 +124,9 @@ home-manager switch --flake <path to flake>#steamos -b backup
 
 to update your config going forward. Keep the `-b backup` around, SteamOS updates like to put their dotfiles back.
 
-
 ### Nested sessions
 
-One thing that will probably bite you when going to run home manager switch is the nested plasma session. Gamescope is the actual session on the frame, its running the steamos dashboard and the "vr stuff".
+One thing that will probably bite you when going to run home manager switch is the nested plasma session. Gamescope is the actual session on the frame, it's running the SteamOS dashboard and the "vr stuff".
 When you open the "Desktop" app it runs `/usr/bin/steamos-nested-desktop`, which starts plasma *inside* that session. To keep the two from stepping on each other it does roughly
 
 ```shell
@@ -148,28 +143,28 @@ Home manager is one of those things. The switch won't fail, it will write all yo
 User systemd daemon not running. Skipping reload.
 ```
 
-This results in any new or changed user services won't be started/restarted until your next login.
+This means any new or changed user services won't be started/restarted until your next login.
 
 To fix you can point the switch back at the real session
 
 ```shell
-env XDG_RUNTIME_DIR=/run/user/$(id -u) DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus home-manager switch <.....>
+env XDG_RUNTIME_DIR=/run/user/$(id -u) DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus home-manager switch --flake <path to flake>#steamos -b backup
 ```
 
 The same prefix works for the first `./result/activate` too.
 
-This same thing will bite you if you try to do things like `systemctl --user` (but the same env override should work)
+The same thing will bite you with things like `systemctl --user` (and the same env override fixes it).
 
-This class of issue should not affect you if you connect over ssh or launch a terminal from the steam os dashboard directly, since Steam itself runs with the real `/run/user/1000` and bus.
+This class of issue should not affect you if you connect over ssh or launch a terminal from the SteamOS dashboard directly, since Steam itself runs with the real `/run/user/1000` and bus.
 
 ### Showing apps in the launcher
 
-Once you start installing GUI apps with home manager you will notice they don't show up in the VR "+" menu. Two things get in the way
+Once you start installing GUI apps with home manager you will notice they don't show up in the VR "+" menu. Two things get in the way:
 
 1. The "+" menu only reads `~/.local/share/applications`, it ignores `XDG_DATA_DIRS` (which is where home manager's `.desktop` files show up).
 2. The Steam session's `PATH` doesn't have `~/.nix-profile/bin`, so even if the entry showed up an `Exec=kitty` would fail to launch.
 
-So I link every `.desktop` file from my profile into `~/.local/share/applications`, with the command rewritten to an absolute path
+So I link every `.desktop` file from my profile into `~/.local/share/applications`, with the command rewritten to an absolute path:
 
 ```nix
 { config, pkgs, ... }:
@@ -206,13 +201,11 @@ in
 }
 ```
 
-The plasma desktop has a similar `PATH` problem. It gets its environment from the systemd user manager, not a login shell, so you need
+The plasma desktop has a similar `PATH` problem. It gets its environment from the systemd user manager, not a login shell, so you need this for launching from its menu to work:
 
 ```nix
 systemd.user.sessionVariables.PATH = "${config.home.profileDirectory}/bin:/nix/var/nix/profiles/default/bin\${PATH:+:$PATH}";
 ```
-
-for launching from its menu to work
 
 ## Managing system files
 
@@ -222,11 +215,7 @@ Running that command adds a tmpfiles rule to symlink the right drivers into `/ru
 The problem is that rule is itself a symlink into the nix store, and tmpfiles runs before `/nix` is mounted. So on boot the rule can't be read and you're left without drivers.
 Also any files you add to `/etc` get dropped on a SteamOS update unless they're on the keep list in `/etc/atomic-update.conf.d/`.
 
-
-So to handle this I created a simple cli tool that lets me still declare some of the etc files we need declaratively but make sure they stay around on SteamOS reboot/updates.
-
-I created this tool as its own home manager module that you can find [here](https://github.com/JRMurr/steamos-etc-nix).
-
+So to handle this I created [steamos-etc](https://github.com/JRMurr/steamos-etc-nix), a home manager module with a small cli that lets you declare the `/etc` files you need and makes sure they survive SteamOS reboots/updates.
 
 The [example flake](#home-manager) above already has it as an input and imports the module, so in your `home.nix` you just need to add
 
@@ -243,27 +232,24 @@ programs.steamos-etc = {
 `waitForNix` makes your user session wait for the nix mount. Without it your session can start before `/nix` is there, so any store links read at login dangle.
 For example home manager's `environment.d` files (which is where plasma gets its `PATH` from) and `~/.config/user-dirs.dirs`, which `xdg-user-dirs-update` will then helpfully replace with a regular file.
 
-`gpuDrivers` sets up `/run/opengl-driver` with a real file instead of a store link.
-`gpuDrivers` replaces `non-nixos-gpu-setup` entirely (and silences home manager asking you to run it), so you don't need to run it.
+`gpuDrivers` sets up `/run/opengl-driver` with a real file instead of a store link. It replaces `non-nixos-gpu-setup` entirely (and silences home manager asking you to run it), so you don't need to run that.
 
-Then you run `steamos-etc` to actually setup the files. Home manager activation can't use `sudo`, so this is a separate step you run after every switch
+Home manager only builds the files, the `steamos-etc` command actually installs them. Home manager activation can't use `sudo`, so this is a separate step you run after every switch:
 
 ```shell
 home-manager switch --flake <path to flake>#steamos -b backup && steamos-etc
 ```
 
-It only asks for `sudo` when something actually changed. You don't need `steamos-readonly disable` for this, `/etc` is a writable overlay (kept under `/var`), it's just not kept on updates.
-`steamos-etc` adds every file it manages to `/etc/atomic-update.conf.d/steamos-etc.conf` so they survive SteamOS updates.
+It only asks for `sudo` when something actually changed. You don't need `steamos-readonly disable` for this, `/etc` is a writable overlay (kept under `/var`). Its files just get dropped on updates unless they're on the keep list, which is why `steamos-etc` adds every file it manages to `/etc/atomic-update.conf.d/steamos-etc.conf`.
 
-On home manager switch a warning will be displayed if there is any drift, like after a rollback or a SteamOS update resetting `/etc`.
-
+On home manager switch a warning is displayed if `/etc` has drifted from your config, like after a rollback or a SteamOS update resetting `/etc`.
 
 ### Tailscale
 
 `steamos-etc` solves more problems than just the gpu drivers. You can use it to setup system services, written like home manager's `systemd.user.services`.
 It solves a similar problem as [system-manager](https://github.com/numtide/system-manager) but lets you stay in your home manager config and handles the SteamOS specific issues, `/nix` mounting late on boot and updates wiping `/etc`.
 
-For example here is how you can setup tailscale
+For example here is how you can set up tailscale:
 
 ```nix
 { pkgs, ... }:
@@ -305,7 +291,7 @@ in
 }
 ```
 
-After a switch, `steamos-etc` installs the unit and starts it (because of `Install.WantedBy`, which also starts it on every boot). Then just login
+After a switch, `steamos-etc` installs the unit and starts it (because of `Install.WantedBy`, which also starts it on every boot). Then just log in:
 
 ```shell
 sudo tailscale up --operator=steamos
@@ -313,16 +299,14 @@ sudo tailscale up --operator=steamos
 
 and it should "just work". When the unit changes later (like a nixpkgs bump giving it a new tailscale), `steamos-etc` restarts it for you.
 
-
 # Frametop
 
-The thing that excited me the most about the steam frame in general was the fact that its a full linux machine. I wanted experiment with interesting development flows in vr.
+The thing that excited me the most about the Steam Frame was the fact that it's a full linux machine. I wanted to experiment with interesting development flows in VR.
 
-[frametop](https://github.com/DeeJanuz/frametop) greatly expands what you can do on the frame when it comes to managing desktops and programs in vr. 
-It also has (experimental) eye tracking as a mouse and hand tracking so you can use your frame like a poor mans apple vision pro (i guess not that poor given the frames price....).
+[frametop](https://github.com/DeeJanuz/frametop) greatly expands what you can do on the frame when it comes to managing desktops and programs in VR.
+It also has (experimental) eye tracking as a mouse and hand tracking so you can use your frame like a poor man's Apple Vision Pro (I guess not that poor given the frame's price....).
 
-To make it easy to manage frametop with home manager I created [frametop-nix](https://github.com/JRMurr/frametop-nix). 
-Gaze mode, hand tracking, and remote desktop aren't packaged yet (but I will get it working soon™)
+To make it easy to manage frametop with home manager I created [frametop-nix](https://github.com/JRMurr/frametop-nix).
 
 Like steamos-etc, the [example flake](#home-manager) already has the input and imports the module, so you just need to add
 
@@ -335,8 +319,9 @@ The `inputs.nixpkgs.follows` on the frametop input matters more than usual here.
 
 After the first switch restart SteamVR once so it loads the 3d mouse driver (this closes everything open in VR).
 
-Now you get the multi-screen desktop + 3d mouse. 3d mouse im surprised is not built in to steamos. By default your mouse is locked to a window and you need to use the controller or headset to give another window focus for the mouse to work their. 3d mouse in frametop lets you mouse move across all windows and move windows around in 3d space. 
+Now you get the multi-screen desktop + 3d mouse. I'm surprised the 3d mouse isn't built into SteamOS. By default your mouse is locked to one window, and you need to use the controller or headset to focus another window before the mouse works there. Frametop's 3d mouse lets you move the mouse across all windows and move windows around in 3d space.
 
+Gaze mode, hand tracking, and remote desktop aren't packaged yet (but I will get them working soon™).
 
-Frametop is my current favorite thing on the frame. Since getting it setup I've only been using my frame for all my computer tasks.
+Frametop is my current favorite thing on the frame. Since getting it set up I've been using my frame for basically all my computer tasks.
 
