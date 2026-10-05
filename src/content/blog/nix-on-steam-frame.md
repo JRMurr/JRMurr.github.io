@@ -52,6 +52,9 @@ I already have a nix flake for my nixos config, so i went with the flake install
 
 Here is an example flake setup for the frame. It already has the inputs for the other modules I cover later in the post ([steamos-etc](#managing-system-files) and [frametop](#frametop)), you can drop them if you don't want them.
 
+<Note> 
+I created steamos-etc-nix and frametop-nix primarily with claude. You do not need them to use nix/home manager on the frame but they help with quality of life.
+</Note>
 
 ```nix
 # flake.nix
@@ -112,9 +115,9 @@ Then to get home manager setup you can run
 nix build '.#homeConfigurations."steamos".activationPackage'
 HOME_MANAGER_BACKUP_EXT=backup ./result/activate
 ```
-(if you see `User systemd daemon not running. Skipping reload.` in the output see the Nested sessions section below)
+(if you see `User systemd daemon not running. Skipping reload.` in the output see the [Nested sessions section](#nested-sessions)
 
-`HOME_MANAGER_BACKUP_EXT=backup` will backup any files (by renaming) that home manager will now manage. For me this was the default `~/.bashrc` and `~/.config/fish` that SteamOS ships with.
+`HOME_MANAGER_BACKUP_EXT=backup` will backup any files (by renaming) that home manager will now manage
 
 That specific command is only needed the first time to get home manager installed.
 After its setup you can run
@@ -224,9 +227,6 @@ So to handle this I created a simple cli tool that lets me still declare some of
 
 I created this tool as its own home manager module that you can find [here](https://github.com/JRMurr/steamos-etc-nix).
 
-<Note> 
-I created steamos-etc-nix and frametop-nix (shown later) primarily with claude. You do not need them to use nix/home manager on the frame but they help with quality of life.
-</Note>
 
 The [example flake](#home-manager) above already has it as an input and imports the module, so in your `home.nix` you just need to add
 
@@ -322,6 +322,7 @@ The thing that excited me the most about the steam frame in general was the fact
 It also has (experimental) eye tracking as a mouse and hand tracking so you can use your frame like a poor mans apple vision pro (i guess not that poor given the frames price....).
 
 To make it easy to manage frametop with home manager I created [frametop-nix](https://github.com/JRMurr/frametop-nix). 
+Gaze mode, hand tracking, and remote desktop aren't packaged yet (but I will get it working soon™)
 
 Like steamos-etc, the [example flake](#home-manager) already has the input and imports the module, so you just need to add
 
@@ -333,11 +334,9 @@ The `inputs.nixpkgs.follows` on the frametop input matters more than usual here.
 (your nixpkgs also needs `wlroots_0_20` which 26.05 has)
 
 After the first switch restart SteamVR once so it loads the 3d mouse driver (this closes everything open in VR).
-If you installed frametop with its `install.sh` before, uninstall that first since home manager won't overwrite files it didn't write. The [frametop-nix readme](https://github.com/JRMurr/frametop-nix#moving-from-installsh) has the commands.
 
-and you get the multi-screen desktop + 3d mouse. 3d mouse im surprised is not built in to steamos. By default your mouse is locked to a window and you need to use the controller or headset to give another window focus for the mouse to work their. 3d mouse in frametop lets you mouse move across all windows and move windows around in 3d space. 
+Now you get the multi-screen desktop + 3d mouse. 3d mouse im surprised is not built in to steamos. By default your mouse is locked to a window and you need to use the controller or headset to give another window focus for the mouse to work their. 3d mouse in frametop lets you mouse move across all windows and move windows around in 3d space. 
 
-Gaze mode, hand tracking, and remote desktop aren't packaged yet (but I will get it working soon™)
 
 Frametop is my current favorite thing on the frame. Since getting it setup I've only been using my frame for all my computer tasks.
 
